@@ -42,11 +42,9 @@ export function ScoreOverview({ data }: Props) {
           maxScore={data.maxScore}
           redEnd={redEnd}
           amberEnd={amberEnd}
+          title="Your score"
+          showScaleLabels
         />
-        <p className="text-center mt-2">
-          <span className="text-2xl font-bold text-slate-900 tabular-nums">{data.finalScore}</span>
-          <span className="text-lg text-slate-500 ml-1">/ {data.maxScore}</span>
-        </p>
       </div>
       <p className="text-slate-700 text-base leading-relaxed max-w-sm">{summary}</p>
       <p className="mt-8 text-amber-700 text-sm font-medium">Swipe right to understand why →</p>
