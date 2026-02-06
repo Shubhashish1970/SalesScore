@@ -6,6 +6,8 @@
 import type { ScorecardData } from "@/types/scorecard";
 
 export const sampleTM: ScorecardData = {
+  mobile: "9876510001",
+  name: "Rajesh",
   role: "TM",
   entityName: "Territory North-East",
   growth: {
@@ -63,6 +65,8 @@ export const sampleTM: ScorecardData = {
 };
 
 export const sampleRM: ScorecardData = {
+  mobile: "9876510002",
+  name: "Priya",
   role: "RM",
   entityName: "Region East",
   growth: {
@@ -120,6 +124,8 @@ export const sampleRM: ScorecardData = {
 };
 
 export const sampleZM: ScorecardData = {
+  mobile: "9876510003",
+  name: "Amit",
   role: "ZM",
   entityName: "Zone Central",
   growth: {
@@ -177,6 +183,8 @@ export const sampleZM: ScorecardData = {
 };
 
 export const sampleBU: ScorecardData = {
+  mobile: "9876510004",
+  name: "Sneha",
   role: "BU",
   entityName: "Seeds Business Unit",
   growth: {
@@ -233,5 +241,26 @@ export const sampleBU: ScorecardData = {
   ],
 };
 
-/** Default data for app; switch role via query or context in real use */
+/** Default data for app when no mobile in URL (demo mode). */
 export const defaultScorecard = sampleTM;
+
+/**
+ * Demo: map plain mobile to sample scorecard (use only for local/demo; production should use ?u= token only).
+ */
+export const scorecardByMobile: Record<string, ScorecardData> = {
+  "9876510001": sampleTM,
+  "9876510002": sampleRM,
+  "9876510003": sampleZM,
+  "9876510004": sampleBU,
+};
+
+/**
+ * Demo: map masked/opaque user token to sample scorecard.
+ * Production: backend puts encrypted mobile (or opaque token) in ?u=; API GET /api/scorecard?u={token} decrypts/resolves and returns ScorecardData. Mobile never appears in URL.
+ */
+export const scorecardByToken: Record<string, ScorecardData> = {
+  "d_tm": sampleTM,
+  "d_rm": sampleRM,
+  "d_zm": sampleZM,
+  "d_bu": sampleBU,
+};

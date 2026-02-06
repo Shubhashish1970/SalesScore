@@ -1,6 +1,8 @@
 {
-  "description": "Sample scorecard JSON for TM. Use this structure from your backend.",
+  "description": "Sample scorecard JSON for TM. Production: WhatsApp CTA uses ?u={token} (encrypted mobile or opaque token); mobile never in URL. API GET /api/scorecard?u={token} returns this object. Response includes mobile for display only.",
   "example": {
+    "mobile": "9876510001",
+    "name": "Rajesh",
     "role": "TM",
     "entityName": "Territory North-East",
     "growth": {

@@ -52,6 +52,10 @@ export interface KeyDriver {
 }
 
 export interface ScorecardData {
+  /** Unique identifier: user's mobile number. Used when opening app from WhatsApp CTA; backend resolves person and role from this. */
+  mobile: string;
+  /** Display name for the user; shown as "Welcome <name>" when opened via personal link (no role dropdown). */
+  name: string;
   role: Role;
   entityName: string;
   growth: Growth;
