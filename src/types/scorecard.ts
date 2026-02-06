@@ -51,6 +51,12 @@ export interface KeyDriver {
   positive: boolean;
 }
 
+/** Gauge bands: red below redEnd, amber from redEnd to amberEnd, green above amberEnd. All from JSON so not hardcoded. */
+export interface ScoreBandThresholds {
+  redEnd: number;
+  amberEnd: number;
+}
+
 export interface ScorecardData {
   /** Unique identifier: user's mobile number. Used when opening app from WhatsApp CTA; backend resolves person and role from this. */
   mobile: string;
@@ -63,6 +69,10 @@ export interface ScorecardData {
   overdue: Overdue;
   productMix: ProductMix;
   finalScore: number;
+  /** Maximum possible score (e.g. 120). Gauge and display use this; not hardcoded. */
+  maxScore: number;
+  /** Gauge band thresholds: &lt; redEnd = red, redEnd–amberEnd = amber, &gt; amberEnd = green. Default 80, 90 if omitted. */
+  scoreBandThresholds?: ScoreBandThresholds;
   keyDrivers: KeyDriver[];
   recommendedActions: RecommendedAction[];
 }

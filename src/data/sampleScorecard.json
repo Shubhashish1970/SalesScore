@@ -35,6 +35,8 @@
       "nrvFactor": 0.72
     },
     "finalScore": 68,
+    "maxScore": 120,
+    "scoreBandThresholds": { "redEnd": 80, "amberEnd": 90 },
     "keyDrivers": [
       { "text": "Sales grew compared to last year", "positive": true },
       { "text": "Some money is stuck beyond 180 days", "positive": false },

@@ -40,6 +40,8 @@ export const sampleTM: ScorecardData = {
     nrvFactor: 0.72,
   },
   finalScore: 68,
+  maxScore: 120,
+  scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
   keyDrivers: [
     { text: "Sales grew compared to last year", positive: true },
     { text: "Some money is stuck beyond 180 days", positive: false },
@@ -99,6 +101,8 @@ export const sampleRM: ScorecardData = {
     nrvFactor: 0.68,
   },
   finalScore: 62,
+  maxScore: 120,
+  scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
   keyDrivers: [
     { text: "Region has grown over last year", positive: true },
     { text: "Overdue beyond 180 days is pulling the score down", positive: false },
@@ -158,6 +162,8 @@ export const sampleZM: ScorecardData = {
     nrvFactor: 0.65,
   },
   finalScore: 54,
+  maxScore: 120,
+  scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
   keyDrivers: [
     { text: "Zone growth is on track", positive: true },
     { text: "Collection speed is in the higher band; score is partially capped", positive: false },
@@ -217,6 +223,8 @@ export const sampleBU: ScorecardData = {
     nrvFactor: 0.62,
   },
   finalScore: 58,
+  maxScore: 120,
+  scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
   keyDrivers: [
     { text: "BU has achieved growth vs last year", positive: true },
     { text: "Policy on credit and collection needs tightening", positive: false },
