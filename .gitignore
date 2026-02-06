@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build and export
+.next/
+out/
+build/
+dist/
+
+# Env and secrets
+.env
+.env.*
+!.env.example
+
+# Firebase
+.firebase/
+*-debug.log
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+
+# IDE and OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs and debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vercel (if ever used)
+.vercel

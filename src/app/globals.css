@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mobile-first: 360px baseline; prevent horizontal overflow from swipe */
+html {
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  min-width: 360px;
+  min-height: 100dvh;
+  touch-action: pan-y pinch-zoom;
+}
+
+/* Swipe container: allow horizontal drag only within the carousel */
+.swipe-container {
+  touch-action: pan-y;
+}
+
+/* Prevent pull-to-refresh from interfering with swipe on some mobile browsers */
+@supports (overscroll-behavior: none) {
+  .swipe-container {
+    overscroll-behavior-x: none;
+  }
+}
