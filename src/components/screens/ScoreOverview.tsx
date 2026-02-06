@@ -1,11 +1,16 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import type { ScorecardData } from "@/types/scorecard";
-import { ScoreGauge } from "@/components/ScoreGauge";
+
+const ScoreGaugeHighcharts = dynamic(
+  () => import("@/components/ScoreGaugeHighcharts").then((m) => m.ScoreGaugeHighcharts),
+  { ssr: false }
+);
 
 /**
- * Screen 1: One concept — your score (gauge with red/amber/green bands and needle) and a single-line explanation.
- * maxScore and band thresholds come from JSON; CTA directs user to swipe for "why".
+ * Screen 1: One concept — speedometer gauge (Highcharts) and a single-line explanation.
+ * Payload: finalScore, maxScore, scoreBandThresholds from JSON; CTA directs user to swipe for "why".
  */
 interface Props {
   data: ScorecardData;
@@ -36,14 +41,12 @@ export function ScoreOverview({ data }: Props) {
     <section className="min-h-[80dvh] flex flex-col justify-center px-5 py-6">
       <p className="text-slate-500 text-sm mb-1">{getRoleLabel(data.role)}</p>
       <h1 className="text-xl font-semibold text-slate-800 mb-2">{data.entityName}</h1>
-      <div className="my-4">
-        <ScoreGauge
+      <div className="my-2">
+        <ScoreGaugeHighcharts
           score={data.finalScore}
           maxScore={data.maxScore}
           redEnd={redEnd}
           amberEnd={amberEnd}
-          title="Your score"
-          showScaleLabels
         />
       </div>
       <p className="text-slate-700 text-base leading-relaxed max-w-sm">{summary}</p>
