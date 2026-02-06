@@ -26,8 +26,8 @@ export function ScoreGaugeHighcharts({
     chart: {
       type: "gauge",
       backgroundColor: "transparent",
-      plotBackgroundColor: null,
-      plotBackgroundImage: null,
+      plotBackgroundColor: undefined,
+      plotBackgroundImage: undefined,
       plotBorderWidth: 0,
       plotShadow: false,
       height: 280,
@@ -36,7 +36,7 @@ export function ScoreGaugeHighcharts({
     pane: {
       startAngle: -90,
       endAngle: 89.9,
-      background: null,
+      background: undefined,
       center: ["50%", "75%"],
       size: "110%",
     },
