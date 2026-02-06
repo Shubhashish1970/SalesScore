@@ -23,6 +23,7 @@ export function ScoreGaugeHighcharts({
   amberEnd,
 }: ScoreGaugeHighchartsProps) {
   const options: Highcharts.Options = {
+    accessibility: { enabled: false },
     chart: {
       type: "gauge",
       backgroundColor: "transparent",
@@ -31,6 +32,7 @@ export function ScoreGaugeHighcharts({
       plotBorderWidth: 0,
       plotShadow: false,
       height: 280,
+      spacing: [2, 2, 2, 2],
     },
     title: { text: undefined },
     pane: {
@@ -51,8 +53,8 @@ export function ScoreGaugeHighcharts({
       minorTickInterval: undefined,
       lineWidth: 0,
       labels: {
-        distance: 20,
-        style: { fontSize: "14px" },
+        distance: -12,
+        style: { fontSize: "13px" },
       },
       plotBands: [
         { from: 0, to: redEnd, color: "#dc2626", thickness: 20, borderRadius: "50%" },
