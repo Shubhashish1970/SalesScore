@@ -48,7 +48,7 @@ export function ScoreGaugeHighcharts({
       tickColor: "#94a3b8",
       tickLength: 20,
       tickWidth: 2,
-      minorTickInterval: null,
+      minorTickInterval: undefined,
       lineWidth: 0,
       labels: {
         distance: 20,
