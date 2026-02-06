@@ -43,7 +43,7 @@ export function ScoreGaugeHighcharts({
     yAxis: {
       min: 0,
       max: maxScore,
-      tickPixelInterval: 72,
+      tickPositions: [0, Math.round(maxScore * 0.25), Math.round(maxScore * 0.5), Math.round(maxScore * 0.75), maxScore],
       tickPosition: "inside",
       tickColor: "#94a3b8",
       tickLength: 20,
