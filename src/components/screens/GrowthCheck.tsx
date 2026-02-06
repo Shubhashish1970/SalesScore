@@ -48,7 +48,6 @@ export function GrowthCheck({ data }: Props) {
           <p className="font-medium">No growth → score is blocked until you grow over last year.</p>
         )}
       </div>
-      <p className="mt-8 text-amber-700 text-sm font-medium">Swipe right to continue →</p>
     </section>
   );
 }

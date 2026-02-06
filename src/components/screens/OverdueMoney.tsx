@@ -54,7 +54,6 @@ export function OverdueMoney({ data }: Props) {
         </p>
       </div>
       <p className="text-slate-500 text-xs">Penalty applied to score: {overdue.penaltyApplied} points</p>
-      <p className="mt-8 text-amber-700 text-sm font-medium">Swipe right to continue →</p>
     </section>
   );
 }

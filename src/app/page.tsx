@@ -47,7 +47,7 @@ function HomeContent() {
   const userToken = searchParams.get("u");
   const mobileFromUrl = searchParams.get("mobile");
   const [data, setData] = useState<ScorecardData>(defaultScorecard);
-  const { currentIndex, setCurrentIndex, goNext, onTouchStart, onTouchEnd } = useSwipe(0);
+  const { currentIndex, setCurrentIndex, goNext, goPrev, onTouchStart, onTouchEnd } = useSwipe(0);
 
   const isPersonalLink = Boolean(userToken || mobileFromUrl);
   const isDemoMode = !isPersonalLink;
@@ -106,26 +106,25 @@ function HomeContent() {
         <Screen data={data} />
       </div>
 
-      {/* Progress and next: optional tap target for non-swipe users */}
       <footer className="sticky bottom-0 bg-white border-t border-slate-200 px-4 py-3 flex items-center justify-between">
-        <div className="flex gap-1">
-          {SCREENS.map((_, i) => (
-            <div
-              key={i}
-              className={`w-2 h-2 rounded-full ${i === currentIndex ? "bg-amber-500" : "bg-slate-300"}`}
-              aria-hidden
-            />
-          ))}
-        </div>
-        {currentIndex < SCREENS.length - 1 && (
-          <button
-            type="button"
-            onClick={goNext}
-            className="text-amber-700 text-sm font-medium py-1 px-3"
-          >
-            Next →
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={goPrev}
+          disabled={currentIndex === 0}
+          className="text-amber-700 text-sm font-medium py-1 px-3 disabled:opacity-40 disabled:cursor-default"
+          aria-label="Previous"
+        >
+          ← Previous
+        </button>
+        <button
+          type="button"
+          onClick={goNext}
+          disabled={currentIndex === SCREENS.length - 1}
+          className="text-amber-700 text-sm font-medium py-1 px-3 disabled:opacity-40 disabled:cursor-default"
+          aria-label="Next"
+        >
+          Next →
+        </button>
       </footer>
     </main>
   );

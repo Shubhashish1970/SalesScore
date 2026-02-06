@@ -50,7 +50,6 @@ export function CollectionSpeed({ data }: Props) {
       <div className="rounded-xl bg-slate-100 p-4">
         <p className="text-slate-700 text-sm">{impactText(dso.dsoFactor)}</p>
       </div>
-      <p className="mt-8 text-amber-700 text-sm font-medium">Swipe right to continue →</p>
     </section>
   );
 }

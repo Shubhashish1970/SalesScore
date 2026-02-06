@@ -50,7 +50,6 @@ export function ScoreOverview({ data }: Props) {
         />
       </div>
       <p className="text-slate-700 text-base leading-relaxed max-w-sm">{summary}</p>
-      <p className="mt-8 text-amber-700 text-sm font-medium">Swipe right to understand why →</p>
     </section>
   );
 }

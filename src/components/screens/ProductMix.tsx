@@ -49,7 +49,6 @@ export function ProductMix({ data }: Props) {
             : "Your mix is diluting the score. Shifting more sales to Category A and B will improve it."}
         </p>
       </div>
-      <p className="mt-8 text-amber-700 text-sm font-medium">Swipe right for what to do next →</p>
     </section>
   );
 }
