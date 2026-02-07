@@ -9,7 +9,7 @@ const ScoreGaugeHighcharts = dynamic(
 );
 
 /**
- * Screen 1: One concept — speedometer gauge (Highcharts) and a single-line explanation.
+ * Screen 1: One concept — speedometer gauge (Highcharts) and achievement line (Red/Amber/Green).
  * Payload: finalScore, maxScore, scoreBandThresholds from JSON; CTA directs user to swipe for "why".
  */
 interface Props {
@@ -26,16 +26,16 @@ function getRoleLabel(role: ScorecardData["role"]) {
   return labels[role];
 }
 
-export function ScoreOverview({ data }: Props) {
-  const summary =
-    data.keyDrivers.length > 0
-      ? data.keyDrivers[0].positive
-        ? data.keyDrivers[0].text
-        : data.keyDrivers.find((d) => d.positive)?.text ?? data.keyDrivers[0].text
-      : "Your score reflects sales, collection speed, and product mix.";
+function getAchievementLine(score: number, redEnd: number, amberEnd: number): string {
+  if (score < redEnd) return "Your score is in the Red zone — focus on the areas below to improve.";
+  if (score < amberEnd) return "Your score is in the Amber zone — you're on the way; swipe for what to do next.";
+  return "Your score is in the Green zone — keep it up.";
+}
 
+export function ScoreOverview({ data }: Props) {
   const redEnd = data.scoreBandThresholds?.redEnd ?? 80;
   const amberEnd = data.scoreBandThresholds?.amberEnd ?? 90;
+  const achievementLine = getAchievementLine(data.finalScore, redEnd, amberEnd);
 
   return (
     <section className="min-h-[80dvh] flex flex-col justify-center px-5 py-6">
@@ -49,7 +49,7 @@ export function ScoreOverview({ data }: Props) {
           amberEnd={amberEnd}
         />
       </div>
-      <p className="text-slate-700 text-base leading-relaxed max-w-sm">{summary}</p>
+      <p className="text-slate-700 text-base leading-relaxed max-w-sm">{achievementLine}</p>
     </section>
   );
 }
