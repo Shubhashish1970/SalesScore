@@ -4,7 +4,7 @@ import type { ScorecardData } from "@/types/scorecard";
 
 /**
  * Screen 2: Gatekeeper — growth achieved or not.
- * Plain language only; no formulas. Still allow swipe when blocked.
+ * Shows Growth % (from JSON) in big font with arrow; Green >5%, Amber 0–5%, Red <0%.
  */
 interface Props {
   data: ScorecardData;
@@ -17,9 +17,48 @@ function formatMoney(n: number): string {
   return String(n);
 }
 
+type GrowthBand = "green" | "amber" | "red";
+
+function getGrowthBand(pct: number): GrowthBand {
+  if (pct > 5) return "green";
+  if (pct >= 0) return "amber";
+  return "red";
+}
+
+const bandColors: Record<GrowthBand, { text: string; arrow: string }> = {
+  green: { text: "text-emerald-600", arrow: "text-emerald-600" },
+  amber: { text: "text-amber-600", arrow: "text-amber-600" },
+  red: { text: "text-red-600", arrow: "text-red-600" },
+};
+
+function GrowthArrow({ band, direction }: { band: GrowthBand; direction: "up" | "down" | "flat" }) {
+  const c = bandColors[band].arrow;
+  if (direction === "up")
+    return (
+      <span className={`inline-block ${c}`} aria-hidden>
+        ▲
+      </span>
+    );
+  if (direction === "down")
+    return (
+      <span className={`inline-block ${c}`} aria-hidden>
+        ▼
+      </span>
+    );
+  return (
+    <span className={`inline-block ${c}`} aria-hidden>
+      ●
+    </span>
+  );
+}
+
 export function GrowthCheck({ data }: Props) {
   const { growth } = data;
   const achieved = growth.growthFactor === 1;
+  const pct = growth.growthPercent;
+  const band = getGrowthBand(pct);
+  const direction: "up" | "down" | "flat" = pct > 0 ? "up" : pct < 0 ? "down" : "flat";
+  const colors = bandColors[band];
 
   return (
     <section className="min-h-[80dvh] flex flex-col justify-center px-5 py-6">
@@ -27,7 +66,7 @@ export function GrowthCheck({ data }: Props) {
       <p className="text-slate-600 text-sm mb-4">
         Sales this year vs last year — growth is required for your score to count.
       </p>
-      <div className="space-y-3 mb-6">
+      <div className="space-y-3 mb-4">
         <div className="flex justify-between items-center py-2 border-b border-slate-200">
           <span className="text-slate-600">This year</span>
           <span className="font-semibold text-slate-900">{formatMoney(growth.CY_NRV)}</span>
@@ -36,6 +75,13 @@ export function GrowthCheck({ data }: Props) {
           <span className="text-slate-600">Last year</span>
           <span className="font-medium text-slate-700">{formatMoney(growth.LY_NRV)}</span>
         </div>
+      </div>
+      <div className="flex items-center gap-3 mb-6">
+        <span className={`text-4xl font-bold tabular-nums ${colors.text}`}>
+          {pct > 0 ? "+" : ""}
+          {pct.toFixed(1)}%
+        </span>
+        <GrowthArrow band={band} direction={direction} />
       </div>
       <div
         className={`rounded-xl p-4 ${

@@ -8,6 +8,8 @@ export type Role = "TM" | "RM" | "ZM" | "BU";
 export interface Growth {
   CY_NRV: number;
   LY_NRV: number;
+  /** Growth % (backend-computed): (CY_NRV - LY_NRV) / LY_NRV * 100. Used for display and band (Green >5%, Amber 0–5%, Red <0%). */
+  growthPercent: number;
   growthFactor: 0 | 1;
 }
 

@@ -13,6 +13,7 @@ export const sampleTM: ScorecardData = {
   growth: {
     CY_NRV: 4250000,
     LY_NRV: 3800000,
+    growthPercent: 11.8,
     growthFactor: 1,
   },
   dso: {
@@ -42,7 +43,7 @@ export const sampleTM: ScorecardData = {
   finalScore: 68,
   maxScore: 120,
   scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
-  achievementMessage: "Your score is in the Amber zone — you're on the way; swipe for what to do next.",
+  achievementMessage: "Your score is in the Red zone — focus on the areas below to improve.",
   keyDrivers: [
     { text: "Sales grew compared to last year", positive: true },
     { text: "Some money is stuck beyond 180 days", positive: false },
@@ -75,6 +76,7 @@ export const sampleRM: ScorecardData = {
   growth: {
     CY_NRV: 18500000,
     LY_NRV: 17200000,
+    growthPercent: 7.6,
     growthFactor: 1,
   },
   dso: {
@@ -137,6 +139,7 @@ export const sampleZM: ScorecardData = {
   growth: {
     CY_NRV: 72000000,
     LY_NRV: 69000000,
+    growthPercent: 4.3,
     growthFactor: 1,
   },
   dso: {
@@ -199,6 +202,7 @@ export const sampleBU: ScorecardData = {
   growth: {
     CY_NRV: 280000000,
     LY_NRV: 265000000,
+    growthPercent: 5.7,
     growthFactor: 1,
   },
   dso: {
