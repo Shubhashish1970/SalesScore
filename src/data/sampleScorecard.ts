@@ -18,8 +18,6 @@ export const sampleTM: ScorecardData = {
     growthFactor: 1,
   },
   dso: {
-    avgOutstanding12M: 5300000,
-    avgDailySales: 100000,
     dsoDays: 74,
     dsoScore: 36,
     dsoBand: "50-110",
@@ -32,7 +30,6 @@ export const sampleTM: ScorecardData = {
     d181_270: 1,
     d271_365: 0.5,
     gt365: 0.5,
-    penaltyApplied: 4,
     overdueScore: 33,
     bucketAmounts: { notDue: 65, d1_110: 2, d111_180: 1, d181_270: 0.5, d271_365: 0.3, gt365: 0.2 },
   },
@@ -55,11 +52,6 @@ export const sampleTM: ScorecardData = {
   scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
   achievementMessage: "Your score is in the Green zone — keep it up.",
   dsoBandFactors: { "<50": 1.2, "50-110": 1.1, "110-170": 1.0, ">170": 0 },
-  keyDrivers: [
-    { text: "Sales up 28.8% vs last year; 70% of dealers showed positive growth", positive: true },
-    { text: "DSO in 50–110 band; collection speed is helping your score", positive: true },
-    { text: "Most outstanding is on time; keep clearing 111+ day buckets", positive: false },
-  ],
   recommendedActions: [
     {
       whatToDo: "Keep DSO below 110 days to retain full factor",
@@ -92,8 +84,6 @@ export const sampleGorakhpurTM: ScorecardData = {
     growthFactor: 1,
   },
   dso: {
-    avgOutstanding12M: 15700000,
-    avgDailySales: 100000,
     dsoDays: 239.53,
     dsoScore: 0,
     dsoBand: ">170",
@@ -106,7 +96,6 @@ export const sampleGorakhpurTM: ScorecardData = {
     d181_270: 3,
     d271_365: 2,
     gt365: 45,
-    penaltyApplied: 55,
     overdueScore: -1.9,
     bucketAmounts: { notDue: 0.74, d1_110: 0.16, d111_180: 0.09, d181_270: 0.05, d271_365: 0.04, gt365: 0.91 },
   },
@@ -129,11 +118,6 @@ export const sampleGorakhpurTM: ScorecardData = {
   scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
   achievementMessage: "Your score is in the Red zone — focus on DSO and overdue to improve.",
   dsoBandFactors: { "<50": 1.2, "50-110": 1.1, "110-170": 1.0, ">170": 0 },
-  keyDrivers: [
-    { text: "Sales up 127% vs last year; 41.9% of dealers showed positive growth", positive: true },
-    { text: "DSO at 239 days (>&gt;170 band) — collection speed is hurting your score", positive: false },
-    { text: "0.91 Cr in >365-day bucket is attracting 200% penalty", positive: false },
-  ],
   recommendedActions: [
     {
       whatToDo: "Bring DSO below 170 days to unlock a DSO factor",
@@ -165,8 +149,6 @@ export const sampleRM: ScorecardData = {
     growthFactor: 1,
   },
   dso: {
-    avgOutstanding12M: 5200000,
-    avgDailySales: 505000,
     dsoDays: 103,
     dsoScore: 28,
     dsoBand: "50-110",
@@ -179,7 +161,6 @@ export const sampleRM: ScorecardData = {
     d181_270: 5,
     d271_365: 2,
     gt365: 1,
-    penaltyApplied: 15,
     overdueScore: 68,
     bucketAmounts: { notDue: 23.2, d1_110: 9.6, d111_180: 4, d181_270: 2, d271_365: 0.8, gt365: 0.4 },
   },
@@ -197,11 +178,6 @@ export const sampleRM: ScorecardData = {
   scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
   achievementMessage: "Your score is in the Red zone — focus on the areas below to improve.",
   dsoBandFactors: { "<50": 1.2, "50-110": 1.1, "110-170": 1.0, ">170": 0 },
-  keyDrivers: [
-    { text: "Region has grown over last year", positive: true },
-    { text: "Overdue beyond 180 days is pulling the score down", positive: false },
-    { text: "Two territories have no growth; focus support there", positive: false },
-  ],
   recommendedActions: [
     {
       whatToDo: "Review weak territories and reallocate dealer focus",
@@ -233,8 +209,6 @@ export const sampleZM: ScorecardData = {
     growthFactor: 1,
   },
   dso: {
-    avgOutstanding12M: 21000000,
-    avgDailySales: 1950000,
     dsoDays: 108,
     dsoScore: 35,
     dsoBand: "110-170",
@@ -247,7 +221,6 @@ export const sampleZM: ScorecardData = {
     d181_270: 5,
     d271_365: 2,
     gt365: 1,
-    penaltyApplied: 18,
     overdueScore: 62,
     bucketAmounts: { notDue: 22, d1_110: 10.4, d111_180: 4.4, d181_270: 2, d271_365: 0.8, gt365: 0.4 },
   },
@@ -265,11 +238,6 @@ export const sampleZM: ScorecardData = {
   scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
   achievementMessage: "Your score is in the Red zone — focus on the areas below to improve.",
   dsoBandFactors: { "<50": 1.2, "50-110": 1.1, "110-170": 1.0, ">170": 0 },
-  keyDrivers: [
-    { text: "Zone growth is on track", positive: true },
-    { text: "Collection speed is in the higher band; score is partially capped", positive: false },
-    { text: "Old overdue is a systemic issue across regions", positive: false },
-  ],
   recommendedActions: [
     {
       whatToDo: "Roll out zone-level DSO targets and track weekly",
@@ -301,8 +269,6 @@ export const sampleBU: ScorecardData = {
     growthFactor: 1,
   },
   dso: {
-    avgOutstanding12M: 85000000,
-    avgDailySales: 7600000,
     dsoDays: 112,
     dsoScore: 38,
     dsoBand: "110-170",
@@ -315,7 +281,6 @@ export const sampleBU: ScorecardData = {
     d181_270: 6,
     d271_365: 2,
     gt365: 1,
-    penaltyApplied: 20,
     overdueScore: 58,
     bucketAmounts: { notDue: 20.8, d1_110: 10.8, d111_180: 4.8, d181_270: 2.4, d271_365: 0.8, gt365: 0.4 },
   },
@@ -333,11 +298,6 @@ export const sampleBU: ScorecardData = {
   scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
   achievementMessage: "Your score is in the Red zone — focus on the areas below to improve.",
   dsoBandFactors: { "<50": 1.2, "50-110": 1.1, "110-170": 1.0, ">170": 0 },
-  keyDrivers: [
-    { text: "BU has achieved growth vs last year", positive: true },
-    { text: "Policy on credit and collection needs tightening", positive: false },
-    { text: "Product mix is tilted toward lower-impact categories", positive: false },
-  ],
   recommendedActions: [
     {
       whatToDo: "Tighten credit policy for channels with DSO above 150 days",

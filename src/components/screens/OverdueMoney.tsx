@@ -40,9 +40,9 @@ export function OverdueMoney({ data }: Props) {
       {osScore != null && (
         <div
           className="absolute top-6 right-5 w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold tabular-nums bg-amber-500 text-slate-900"
-          aria-label={`OS score: ${osScore}`}
+          aria-label={`OS score: ${Math.round(osScore)}`}
         >
-          {osScore}
+          {Math.round(osScore)}
         </div>
       )}
       <h2 className="text-lg font-semibold text-slate-800 mb-0.5 pr-14">Overdue money</h2>

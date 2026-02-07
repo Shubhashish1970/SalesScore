@@ -68,7 +68,10 @@ export function ScoreGaugeHighcharts({
         name: "Score",
         data: [score],
         dataLabels: {
-          format: "<span style=\"font-size:16px;font-weight:bold\">{y}</span> / " + maxScore,
+          formatter: function (this: Highcharts.Point) {
+            const y = Number(this.y);
+            return "<span style=\"font-size:16px;font-weight:bold\">" + Math.round(y) + "</span> / " + maxScore;
+          },
           borderWidth: 0,
           y: 24,
         },

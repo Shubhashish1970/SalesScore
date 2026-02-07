@@ -38,9 +38,9 @@ export function CollectionSpeed({ data }: Props) {
     <section className="min-h-[80dvh] flex flex-col justify-center px-5 py-6 relative">
       <div
         className={`absolute top-6 right-5 w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold tabular-nums ${roundelColor}`}
-        aria-label={`DSO score: ${dso.dsoScore}`}
+        aria-label={`DSO score: ${Math.round(dso.dsoScore)}`}
       >
-        {dso.dsoScore}
+        {Math.round(dso.dsoScore)}
       </div>
       <h2 className="text-lg font-semibold text-slate-800 mb-0.5 pr-14">Collection Speed (DSO)</h2>
       <p className="text-[#2f41a7] text-xs mt-0 mb-4">

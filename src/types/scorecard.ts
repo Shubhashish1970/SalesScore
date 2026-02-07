@@ -14,8 +14,6 @@ export interface Growth {
 }
 
 export interface Dso {
-  avgOutstanding12M: number;
-  avgDailySales: number;
   dsoDays: number;
   /** DSO score (e.g. 0–100); shown in roundel. Backend-computed; distinct from dsoDays. */
   dsoScore: number;
@@ -36,8 +34,7 @@ export interface Overdue {
   d181_270: number;
   d271_365: number;
   gt365: number;
-  penaltyApplied: number;
-  /** OS score shown in roundel (e.g. 0–100). Backend-computed. */
+  /** OS score shown in roundel (e.g. 0–100 or negative). Backend-computed. */
   overdueScore?: number;
   /** Outstanding amount per bucket for display on bar; same units (e.g. lakhs). Optional. */
   bucketAmounts?: Record<OverdueBucketKey, number>;
@@ -64,11 +61,6 @@ export interface RecommendedAction {
   whatToDo: string;
   whyItHelps: string;
   expectedImpact: ImpactLevel;
-}
-
-export interface KeyDriver {
-  text: string;
-  positive: boolean;
 }
 
 /** Gauge bands: red below redEnd, amber from redEnd to amberEnd, green above amberEnd. All from JSON so not hardcoded. */
@@ -102,6 +94,5 @@ export interface ScorecardData {
   dsoBandFactors?: DsoBandFactors;
   /** OD weightage: penalty % per bucket (0, 0, 20, 50, 100, 200). From JSON/API; shown like DSO factors. */
   overdueBucketPenalties?: OverdueBucketPenalties;
-  keyDrivers: KeyDriver[];
   recommendedActions: RecommendedAction[];
 }

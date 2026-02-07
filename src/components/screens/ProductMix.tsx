@@ -41,9 +41,9 @@ export function ProductMix({ data }: Props) {
     <section className="min-h-[80dvh] flex flex-col justify-center px-5 py-6 relative">
       <div
         className="absolute top-6 right-5 w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold tabular-nums bg-indigo-500 text-white"
-        aria-label={`Product score: ${productMix.nrvFactor}`}
+        aria-label={`Product score: ${Math.round(productMix.nrvFactor)}`}
       >
-        {productMix.nrvFactor.toFixed(2)}
+        {Math.round(productMix.nrvFactor)}
       </div>
       <h2 className="text-lg font-semibold text-slate-800 mb-0.5 pr-14">Product mix</h2>
       <p className="text-[#2f41a7] text-xs mt-0 mb-4">
