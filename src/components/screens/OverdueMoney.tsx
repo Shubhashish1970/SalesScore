@@ -80,7 +80,7 @@ export function OverdueMoney({ data }: Props) {
             );
           })}
         </div>
-        <div className="rounded-lg border-2 border-dashed border-amber-400 bg-amber-50/20 p-2 space-y-2 animate-overdue-dashed-glow">
+        <div className="rounded-lg border-2 border-dashed border-amber-400 bg-amber-50/20 p-2 space-y-2.5 animate-overdue-dashed-glow">
           <p className="text-[10px] text-amber-800 font-medium px-0.5 -mt-0.5">Penalized (111+ days)</p>
           {BUCKETS.slice(PENALTY_START_INDEX).map(({ key, label }) => {
             const pct = total ? (overdue[key] / total) * 100 : 0;
@@ -91,9 +91,9 @@ export function OverdueMoney({ data }: Props) {
             return (
               <div key={key} className="flex items-center gap-2">
                 <div className="w-28 text-slate-600 text-xs shrink-0">{label}</div>
-                <div className="flex-1 h-7 bg-slate-200 rounded overflow-hidden relative min-w-0 flex items-center justify-end pr-2">
+                <div className="flex-1 h-9 bg-slate-200 rounded overflow-hidden relative min-w-0 flex items-center justify-end pr-2">
                   <div
-                    className={`absolute inset-y-0 left-0 rounded animate-overdue-penalized origin-left ${showRed ? "bg-red-500 animate-overdue-bar-attention" : "bg-slate-400"}`}
+                    className={`absolute inset-y-0 left-0 rounded animate-overdue-penalized origin-left ${showRed ? "bg-red-600 animate-overdue-bar-attention ring-1 ring-red-400/50" : "bg-slate-400"}`}
                     style={{ width: `${Math.max(pct, 3)}%` }}
                   />
                   {amountStr && (

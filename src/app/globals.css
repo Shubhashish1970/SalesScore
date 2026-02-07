@@ -58,24 +58,34 @@ body {
   animation: growth-pct-pulse 1.8s ease-in-out infinite;
 }
 
-/* Overdue: subtle pulse on penalized bars */
+/* Overdue: prominent pulse on penalized bars — opacity + slight scale */
 @keyframes overdue-penalized-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.85; }
+  0%, 100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  50% {
+    opacity: 0.88;
+    transform: scaleX(1.02);
+  }
 }
 .animate-overdue-penalized {
-  animation: overdue-penalized-pulse 2s ease-in-out infinite;
+  animation: overdue-penalized-pulse 1.4s ease-in-out infinite;
 }
 
 /* Overdue: shared timing so red bar glow and dashed rectangle glow stay in sync */
 :root {
-  --overdue-glow-duration: 2s;
+  --overdue-glow-duration: 1.5s;
 }
 
-/* Overdue: constant red glow on penalized bars (synced with rectangle) */
+/* Overdue: strong red glow on penalized bars so they stand out */
 @keyframes overdue-bar-attention {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
-  50% { box-shadow: 0 0 10px 2px rgba(239, 68, 68, 0.4); }
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px 6px rgba(220, 38, 38, 0.55), 0 0 0 2px rgba(255, 255, 255, 0.4);
+  }
 }
 .animate-overdue-bar-attention {
   animation: overdue-bar-attention var(--overdue-glow-duration) ease-in-out 0s infinite;
