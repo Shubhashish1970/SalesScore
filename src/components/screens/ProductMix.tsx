@@ -10,12 +10,12 @@ interface Props {
   data: ScorecardData;
 }
 
-const CATEGORIES: { key: keyof ScorecardData["productMix"]; label: string; impact: string; weight: number }[] = [
-  { key: "categoryA", label: "Category A", impact: "Highest", weight: 1.4 },
-  { key: "categoryB", label: "Category B", impact: "High", weight: 1.3 },
-  { key: "categoryC", label: "Category C", impact: "Medium", weight: 1.2 },
-  { key: "categoryD", label: "Category D", impact: "Lower", weight: 1.1 },
-  { key: "categoryE", label: "Category E", impact: "Lowest", weight: 0 },
+const CATEGORIES: { key: keyof ScorecardData["productMix"]; label: string; weight: number }[] = [
+  { key: "categoryA", label: "Category A", weight: 1.4 },
+  { key: "categoryB", label: "Category B", weight: 1.3 },
+  { key: "categoryC", label: "Category C", weight: 1.2 },
+  { key: "categoryD", label: "Category D", weight: 1.1 },
+  { key: "categoryE", label: "Category E", weight: 0 },
 ];
 
 export function ProductMix({ data }: Props) {
@@ -40,19 +40,25 @@ export function ProductMix({ data }: Props) {
         Share of sales from each category. Higher categories (A, B) improve your score more.
       </p>
       <div className="space-y-2 mb-6">
-        {CATEGORIES.map(({ key, label, impact, weight }) => {
+        {CATEGORIES.map(({ key, label, weight }) => {
           const value = productMix[key];
+          const isCatE = key === "categoryE";
+          const isCatAorB = key === "categoryA" || key === "categoryB";
+          const barClass = [
+            "absolute inset-y-0 left-0 h-full rounded product-mix-bar",
+            isCatE ? "bg-red-300" : "bg-indigo-500",
+            isCatAorB ? "animate-product-mix-bar-ab" : "",
+          ].filter(Boolean).join(" ");
           return (
             <div key={key} className="flex items-center gap-2">
               <div className="w-20 text-slate-700 text-sm shrink-0">{label}</div>
               <div className="flex-1 h-6 bg-slate-200 rounded overflow-hidden relative min-w-0 flex items-center justify-end pr-2">
                 <div
-                  className="absolute inset-y-0 left-0 h-full bg-indigo-500 rounded product-mix-bar"
+                  className={barClass}
                   style={{ width: mounted ? `${value}%` : "0%" }}
                 />
                 <span className="relative z-10 text-xs font-medium text-slate-700 tabular-nums">{value}%</span>
               </div>
-              <span className="text-slate-600 text-xs w-14">{impact}</span>
               <span className="text-[10px] text-slate-500 w-6 tabular-nums">{weight}</span>
             </div>
           );
