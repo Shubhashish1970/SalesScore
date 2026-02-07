@@ -99,34 +99,38 @@ function HomeContent() {
       </header>
 
       <div
-        className="swipe-container flex-1 min-h-0 flex flex-col"
+        className="swipe-container flex-1 min-h-0 flex flex-col relative"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
         <Screen data={data} />
-      </div>
 
-      <div className="shrink-0 h-28" aria-hidden />
-      <footer className="shrink-0 bg-white border-t border-slate-200 px-4 py-3 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={goPrev}
-          disabled={currentIndex === 0}
-          className="text-amber-700 text-sm font-medium py-1 px-3 disabled:opacity-40 disabled:cursor-default"
-          aria-label="Previous"
-        >
-          ← Previous
-        </button>
-        <button
-          type="button"
-          onClick={goNext}
-          disabled={currentIndex === SCREENS.length - 1}
-          className="text-amber-700 text-sm font-medium py-1 px-3 disabled:opacity-40 disabled:cursor-default"
-          aria-label="Next"
-        >
-          Next →
-        </button>
-      </footer>
+        {/* Mid-screen prev/next as < > icons — fixed to viewport middle, don't block swipe */}
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-between px-2 z-10">
+          <button
+            type="button"
+            onClick={goPrev}
+            disabled={currentIndex === 0}
+            aria-label="Previous"
+            className="pointer-events-auto w-11 h-11 rounded-full bg-white/95 backdrop-blur-sm border border-slate-200 shadow-lg flex items-center justify-center text-slate-600 disabled:opacity-30 disabled:pointer-events-none touch-manipulation active:scale-95 transition-transform"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            onClick={goNext}
+            disabled={currentIndex === SCREENS.length - 1}
+            aria-label="Next"
+            className="pointer-events-auto w-11 h-11 rounded-full bg-white/95 backdrop-blur-sm border border-slate-200 shadow-lg flex items-center justify-center text-slate-600 disabled:opacity-30 disabled:pointer-events-none touch-manipulation active:scale-95 transition-transform"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
     </main>
   );
 }

@@ -28,8 +28,8 @@ export function WhatToDoNext({ data }: Props) {
 
   return (
     <section className="min-h-[80dvh] flex flex-col justify-center px-5 py-6">
-      <h2 className="text-lg font-semibold text-slate-800 mb-1">What to do next</h2>
-      <p className="text-violet-400 text-xs mb-5">
+      <h2 className="text-lg font-semibold text-slate-800 mb-0.5">What to do next</h2>
+      <p className="text-[#2f41a7] text-xs mt-0 mb-5">
         Focus on these actions to improve your score. Do the high-impact ones first.
       </p>
       <ul className="space-y-4">

@@ -45,8 +45,8 @@ export function ProductMix({ data }: Props) {
       >
         {productMix.nrvFactor.toFixed(2)}
       </div>
-      <h2 className="text-lg font-semibold text-slate-800 mb-1 pr-14">Product mix</h2>
-      <p className="text-violet-400 text-xs mb-4">
+      <h2 className="text-lg font-semibold text-slate-800 mb-0.5 pr-14">Product mix</h2>
+      <p className="text-[#2f41a7] text-xs mt-0 mb-4">
         Share of sales from each category. Higher categories (A, B) improve your score more.
       </p>
       <div className="space-y-2 mb-6">
