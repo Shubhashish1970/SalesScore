@@ -66,3 +66,12 @@ body {
 .animate-overdue-penalized {
   animation: overdue-penalized-pulse 2s ease-in-out infinite;
 }
+
+/* Overdue: subtle animation on dashed rectangle */
+@keyframes overdue-dashed-glow {
+  0%, 100% { border-color: rgba(251, 191, 36, 0.6); background-color: rgba(255, 251, 235, 0.25); }
+  50% { border-color: rgba(251, 191, 36, 0.9); background-color: rgba(255, 251, 235, 0.4); }
+}
+.animate-overdue-dashed {
+  animation: overdue-dashed-glow 2.5s ease-in-out infinite;
+}

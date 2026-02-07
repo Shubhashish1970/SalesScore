@@ -55,37 +55,37 @@ export function OverdueMoney({ data }: Props) {
         </p>
       )}
       <div className="space-y-2 mb-2">
-        {BUCKETS.slice(0, PENALTY_START_INDEX).map(({ key, label }) => {
-          const pct = total ? (overdue[key] / total) * 100 : 0;
-          const amountStr = amounts ? formatAmount(amounts[key]) : null;
-          const penaltyPct = penalties ? penalties[key] : null;
-          return (
-            <div key={key} className="flex items-center gap-2">
-              <div className="w-28 text-slate-600 text-xs shrink-0">{label}</div>
-              <div className="flex-1 h-7 bg-slate-200 rounded overflow-hidden relative">
-                <div
-                  className="h-full rounded flex items-center justify-end pr-1 min-w-0 bg-slate-400 text-slate-800"
-                  style={{ width: `${Math.max(pct, 3)}%` }}
-                >
+        <div className="rounded-lg border-2 border-emerald-400 bg-emerald-50/30 p-2 space-y-2">
+          <p className="text-[10px] text-emerald-800 font-medium px-0.5 -mt-0.5">No penalty (on time / 1–110 days)</p>
+          {BUCKETS.slice(0, PENALTY_START_INDEX).map(({ key, label }) => {
+            const pct = total ? (overdue[key] / total) * 100 : 0;
+            const amountStr = amounts ? formatAmount(amounts[key]) : null;
+            const penaltyPct = penalties ? penalties[key] : null;
+            return (
+              <div key={key} className="flex items-center gap-2">
+                <div className="w-28 text-slate-600 text-xs shrink-0">{label}</div>
+                <div className="flex-1 h-7 bg-slate-200 rounded overflow-hidden relative min-w-0">
+                  <div
+                    className="h-full rounded bg-slate-400"
+                    style={{ width: `${Math.max(pct, 3)}%` }}
+                  />
+                </div>
+                <div className="flex items-center gap-1.5 w-24 shrink-0 justify-end">
                   {amountStr && (
-                    <span className="text-[10px] font-medium truncate" title={amountStr}>
-                      {amountStr}
-                    </span>
+                    <span className="text-xs font-medium text-slate-700 tabular-nums">{amountStr}</span>
                   )}
+                  {penaltyPct != null && (
+                    <span className="text-[10px] text-emerald-600 font-medium">{penaltyPct === 0 ? "0%" : `${penaltyPct}%`}</span>
+                  )}
+                  <span className="text-slate-700 text-sm font-medium tabular-nums w-7 text-right">
+                    {overdue[key]}%
+                  </span>
                 </div>
               </div>
-              <div className="flex items-center gap-1 w-20 justify-end">
-                {penaltyPct != null && penaltyPct > 0 && (
-                  <span className="text-[10px] text-amber-600 font-medium">{penaltyPct}%</span>
-                )}
-                <span className="text-slate-700 text-sm font-medium tabular-nums w-8 text-right">
-                  {overdue[key]}%
-                </span>
-              </div>
-            </div>
-          );
-        })}
-        <div className="rounded-lg border-2 border-dashed border-amber-400 bg-amber-50/20 p-2 space-y-2">
+            );
+          })}
+        </div>
+        <div className="rounded-lg border-2 border-dashed border-amber-400 bg-amber-50/20 p-2 space-y-2 animate-overdue-dashed">
           <p className="text-[10px] text-amber-800 font-medium px-0.5 -mt-0.5">Penalized (111+ days)</p>
           {BUCKETS.slice(PENALTY_START_INDEX).map(({ key, label }) => {
             const pct = total ? (overdue[key] / total) * 100 : 0;
@@ -96,23 +96,20 @@ export function OverdueMoney({ data }: Props) {
             return (
               <div key={key} className="flex items-center gap-2">
                 <div className="w-28 text-slate-600 text-xs shrink-0">{label}</div>
-                <div className="flex-1 h-7 bg-slate-200 rounded overflow-hidden relative">
+                <div className="flex-1 h-7 bg-slate-200 rounded overflow-hidden relative min-w-0">
                   <div
-                    className={`h-full rounded flex items-center justify-end pr-1 min-w-0 animate-overdue-penalized ${showRed ? "bg-red-500 text-white" : "bg-slate-400 text-slate-800"}`}
+                    className={`h-full rounded animate-overdue-penalized ${showRed ? "bg-red-500" : "bg-slate-400"}`}
                     style={{ width: `${Math.max(pct, 3)}%` }}
-                  >
-                    {amountStr && (
-                      <span className="text-[10px] font-medium truncate" title={amountStr}>
-                        {amountStr}
-                      </span>
-                    )}
-                  </div>
+                  />
                 </div>
-                <div className="flex items-center gap-1 w-20 justify-end">
+                <div className="flex items-center gap-1.5 w-24 shrink-0 justify-end">
+                  {amountStr && (
+                    <span className="text-xs font-medium text-slate-700 tabular-nums">{amountStr}</span>
+                  )}
                   {penaltyPct != null && penaltyPct > 0 && (
                     <span className="text-[10px] text-amber-600 font-medium">{penaltyPct}%</span>
                   )}
-                  <span className="text-slate-700 text-sm font-medium tabular-nums w-8 text-right">
+                  <span className="text-slate-700 text-sm font-medium tabular-nums w-7 text-right">
                     {overdue[key]}%
                   </span>
                 </div>
@@ -121,14 +118,13 @@ export function OverdueMoney({ data }: Props) {
           })}
         </div>
       </div>
-      <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 mb-2">
+      <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
         <p className="text-amber-900 text-sm">
           {badShare > 0.1
             ? "A large share of overdue is beyond 180 days. This applies the highest penalty and hurts your score the most."
             : "Most overdue is in earlier buckets. Focus on clearing anything beyond 180 days first."}
         </p>
       </div>
-      <p className="text-slate-500 text-xs">Penalty applied to score: {overdue.penaltyApplied} points</p>
     </section>
   );
 }
