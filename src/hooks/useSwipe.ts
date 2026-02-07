@@ -4,14 +4,14 @@ import { useCallback, useRef, useState } from "react";
 
 /**
  * Horizontal swipe: right = next, left = previous.
- * Touch events for mobile; UI provides Previous/Next arrows.
+ * Touch events for mobile; only horizontal swipe changes screen (vertical scroll still works).
  */
-const SWIPE_THRESHOLD_PX = 60;
+const SWIPE_THRESHOLD_PX = 50;
 const MAX_INDEX = 5; // screens 0..5
 
 export function useSwipe(initialIndex = 0) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const touchStartX = useRef(0);
+  const touchStart = useRef({ x: 0, y: 0 });
 
   const goNext = useCallback(() => {
     setCurrentIndex((i) => (i < MAX_INDEX ? i + 1 : i));
@@ -22,14 +22,19 @@ export function useSwipe(initialIndex = 0) {
   }, []);
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartX.current = e.targetTouches[0].clientX;
+    const t = e.targetTouches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
   }, []);
 
   const onTouchEnd = useCallback((e: React.TouchEvent) => {
-    const endX = e.changedTouches[0].clientX;
-    const delta = endX - touchStartX.current;
-    if (delta > SWIPE_THRESHOLD_PX) setCurrentIndex((i) => (i < MAX_INDEX ? i + 1 : i));
-    else if (delta < -SWIPE_THRESHOLD_PX) setCurrentIndex((i) => (i > 0 ? i - 1 : i));
+    const t = e.changedTouches[0];
+    const deltaX = t.clientX - touchStart.current.x;
+    const deltaY = t.clientY - touchStart.current.y;
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
+    if (absX < SWIPE_THRESHOLD_PX || absY > absX) return;
+    if (deltaX > 0) setCurrentIndex((i) => (i < MAX_INDEX ? i + 1 : i));
+    else setCurrentIndex((i) => (i > 0 ? i - 1 : i));
   }, []);
 
   return { currentIndex, setCurrentIndex, goNext, goPrev, onTouchStart, onTouchEnd };

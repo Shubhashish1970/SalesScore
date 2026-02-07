@@ -14,9 +14,10 @@ body {
   touch-action: pan-y pinch-zoom;
 }
 
-/* Swipe container: allow horizontal drag only within the carousel */
+/* Swipe container: allow both axes so horizontal swipe is detected on mobile */
 .swipe-container {
-  touch-action: pan-y;
+  touch-action: pan-x pan-y;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Prevent pull-to-refresh from interfering with swipe on some mobile browsers */

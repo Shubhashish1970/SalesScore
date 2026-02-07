@@ -17,7 +17,7 @@ import { CollectionSpeed } from "@/components/screens/CollectionSpeed";
 import { OverdueMoney } from "@/components/screens/OverdueMoney";
 import { ProductMix } from "@/components/screens/ProductMix";
 import { WhatToDoNext } from "@/components/screens/WhatToDoNext";
-import { useState, useEffect, useRef, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 const SCREENS = [
@@ -48,18 +48,9 @@ function HomeContent() {
   const mobileFromUrl = searchParams.get("mobile");
   const [data, setData] = useState<ScorecardData>(defaultScorecard);
   const { currentIndex, setCurrentIndex, goNext, goPrev, onTouchStart, onTouchEnd } = useSwipe(0);
-  const autoAdvanceRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const isPersonalLink = Boolean(userToken || mobileFromUrl);
   const isDemoMode = !isPersonalLink;
-
-  // Auto-slide to next screen every 5 seconds (stays on last screen when at end)
-  useEffect(() => {
-    autoAdvanceRef.current = setInterval(goNext, 5000);
-    return () => {
-      if (autoAdvanceRef.current) clearInterval(autoAdvanceRef.current);
-    };
-  }, [goNext]);
 
   useEffect(() => {
     if (userToken) {
