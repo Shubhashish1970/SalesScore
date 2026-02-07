@@ -33,15 +33,12 @@ export function ProductMix({ data }: Props) {
   const helped = productMix.nrvFactor >= 0.65;
   const [mounted, setMounted] = useState(false);
   const [mountedAB, setMountedAB] = useState(false);
-  const [showABHighlight, setShowABHighlight] = useState(false);
   useEffect(() => {
     const t1 = setTimeout(() => setMounted(true), 80);
     const t2 = setTimeout(() => setMountedAB(true), 320);
-    const t3 = setTimeout(() => setShowABHighlight(true), 950);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
-      clearTimeout(t3);
     };
   }, []);
 
@@ -58,49 +55,21 @@ export function ProductMix({ data }: Props) {
         Share of sales from each category. Higher categories (A, B) improve your score more.
       </p>
       <div className="space-y-2 mb-6">
-        <div className="relative space-y-2">
-          <div
-            className={`pointer-events-none absolute inset-0 rounded-lg border-2 border-dashed border-indigo-400 bg-indigo-50/40 transition-opacity duration-300 z-0 ${showABHighlight ? "opacity-100" : "opacity-0"}`}
-            style={{ bottom: "auto", height: "3.5rem" }}
-            aria-hidden={!showABHighlight}
-          />
-          {CATEGORIES.slice(0, 2).map(({ key, label, weight }, i) => {
-            const idx = i;
-            const pct = productMix[key];
-            const nrvKey = NRV_KEYS[idx];
-            const nrvValue = productMix[nrvKey] ?? 0;
-            const nrvStr = nrvValue > 0 ? formatNrv(nrvValue) : null;
-            const barClass = "absolute inset-y-0 left-0 h-full rounded product-mix-bar flex items-center pl-2 min-w-0 bg-indigo-500 animate-product-mix-bar-ab";
-            const barStyle: React.CSSProperties = { width: mountedAB ? `${pct}%` : "0%" };
-            return (
-              <div key={key} className="relative z-10 flex items-center gap-2">
-                <div className="w-20 text-slate-700 text-sm shrink-0">{label}</div>
-                <div className="flex-1 h-6 bg-slate-200 rounded overflow-hidden relative min-w-0 flex items-center justify-end pr-2">
-                  <div className={barClass} style={barStyle}>
-                    {mountedAB && nrvStr && (
-                      <span className="text-[10px] font-normal text-white drop-shadow-sm tabular-nums truncate">{nrvStr}</span>
-                    )}
-                  </div>
-                  <span className="relative z-10 text-[10px] font-normal text-slate-700 tabular-nums ml-1">{pct}%</span>
-                </div>
-                <span className="text-[10px] text-slate-500 w-6 tabular-nums">{weight}</span>
-              </div>
-            );
-          })}
-        </div>
-        {CATEGORIES.slice(2).map(({ key, label, weight }, i) => {
-          const idx = i + 2;
+        {CATEGORIES.map(({ key, label, weight }, i) => {
           const pct = productMix[key];
-          const nrvKey = NRV_KEYS[idx];
+          const nrvKey = NRV_KEYS[i];
           const nrvValue = productMix[nrvKey] ?? 0;
           const nrvStr = nrvValue > 0 ? formatNrv(nrvValue) : null;
           const isCatE = key === "categoryE";
+          const isCatAorB = key === "categoryA" || key === "categoryB";
           const barClass = [
             "absolute inset-y-0 left-0 h-full rounded product-mix-bar flex items-center pl-2 min-w-0",
-            isCatE ? "" : "bg-indigo-500",
+            isCatE ? "" : isCatAorB ? "bg-emerald-500" : "bg-indigo-500",
+            isCatAorB ? "animate-product-mix-bar-ab" : "",
           ].filter(Boolean).join(" ");
+          const barMounted = isCatAorB ? mountedAB : mounted;
           const barStyle: React.CSSProperties = {
-            width: mounted ? `${pct}%` : "0%",
+            width: barMounted ? `${pct}%` : "0%",
             ...(isCatE ? { backgroundColor: "#ff2c2c" } : {}),
           };
           return (
@@ -108,7 +77,7 @@ export function ProductMix({ data }: Props) {
               <div className="w-20 text-slate-700 text-sm shrink-0">{label}</div>
               <div className="flex-1 h-6 bg-slate-200 rounded overflow-hidden relative min-w-0 flex items-center justify-end pr-2">
                 <div className={barClass} style={barStyle}>
-                  {mounted && nrvStr && (
+                  {barMounted && nrvStr && (
                     <span className="text-[10px] font-normal text-white drop-shadow-sm tabular-nums truncate">{nrvStr}</span>
                   )}
                 </div>

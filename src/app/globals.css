@@ -111,13 +111,13 @@ body {
   transition: width 0.6s ease-out;
 }
 
-/* Product mix: CAT A and B — stronger purple glow + soft green “benefit” ring */
+/* Product mix: CAT A and B — green bar glow */
 @keyframes product-mix-bar-ab {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4), 0 0 0 0 rgba(52, 211, 153, 0.2);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
   }
   50% {
-    box-shadow: 0 0 20px 6px rgba(99, 102, 241, 0.55), 0 0 0 4px rgba(52, 211, 153, 0.35);
+    box-shadow: 0 0 20px 6px rgba(16, 185, 129, 0.55);
   }
 }
 .animate-product-mix-bar-ab {
