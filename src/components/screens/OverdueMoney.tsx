@@ -80,7 +80,9 @@ export function OverdueMoney({ data }: Props) {
             );
           })}
         </div>
-        <div className="rounded-lg border-2 border-dashed border-amber-400 bg-amber-50/20 p-2 space-y-2 animate-overdue-dashed">
+        <div className="relative rounded-lg overflow-hidden">
+          <div className="absolute inset-0 rounded-lg border-2 border-dashed border-amber-400 animate-overdue-dashed-rotate" aria-hidden />
+          <div className="relative z-10 m-0.5 rounded-lg bg-amber-50/20 p-2 space-y-2">
           <p className="text-[10px] text-amber-800 font-medium px-0.5 -mt-0.5">Penalized (111+ days)</p>
           {BUCKETS.slice(PENALTY_START_INDEX).map(({ key, label }) => {
             const pct = total ? (overdue[key] / total) * 100 : 0;
@@ -106,6 +108,7 @@ export function OverdueMoney({ data }: Props) {
               </div>
             );
           })}
+          </div>
         </div>
       </div>
       <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">

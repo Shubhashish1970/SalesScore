@@ -67,17 +67,29 @@ body {
   animation: overdue-penalized-pulse 2s ease-in-out infinite;
 }
 
-/* Overdue: visible animation on dashed rectangle — soft amber glow pulse */
-@keyframes overdue-dashed-glow {
-  0%, 100% {
-    border-color: rgb(251 191 36);
-    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.35);
-  }
-  50% {
-    border-color: rgb(245 158 11);
-    box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.2);
-  }
+/* Overdue: subtle rotation of dashed border so the line appears to move */
+@keyframes overdue-dashed-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
-.animate-overdue-dashed {
-  animation: overdue-dashed-glow 2s ease-in-out infinite;
+.animate-overdue-dashed-rotate {
+  animation: overdue-dashed-rotate 12s linear infinite;
+}
+
+/* Product mix: CAT A/B max benefit — soft green glow */
+@keyframes product-cat-benefit {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.35); }
+  50% { box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.15); }
+}
+.animate-product-cat-benefit {
+  animation: product-cat-benefit 2s ease-in-out infinite;
+}
+
+/* Product mix: CAT E no benefit — red to discourage selling CAT E */
+@keyframes product-cat-none {
+  0%, 100% { border-color: rgb(248 113 113); box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.3); }
+  50% { border-color: rgb(239 68 68); box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.2); }
+}
+.animate-product-cat-none {
+  animation: product-cat-none 2.5s ease-in-out infinite;
 }
