@@ -61,6 +61,9 @@ export interface ScoreBandThresholds {
   amberEnd: number;
 }
 
+/** DSO factor per band; from JSON or global API. Shown over bands; replaces hardcoded Norms. */
+export type DsoBandFactors = Record<Dso["dsoBand"], number>;
+
 export interface ScorecardData {
   /** Unique identifier: user's mobile number. Used when opening app from WhatsApp CTA; backend resolves person and role from this. */
   mobile: string;
@@ -79,6 +82,8 @@ export interface ScorecardData {
   scoreBandThresholds?: ScoreBandThresholds;
   /** Single line for Score Overview under the gauge; backend-derived from score and bands (Red/Amber/Green). */
   achievementMessage: string;
+  /** DSO factor by band (e.g. &lt;50→1.2, 50–110→1.1, …). From JSON or global API; shown over bands. */
+  dsoBandFactors?: DsoBandFactors;
   keyDrivers: KeyDriver[];
   recommendedActions: RecommendedAction[];
 }

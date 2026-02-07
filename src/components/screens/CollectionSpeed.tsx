@@ -30,6 +30,7 @@ function impactText(factor: number): string {
 
 export function CollectionSpeed({ data }: Props) {
   const { dso } = data;
+  const factors = data.dsoBandFactors;
   const activeBandConfig = BANDS.find((b) => b.band === dso.dsoBand);
   const roundelColor = activeBandConfig?.roundelColor ?? "bg-slate-500 text-white";
 
@@ -49,6 +50,17 @@ export function CollectionSpeed({ data }: Props) {
         <p className="text-3xl font-bold text-slate-900 tabular-nums">{dso.dsoDays}</p>
         <p className="text-slate-500 text-sm">days to collect</p>
       </div>
+      {factors && (
+        <div className="flex gap-1 mb-0.5">
+          {BANDS.map((b) => (
+            <div key={b.band} className="flex-1 text-center">
+              <span className="text-xs font-medium text-slate-600 tabular-nums" title={`${b.label}: factor ${factors[b.band]}`}>
+                {factors[b.band]}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
       <div className="flex gap-1 mb-1">
         {BANDS.map((b) => (
           <div key={b.band} className="flex-1 flex flex-col items-center">
@@ -70,17 +82,8 @@ export function CollectionSpeed({ data }: Props) {
           </div>
         ))}
       </div>
-      <div className="rounded-xl bg-slate-100 p-4 mb-6">
+      <div className="rounded-xl bg-slate-100 p-4">
         <p className="text-slate-700 text-sm">{impactText(dso.dsoFactor)}</p>
-      </div>
-      <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
-        <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Norms of scoring</p>
-        <ul className="text-xs text-slate-700 space-y-1">
-          <li>If DSO days is &lt; 50, then DSO Factor = 1.2</li>
-          <li>If DSO days is 50–110, then DSO Factor = 1.1</li>
-          <li>If DSO days is 110–170, then DSO Factor = 1.1</li>
-          <li>If DSO days is &gt; 170, then DSO Factor = 0</li>
-        </ul>
       </div>
     </section>
   );
