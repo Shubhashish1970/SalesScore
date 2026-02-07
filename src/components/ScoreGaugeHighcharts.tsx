@@ -40,7 +40,7 @@ export function ScoreGaugeHighcharts({
       endAngle: 89.9,
       background: undefined,
       center: ["50%", "75%"],
-      size: "72%",
+      size: "80%",
     },
     yAxis: {
       min: 0,
