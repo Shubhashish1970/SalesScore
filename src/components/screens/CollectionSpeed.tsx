@@ -51,15 +51,20 @@ export function CollectionSpeed({ data }: Props) {
         <p className="text-slate-500 text-sm">days to collect</p>
       </div>
       {factors && (
-        <div className="flex gap-1 mb-0.5">
-          {BANDS.map((b) => (
-            <div key={b.band} className="flex-1 text-center">
-              <span className="text-xs font-medium text-slate-600 tabular-nums" title={`${b.label}: factor ${factors[b.band]}`}>
-                {factors[b.band]}
-              </span>
-            </div>
-          ))}
-        </div>
+        <>
+          <p className="text-xs text-slate-500 mb-1">
+            DSO Factor = weight for your score in this band (higher = better for score).
+          </p>
+          <div className="flex gap-1 mb-0.5">
+            {BANDS.map((b) => (
+              <div key={b.band} className="flex-1 text-center">
+                <span className="text-xs font-medium text-slate-600 tabular-nums" title={`${b.label}: factor ${factors[b.band]}`}>
+                  {factors[b.band]}
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
       )}
       <div className="flex gap-1 mb-1">
         {BANDS.map((b) => (
