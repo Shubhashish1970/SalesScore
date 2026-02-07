@@ -60,9 +60,12 @@ export function GrowthCheck({ data }: Props) {
   const direction: "up" | "down" | "flat" = pct > 0 ? "up" : pct < 0 ? "down" : "flat";
   const colors = bandColors[band];
 
+  const isFlatOrRed = band === "red" || direction === "flat";
+  const animationClass = isFlatOrRed ? "animate-growth-pct-attention" : "animate-growth-pct";
+
   return (
     <section className="min-h-[80dvh] flex flex-col justify-center px-5 py-6">
-      <h2 className="text-lg font-semibold text-slate-800 mb-4">Growth check</h2>
+      <h2 className="text-lg font-semibold text-slate-800 mb-4">Growth Check ( Qualifying Criteria )</h2>
       <p className="text-slate-600 text-sm mb-4">
         Sales this year vs last year — growth is required for your score to count.
       </p>
@@ -76,7 +79,7 @@ export function GrowthCheck({ data }: Props) {
           <span className="font-medium text-slate-700">{formatMoney(growth.LY_NRV)}</span>
         </div>
       </div>
-      <div className="flex items-center gap-3 mb-6">
+      <div className={`flex items-center gap-3 mb-6 ${animationClass}`}>
         <span className={`text-4xl font-bold tabular-nums ${colors.text}`}>
           {pct > 0 ? "+" : ""}
           {pct.toFixed(1)}%

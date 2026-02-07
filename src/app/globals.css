@@ -39,3 +39,21 @@ body {
 .animate-dso-band {
   animation: dso-band-highlight 1.5s ease-in-out infinite;
 }
+
+/* Growth %: very subtle pulse for all bands (slightly more noticeable for flat/red) */
+@keyframes growth-pct-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.92;
+    transform: scale(1.02);
+  }
+}
+.animate-growth-pct {
+  animation: growth-pct-pulse 2.5s ease-in-out infinite;
+}
+.animate-growth-pct-attention {
+  animation: growth-pct-pulse 1.8s ease-in-out infinite;
+}
