@@ -23,6 +23,12 @@ export interface Dso {
   dsoFactor: number; // 0 = blocked, 0.5 = partial, 1 = full
 }
 
+/** Keys for overdue buckets (percentages); penalty applies to last four. */
+export type OverdueBucketKey = "notDue" | "d1_110" | "d111_180" | "d181_270" | "d271_365" | "gt365";
+
+/** Penalty % per bucket (0 = no penalty). From JSON/API. */
+export type OverdueBucketPenalties = Record<OverdueBucketKey, number>;
+
 export interface Overdue {
   notDue: number;
   d1_110: number;
@@ -31,6 +37,10 @@ export interface Overdue {
   d271_365: number;
   gt365: number;
   penaltyApplied: number;
+  /** OS score shown in roundel (e.g. 0–100). Backend-computed. */
+  overdueScore?: number;
+  /** Outstanding amount per bucket for display on bar; same units (e.g. lakhs). Optional. */
+  bucketAmounts?: Record<OverdueBucketKey, number>;
 }
 
 export interface ProductMix {
@@ -84,6 +94,8 @@ export interface ScorecardData {
   achievementMessage: string;
   /** DSO factor by band (e.g. &lt;50→1.2, 50–110→1.1, …). From JSON or global API; shown over bands. */
   dsoBandFactors?: DsoBandFactors;
+  /** OD weightage: penalty % per bucket (0, 0, 20, 50, 100, 200). From JSON/API; shown like DSO factors. */
+  overdueBucketPenalties?: OverdueBucketPenalties;
   keyDrivers: KeyDriver[];
   recommendedActions: RecommendedAction[];
 }

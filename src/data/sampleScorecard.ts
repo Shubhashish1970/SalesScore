@@ -32,7 +32,10 @@ export const sampleTM: ScorecardData = {
     d271_365: 2,
     gt365: 1,
     penaltyApplied: 12,
+    overdueScore: 72,
+    bucketAmounts: { notDue: 24, d1_110: 10, d111_180: 3.2, d181_270: 1.6, d271_365: 0.8, gt365: 0.4 },
   },
+  overdueBucketPenalties: { notDue: 0, d1_110: 0, d111_180: 20, d181_270: 50, d271_365: 100, gt365: 200 },
   productMix: {
     categoryA: 35,
     categoryB: 28,
@@ -97,7 +100,10 @@ export const sampleRM: ScorecardData = {
     d271_365: 2,
     gt365: 1,
     penaltyApplied: 15,
+    overdueScore: 68,
+    bucketAmounts: { notDue: 23.2, d1_110: 9.6, d111_180: 4, d181_270: 2, d271_365: 0.8, gt365: 0.4 },
   },
+  overdueBucketPenalties: { notDue: 0, d1_110: 0, d111_180: 20, d181_270: 50, d271_365: 100, gt365: 200 },
   productMix: {
     categoryA: 32,
     categoryB: 30,
@@ -162,7 +168,10 @@ export const sampleZM: ScorecardData = {
     d271_365: 2,
     gt365: 1,
     penaltyApplied: 18,
+    overdueScore: 62,
+    bucketAmounts: { notDue: 22, d1_110: 10.4, d111_180: 4.4, d181_270: 2, d271_365: 0.8, gt365: 0.4 },
   },
+  overdueBucketPenalties: { notDue: 0, d1_110: 0, d111_180: 20, d181_270: 50, d271_365: 100, gt365: 200 },
   productMix: {
     categoryA: 30,
     categoryB: 28,
@@ -227,7 +236,10 @@ export const sampleBU: ScorecardData = {
     d271_365: 2,
     gt365: 1,
     penaltyApplied: 20,
+    overdueScore: 58,
+    bucketAmounts: { notDue: 20.8, d1_110: 10.8, d111_180: 4.8, d181_270: 2.4, d271_365: 0.8, gt365: 0.4 },
   },
+  overdueBucketPenalties: { notDue: 0, d1_110: 0, d111_180: 20, d181_270: 50, d271_365: 100, gt365: 200 },
   productMix: {
     categoryA: 28,
     categoryB: 26,

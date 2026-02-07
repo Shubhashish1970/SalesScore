@@ -1,50 +1,125 @@
 "use client";
 
 import type { ScorecardData } from "@/types/scorecard";
+import type { OverdueBucketKey } from "@/types/scorecard";
 
 /**
- * Screen 4: Overdue buckets; highlight beyond 180 days. Plain-language penalties.
+ * Screen 4: Overdue buckets; outstanding on bar; red for penalized; OS score roundel; OD weightage.
  */
 interface Props {
   data: ScorecardData;
 }
 
-const BUCKETS: { key: keyof Omit<ScorecardData["overdue"], "penaltyApplied">; label: string; highlight: boolean }[] = [
-  { key: "notDue", label: "On time", highlight: false },
-  { key: "d1_110", label: "1–110 days late", highlight: false },
-  { key: "d111_180", label: "111–180 days late", highlight: false },
-  { key: "d181_270", label: "181–270 days late", highlight: true },
-  { key: "d271_365", label: "271–365 days late", highlight: true },
-  { key: "gt365", label: "Over 365 days late", highlight: true },
+const BUCKETS: { key: OverdueBucketKey; label: string }[] = [
+  { key: "notDue", label: "On time" },
+  { key: "d1_110", label: "1–110 days late" },
+  { key: "d111_180", label: "111–180 days late" },
+  { key: "d181_270", label: "181–270 days late" },
+  { key: "d271_365", label: "271–365 days late" },
+  { key: "gt365", label: "Over 365 days late" },
 ];
+
+const PENALTY_START_INDEX = 2;
+
+function formatAmount(n: number): string {
+  if (n >= 100) return `${(n / 100).toFixed(1)} Cr`;
+  if (n >= 1) return `${n.toFixed(1)} L`;
+  return `${(n * 100).toFixed(0)} K`;
+}
 
 export function OverdueMoney({ data }: Props) {
   const { overdue } = data;
+  const penalties = data.overdueBucketPenalties;
+  const amounts = overdue.bucketAmounts;
   const total = BUCKETS.reduce((s, b) => s + overdue[b.key], 0) || 1;
   const badShare = (overdue.d181_270 + overdue.d271_365 + overdue.gt365) / total;
+  const osScore = overdue.overdueScore ?? null;
 
   return (
-    <section className="min-h-[80dvh] flex flex-col justify-center px-5 py-6">
-      <h2 className="text-lg font-semibold text-slate-800 mb-2">Overdue money</h2>
+    <section className="min-h-[80dvh] flex flex-col justify-center px-5 py-6 relative">
+      {osScore != null && (
+        <div
+          className="absolute top-6 right-5 w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold tabular-nums bg-amber-500 text-slate-900"
+          aria-label={`OS score: ${osScore}`}
+        >
+          {osScore}
+        </div>
+      )}
+      <h2 className="text-lg font-semibold text-slate-800 mb-2 pr-14">Overdue money</h2>
       <p className="text-slate-600 text-sm mb-4">
         Money that is late. The older the delay, the more it hurts your score.
       </p>
-      <div className="space-y-2 mb-4">
-        {BUCKETS.map(({ key, label, highlight }) => {
+      {penalties && (
+        <p className="text-xs text-slate-500 mb-2">
+          OD weightage = penalty % applied to money in that bucket (higher = worse for score).
+        </p>
+      )}
+      <div className="space-y-2 mb-2">
+        {BUCKETS.slice(0, PENALTY_START_INDEX).map(({ key, label }) => {
           const pct = total ? (overdue[key] / total) * 100 : 0;
+          const amountStr = amounts ? formatAmount(amounts[key]) : null;
+          const penaltyPct = penalties ? penalties[key] : null;
           return (
             <div key={key} className="flex items-center gap-2">
-              <div className="w-24 text-slate-600 text-xs shrink-0">{label}</div>
-              <div className="flex-1 h-6 bg-slate-200 rounded overflow-hidden">
+              <div className="w-28 text-slate-600 text-xs shrink-0">{label}</div>
+              <div className="flex-1 h-7 bg-slate-200 rounded overflow-hidden relative">
                 <div
-                  className={`h-full rounded ${highlight ? "bg-red-500" : "bg-slate-400"}`}
-                  style={{ width: `${Math.max(pct, 2)}%` }}
-                />
+                  className="h-full rounded flex items-center justify-end pr-1 min-w-0 bg-slate-400 text-slate-800"
+                  style={{ width: `${Math.max(pct, 3)}%` }}
+                >
+                  {amountStr && (
+                    <span className="text-[10px] font-medium truncate" title={amountStr}>
+                      {amountStr}
+                    </span>
+                  )}
+                </div>
               </div>
-              <span className="text-slate-700 text-sm font-medium w-8 text-right">{overdue[key]}%</span>
+              <div className="flex items-center gap-1 w-20 justify-end">
+                {penaltyPct != null && penaltyPct > 0 && (
+                  <span className="text-[10px] text-amber-600 font-medium">{penaltyPct}%</span>
+                )}
+                <span className="text-slate-700 text-sm font-medium tabular-nums w-8 text-right">
+                  {overdue[key]}%
+                </span>
+              </div>
             </div>
           );
         })}
+        <div className="rounded-lg border-2 border-dashed border-amber-400 bg-amber-50/20 p-2 space-y-2">
+          <p className="text-[10px] text-amber-800 font-medium px-0.5 -mt-0.5">Penalized (111+ days)</p>
+          {BUCKETS.slice(PENALTY_START_INDEX).map(({ key, label }) => {
+            const pct = total ? (overdue[key] / total) * 100 : 0;
+            const hasMoney = overdue[key] > 0;
+            const showRed = hasMoney;
+            const amountStr = amounts ? formatAmount(amounts[key]) : null;
+            const penaltyPct = penalties ? penalties[key] : null;
+            return (
+              <div key={key} className="flex items-center gap-2">
+                <div className="w-28 text-slate-600 text-xs shrink-0">{label}</div>
+                <div className="flex-1 h-7 bg-slate-200 rounded overflow-hidden relative">
+                  <div
+                    className={`h-full rounded flex items-center justify-end pr-1 min-w-0 animate-overdue-penalized ${showRed ? "bg-red-500 text-white" : "bg-slate-400 text-slate-800"}`}
+                    style={{ width: `${Math.max(pct, 3)}%` }}
+                  >
+                    {amountStr && (
+                      <span className="text-[10px] font-medium truncate" title={amountStr}>
+                        {amountStr}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 w-20 justify-end">
+                  {penaltyPct != null && penaltyPct > 0 && (
+                    <span className="text-[10px] text-amber-600 font-medium">{penaltyPct}%</span>
+                  )}
+                  <span className="text-slate-700 text-sm font-medium tabular-nums w-8 text-right">
+                    {overdue[key]}%
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
       <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 mb-2">
         <p className="text-amber-900 text-sm">

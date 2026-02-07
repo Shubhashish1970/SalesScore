@@ -26,8 +26,11 @@
       "d181_270": 4,
       "d271_365": 2,
       "gt365": 1,
-      "penaltyApplied": 12
+      "penaltyApplied": 12,
+      "overdueScore": 72,
+      "bucketAmounts": { "notDue": 24, "d1_110": 10, "d111_180": 3.2, "d181_270": 1.6, "d271_365": 0.8, "gt365": 0.4 }
     },
+    "overdueBucketPenalties": { "notDue": 0, "d1_110": 0, "d111_180": 20, "d181_270": 50, "d271_365": 100, "gt365": 200 },
     "productMix": {
       "categoryA": 35,
       "categoryB": 28,
