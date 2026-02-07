@@ -93,7 +93,7 @@ export function OverdueMoney({ data }: Props) {
                 <div className="w-28 text-slate-600 text-xs shrink-0">{label}</div>
                 <div className="flex-1 h-7 bg-slate-200 rounded overflow-hidden relative min-w-0 flex items-center justify-end pr-2">
                   <div
-                    className={`absolute inset-y-0 left-0 rounded animate-overdue-penalized ${showRed ? "bg-red-500" : "bg-slate-400"}`}
+                    className={`absolute inset-y-0 left-0 rounded animate-overdue-penalized origin-left ${showRed ? "bg-red-500 animate-overdue-bar-attention" : "bg-slate-400"}`}
                     style={{ width: `${Math.max(pct, 3)}%` }}
                   />
                   {amountStr && (
