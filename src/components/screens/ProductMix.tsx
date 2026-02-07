@@ -18,9 +18,16 @@ const CATEGORIES: { key: keyof ScorecardData["productMix"]; label: string; weigh
   { key: "categoryE", label: "Category E", weight: 0 },
 ];
 
+function formatNrv(rupees: number): string {
+  if (rupees >= 1e7) return `${(rupees / 1e7).toFixed(2)} Cr`;
+  if (rupees >= 1e5) return `${(rupees / 1e5).toFixed(2)} L`;
+  return `${(rupees / 1e3).toFixed(1)} K`;
+}
+
 export function ProductMix({ data }: Props) {
-  const { productMix } = data;
+  const { productMix, growth } = data;
   const helped = productMix.nrvFactor >= 0.65;
+  const cyNrv = growth.CY_NRV;
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     const id = setTimeout(() => setMounted(true), 80);
@@ -41,23 +48,30 @@ export function ProductMix({ data }: Props) {
       </p>
       <div className="space-y-2 mb-6">
         {CATEGORIES.map(({ key, label, weight }) => {
-          const value = productMix[key];
+          const pct = productMix[key];
+          const nrvValue = (cyNrv * pct) / 100;
+          const nrvStr = formatNrv(nrvValue);
           const isCatE = key === "categoryE";
           const isCatAorB = key === "categoryA" || key === "categoryB";
           const barClass = [
-            "absolute inset-y-0 left-0 h-full rounded product-mix-bar",
-            isCatE ? "bg-red-300" : "bg-indigo-500",
+            "absolute inset-y-0 left-0 h-full rounded product-mix-bar flex items-center pl-2 min-w-0",
+            isCatE ? "" : "bg-indigo-500",
             isCatAorB ? "animate-product-mix-bar-ab" : "",
           ].filter(Boolean).join(" ");
+          const barStyle: React.CSSProperties = {
+            width: mounted ? `${pct}%` : "0%",
+            ...(isCatE ? { backgroundColor: "#ff2c2c" } : {}),
+          };
           return (
             <div key={key} className="flex items-center gap-2">
               <div className="w-20 text-slate-700 text-sm shrink-0">{label}</div>
               <div className="flex-1 h-6 bg-slate-200 rounded overflow-hidden relative min-w-0 flex items-center justify-end pr-2">
-                <div
-                  className={barClass}
-                  style={{ width: mounted ? `${value}%` : "0%" }}
-                />
-                <span className="relative z-10 text-xs font-medium text-slate-700 tabular-nums">{value}%</span>
+                <div className={barClass} style={barStyle}>
+                  {mounted && pct >= 8 && (
+                    <span className="text-xs font-medium text-white drop-shadow-sm tabular-nums truncate">{nrvStr}</span>
+                  )}
+                </div>
+                <span className="relative z-10 text-xs font-medium text-slate-700 tabular-nums ml-1">{pct}%</span>
               </div>
               <span className="text-[10px] text-slate-500 w-6 tabular-nums">{weight}</span>
             </div>

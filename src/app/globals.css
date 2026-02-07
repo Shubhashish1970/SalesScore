@@ -101,10 +101,10 @@ body {
   transition: width 0.6s ease-out;
 }
 
-/* Product mix: continuous subtle glow on CAT A and B bars to draw attention */
+/* Product mix: more visible yet subtle glow on CAT A and B bars */
 @keyframes product-mix-bar-ab {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-  50% { box-shadow: 0 0 8px 2px rgba(99, 102, 241, 0.25); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5); }
+  50% { box-shadow: 0 0 12px 4px rgba(99, 102, 241, 0.45); }
 }
 .animate-product-mix-bar-ab {
   animation: product-mix-bar-ab 2s ease-in-out infinite;
