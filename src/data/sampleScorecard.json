@@ -37,6 +37,7 @@
     "finalScore": 68,
     "maxScore": 120,
     "scoreBandThresholds": { "redEnd": 80, "amberEnd": 90 },
+    "achievementMessage": "Your score is in the Amber zone — you're on the way; swipe for what to do next.",
     "keyDrivers": [
       { "text": "Sales grew compared to last year", "positive": true },
       { "text": "Some money is stuck beyond 180 days", "positive": false },

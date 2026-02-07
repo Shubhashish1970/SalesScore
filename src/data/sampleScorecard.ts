@@ -42,6 +42,7 @@ export const sampleTM: ScorecardData = {
   finalScore: 68,
   maxScore: 120,
   scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
+  achievementMessage: "Your score is in the Amber zone — you're on the way; swipe for what to do next.",
   keyDrivers: [
     { text: "Sales grew compared to last year", positive: true },
     { text: "Some money is stuck beyond 180 days", positive: false },
@@ -103,6 +104,7 @@ export const sampleRM: ScorecardData = {
   finalScore: 62,
   maxScore: 120,
   scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
+  achievementMessage: "Your score is in the Red zone — focus on the areas below to improve.",
   keyDrivers: [
     { text: "Region has grown over last year", positive: true },
     { text: "Overdue beyond 180 days is pulling the score down", positive: false },
@@ -164,6 +166,7 @@ export const sampleZM: ScorecardData = {
   finalScore: 54,
   maxScore: 120,
   scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
+  achievementMessage: "Your score is in the Red zone — focus on the areas below to improve.",
   keyDrivers: [
     { text: "Zone growth is on track", positive: true },
     { text: "Collection speed is in the higher band; score is partially capped", positive: false },
@@ -225,6 +228,7 @@ export const sampleBU: ScorecardData = {
   finalScore: 58,
   maxScore: 120,
   scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
+  achievementMessage: "Your score is in the Red zone — focus on the areas below to improve.",
   keyDrivers: [
     { text: "BU has achieved growth vs last year", positive: true },
     { text: "Policy on credit and collection needs tightening", positive: false },

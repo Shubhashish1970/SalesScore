@@ -73,6 +73,8 @@ export interface ScorecardData {
   maxScore: number;
   /** Gauge band thresholds: &lt; redEnd = red, redEnd–amberEnd = amber, &gt; amberEnd = green. Default 80, 90 if omitted. */
   scoreBandThresholds?: ScoreBandThresholds;
+  /** Single line for Score Overview under the gauge; backend-derived from score and bands (Red/Amber/Green). */
+  achievementMessage: string;
   keyDrivers: KeyDriver[];
   recommendedActions: RecommendedAction[];
 }
