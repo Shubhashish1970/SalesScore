@@ -81,7 +81,9 @@ export function OverdueMoney({ data }: Props) {
           })}
         </div>
         <div className="relative rounded-lg overflow-hidden">
-          <div className="absolute inset-0 rounded-lg border-2 border-dashed border-amber-400 animate-overdue-dashed-rotate" aria-hidden />
+          <svg className="absolute inset-0 w-full h-full pointer-events-none text-amber-400" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
+            <rect x="1" y="1" width="98" height="98" rx="8" ry="8" fill="none" stroke="currentColor" strokeWidth="2" className="animate-overdue-dash-march" />
+          </svg>
           <div className="relative z-10 m-0.5 rounded-lg bg-amber-50/20 p-2 space-y-2">
           <p className="text-[10px] text-amber-800 font-medium px-0.5 -mt-0.5">Penalized (111+ days)</p>
           {BUCKETS.slice(PENALTY_START_INDEX).map(({ key, label }) => {

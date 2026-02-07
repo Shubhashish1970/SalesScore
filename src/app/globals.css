@@ -67,13 +67,13 @@ body {
   animation: overdue-penalized-pulse 2s ease-in-out infinite;
 }
 
-/* Overdue: subtle rotation of dashed border so the line appears to move */
-@keyframes overdue-dashed-rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+/* Overdue: dashes travelling along the border (marching ants); rectangle stays fixed */
+@keyframes overdue-dash-march {
+  to { stroke-dashoffset: -24; }
 }
-.animate-overdue-dashed-rotate {
-  animation: overdue-dashed-rotate 12s linear infinite;
+.animate-overdue-dash-march {
+  stroke-dasharray: 6 6;
+  animation: overdue-dash-march 0.8s linear infinite;
 }
 
 /* Product mix: CAT A/B max benefit — soft green glow */
