@@ -17,6 +17,8 @@ export interface Dso {
   avgOutstanding12M: number;
   avgDailySales: number;
   dsoDays: number;
+  /** DSO score (e.g. 0–100); shown in roundel. Backend-computed; distinct from dsoDays. */
+  dsoScore: number;
   dsoBand: "<50" | "50-110" | "110-170" | ">170";
   dsoFactor: number; // 0 = blocked, 0.5 = partial, 1 = full
 }

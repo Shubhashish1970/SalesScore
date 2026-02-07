@@ -15,6 +15,7 @@
       "avgOutstanding12M": 1200000,
       "avgDailySales": 120000,
       "dsoDays": 100,
+      "dsoScore": 25,
       "dsoBand": "50-110",
       "dsoFactor": 0.8
     },

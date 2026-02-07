@@ -37,9 +37,9 @@ export function CollectionSpeed({ data }: Props) {
     <section className="min-h-[80dvh] flex flex-col justify-center px-5 py-6 relative">
       <div
         className={`absolute top-6 right-5 w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold tabular-nums ${roundelColor}`}
-        aria-label={`DSO: ${dso.dsoDays} days`}
+        aria-label={`DSO score: ${dso.dsoScore}`}
       >
-        {dso.dsoDays}
+        {dso.dsoScore}
       </div>
       <h2 className="text-lg font-semibold text-slate-800 mb-2 pr-14">Collection Speed (DSO)</h2>
       <p className="text-slate-600 text-sm mb-4">
@@ -70,8 +70,17 @@ export function CollectionSpeed({ data }: Props) {
           </div>
         ))}
       </div>
-      <div className="rounded-xl bg-slate-100 p-4">
+      <div className="rounded-xl bg-slate-100 p-4 mb-6">
         <p className="text-slate-700 text-sm">{impactText(dso.dsoFactor)}</p>
+      </div>
+      <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+        <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Norms of scoring</p>
+        <ul className="text-xs text-slate-700 space-y-1">
+          <li>If DSO days is &lt; 50, then DSO Factor = 1.2</li>
+          <li>If DSO days is 50–110, then DSO Factor = 1.1</li>
+          <li>If DSO days is 110–170, then DSO Factor = 1.1</li>
+          <li>If DSO days is &gt; 170, then DSO Factor = 0</li>
+        </ul>
       </div>
     </section>
   );
