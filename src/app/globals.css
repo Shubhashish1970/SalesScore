@@ -67,13 +67,19 @@ body {
   animation: overdue-penalized-pulse 2s ease-in-out infinite;
 }
 
-/* Overdue: marching ants — dash length matches line width, slow and subtle */
-@keyframes overdue-dash-march {
-  to { stroke-dashoffset: -10; }
+/* Overdue: dashed rectangle with soft amber glow pulse */
+@keyframes overdue-dashed-glow {
+  0%, 100% {
+    border-color: rgb(251 191 36);
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.35);
+  }
+  50% {
+    border-color: rgb(245 158 11);
+    box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.2);
+  }
 }
-.animate-overdue-dash-march {
-  stroke-dasharray: 2 8;
-  animation: overdue-dash-march 2.5s linear infinite;
+.animate-overdue-dashed-glow {
+  animation: overdue-dashed-glow 2s ease-in-out infinite;
 }
 
 /* Product mix: CAT A/B max benefit — soft green glow */
