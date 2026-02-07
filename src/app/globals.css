@@ -96,6 +96,11 @@ body {
   animation: overdue-dashed-glow var(--overdue-glow-duration) ease-in-out 0s infinite;
 }
 
+/* Product mix: bar grows from 0 to value on page load */
+.product-mix-bar {
+  transition: width 0.6s ease-out;
+}
+
 /* Product mix: CAT A/B max benefit — soft green glow */
 @keyframes product-cat-benefit {
   0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.35); }
