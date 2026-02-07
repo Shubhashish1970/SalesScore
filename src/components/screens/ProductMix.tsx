@@ -24,8 +24,8 @@ export function ProductMix({ data }: Props) {
 
   return (
     <section className="min-h-[80dvh] flex flex-col justify-center px-5 py-6">
-      <h2 className="text-lg font-semibold text-slate-800 mb-2">Product mix</h2>
-      <p className="text-slate-600 text-sm mb-4">
+      <h2 className="text-lg font-semibold text-slate-800 mb-1">Product mix</h2>
+      <p className="text-violet-400 text-xs mb-4">
         Share of sales from each category. Higher categories (A, B) improve your score more.
       </p>
       <div className="space-y-2 mb-6">

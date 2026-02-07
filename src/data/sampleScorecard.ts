@@ -74,6 +74,75 @@ export const sampleTM: ScorecardData = {
   ],
 };
 
+/** TM sample: Gorakhpur territory — Raghavendra Pandey (Emp 22873). Score 36/120, growth 127%, DSO 239 days, OS 1.99 Cr. */
+export const sampleGorakhpurTM: ScorecardData = {
+  mobile: "9151003714",
+  name: "Raghavendra Pandey",
+  role: "TM",
+  entityName: "Gorakhpur",
+  growth: {
+    CY_NRV: 18000000,
+    LY_NRV: 8000000,
+    growthPercent: 127.0,
+    growthFactor: 1,
+  },
+  dso: {
+    avgOutstanding12M: 15700000,
+    avgDailySales: 100000,
+    dsoDays: 239.53,
+    dsoScore: 0,
+    dsoBand: ">170",
+    dsoFactor: 0,
+  },
+  overdue: {
+    notDue: 37,
+    d1_110: 8,
+    d111_180: 5,
+    d181_270: 3,
+    d271_365: 2,
+    gt365: 45,
+    penaltyApplied: 55,
+    overdueScore: 18,
+    bucketAmounts: { notDue: 0.74, d1_110: 0.16, d111_180: 0.09, d181_270: 0.05, d271_365: 0.04, gt365: 0.91 },
+  },
+  overdueBucketPenalties: { notDue: 0, d1_110: 0, d111_180: 20, d181_270: 50, d271_365: 100, gt365: 200 },
+  productMix: {
+    categoryA: 24,
+    categoryB: 14,
+    categoryC: 26,
+    categoryD: 22,
+    categoryE: 14,
+    nrvFactor: 1.125,
+  },
+  finalScore: 36,
+  maxScore: 120,
+  scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
+  achievementMessage: "Your score is in the Red zone — focus on DSO and overdue to improve.",
+  dsoBandFactors: { "<50": 1.2, "50-110": 1.1, "110-170": 1.0, ">170": 0 },
+  keyDrivers: [
+    { text: "Sales up 127% vs last year; 41.9% of dealers showed positive growth", positive: true },
+    { text: "DSO at 239 days (>&gt;170 band) — collection speed is hurting your score", positive: false },
+    { text: "0.91 Cr in >365-day bucket is attracting 200% penalty", positive: false },
+  ],
+  recommendedActions: [
+    {
+      whatToDo: "Bring DSO below 170 days to unlock a DSO factor",
+      whyItHelps: "Currently in >170 band with factor 0; improving collection lifts score",
+      expectedImpact: "High",
+    },
+    {
+      whatToDo: "Clear overdue beyond 365 days on priority",
+      whyItHelps: "200% penalty on 0.91 Cr is pulling the score down",
+      expectedImpact: "High",
+    },
+    {
+      whatToDo: "Push Category A and B share in under-performing dealers",
+      whyItHelps: "Product mix at 38.3% can improve NRV factor further",
+      expectedImpact: "Medium",
+    },
+  ],
+};
+
 export const sampleRM: ScorecardData = {
   mobile: "9876510002",
   name: "Priya",
@@ -287,6 +356,7 @@ export const defaultScorecard = sampleTM;
 export const scorecardByMobile: Record<string, ScorecardData> = {
   "9876510001": sampleTM,
   "9080340493": sampleTM,
+  "9151003714": sampleGorakhpurTM,
   "9876510002": sampleRM,
   "9876510003": sampleZM,
   "9876510004": sampleBU,
@@ -298,6 +368,7 @@ export const scorecardByMobile: Record<string, ScorecardData> = {
  */
 export const scorecardByToken: Record<string, ScorecardData> = {
   "d_tm": sampleTM,
+  "d_gorakhpur": sampleGorakhpurTM,
   "d_rm": sampleRM,
   "d_zm": sampleZM,
   "d_bu": sampleBU,

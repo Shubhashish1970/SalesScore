@@ -45,8 +45,8 @@ export function OverdueMoney({ data }: Props) {
           {osScore}
         </div>
       )}
-      <h2 className="text-lg font-semibold text-slate-800 mb-2 pr-14">Overdue money</h2>
-      <p className="text-slate-600 text-sm mb-4">
+      <h2 className="text-lg font-semibold text-slate-800 mb-1 pr-14">Overdue money</h2>
+      <p className="text-violet-400 text-xs mb-4">
         Money that is late. The older the delay, the more it hurts your score.
       </p>
       {penalties && (

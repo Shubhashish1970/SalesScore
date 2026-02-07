@@ -65,8 +65,8 @@ export function GrowthCheck({ data }: Props) {
 
   return (
     <section className="min-h-[80dvh] flex flex-col justify-center px-5 py-6">
-      <h2 className="text-lg font-semibold text-slate-800 mb-4">Growth Check ( Qualifying Criteria )</h2>
-      <p className="text-slate-600 text-sm mb-4">
+      <h2 className="text-lg font-semibold text-slate-800 mb-1">Growth Check ( Qualifying Criteria )</h2>
+      <p className="text-violet-400 text-xs mb-4">
         Sales this year vs last year — growth is required for your score to count.
       </p>
       <div className="space-y-3 mb-4">
