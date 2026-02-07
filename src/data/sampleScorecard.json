@@ -37,7 +37,12 @@
       "categoryC": 22,
       "categoryD": 8,
       "categoryE": 4,
-      "nrvFactor": 1.22
+      "nrvFactor": 1.22,
+      "categoryANrv": 7220000,
+      "categoryBNrv": 5320000,
+      "categoryCNrv": 4180000,
+      "categoryDNrv": 1520000,
+      "categoryENrv": 760000
     },
     "finalScore": 111,
     "maxScore": 120,
@@ -76,7 +81,7 @@
     "dso": { "avgOutstanding12M": 15700000, "avgDailySales": 100000, "dsoDays": 239.53, "dsoScore": 0, "dsoBand": ">170", "dsoFactor": 0 },
     "overdue": { "notDue": 37, "d1_110": 8, "d111_180": 5, "d181_270": 3, "d271_365": 2, "gt365": 45, "penaltyApplied": 55, "overdueScore": 18, "bucketAmounts": { "notDue": 0.74, "d1_110": 0.16, "d111_180": 0.09, "d181_270": 0.05, "d271_365": 0.04, "gt365": 0.91 } },
     "overdueBucketPenalties": { "notDue": 0, "d1_110": 0, "d111_180": 20, "d181_270": 50, "d271_365": 100, "gt365": 200 },
-    "productMix": { "categoryA": 24, "categoryB": 14, "categoryC": 26, "categoryD": 22, "categoryE": 14, "nrvFactor": 1.125 },
+    "productMix": { "categoryA": 24, "categoryB": 14, "categoryC": 26, "categoryD": 22, "categoryE": 14, "nrvFactor": 1.125, "categoryANrv": 4320000, "categoryBNrv": 2520000, "categoryCNrv": 4680000, "categoryDNrv": 3960000, "categoryENrv": 2520000 },
     "finalScore": 36,
     "maxScore": 120,
     "scoreBandThresholds": { "redEnd": 80, "amberEnd": 90 },

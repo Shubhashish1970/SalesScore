@@ -71,8 +71,8 @@ function HomeContent() {
   const Screen = SCREENS[currentIndex];
 
   return (
-    <main className="min-h-screen max-w-lg mx-auto bg-white shadow-sm">
-      <header className="sticky top-0 z-10 bg-white border-b border-slate-200 px-3 py-2 flex items-center justify-between">
+    <main className="min-h-screen flex flex-col max-w-lg mx-auto bg-white shadow-sm">
+      <header className="sticky top-0 z-10 shrink-0 bg-white border-b border-slate-200 px-3 py-2 flex items-center justify-between">
         {isDemoMode ? (
           <>
             <span className="text-slate-500 text-sm">Scorecard</span>
@@ -99,14 +99,15 @@ function HomeContent() {
       </header>
 
       <div
-        className="swipe-container"
+        className="swipe-container flex-1 min-h-0 flex flex-col"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
         <Screen data={data} />
       </div>
 
-      <footer className="sticky bottom-0 bg-white border-t border-slate-200 px-4 py-3 flex items-center justify-between">
+      <div className="shrink-0 h-28" aria-hidden />
+      <footer className="shrink-0 bg-white border-t border-slate-200 px-4 py-3 flex items-center justify-between">
         <button
           type="button"
           onClick={goPrev}

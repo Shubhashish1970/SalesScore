@@ -50,6 +50,12 @@ export interface ProductMix {
   categoryD: number;
   categoryE: number;
   nrvFactor: number;
+  /** NRV per category in rupees (from API/JSON). Shown inside bars. */
+  categoryANrv?: number;
+  categoryBNrv?: number;
+  categoryCNrv?: number;
+  categoryDNrv?: number;
+  categoryENrv?: number;
 }
 
 export type ImpactLevel = "High" | "Medium" | "Low";

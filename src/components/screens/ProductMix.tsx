@@ -24,10 +24,13 @@ function formatNrv(rupees: number): string {
   return `${(rupees / 1e3).toFixed(1)} K`;
 }
 
+const NRV_KEYS: ("categoryANrv" | "categoryBNrv" | "categoryCNrv" | "categoryDNrv" | "categoryENrv")[] = [
+  "categoryANrv", "categoryBNrv", "categoryCNrv", "categoryDNrv", "categoryENrv",
+];
+
 export function ProductMix({ data }: Props) {
-  const { productMix, growth } = data;
+  const { productMix } = data;
   const helped = productMix.nrvFactor >= 0.65;
-  const cyNrv = growth.CY_NRV;
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     const id = setTimeout(() => setMounted(true), 80);
@@ -47,10 +50,11 @@ export function ProductMix({ data }: Props) {
         Share of sales from each category. Higher categories (A, B) improve your score more.
       </p>
       <div className="space-y-2 mb-6">
-        {CATEGORIES.map(({ key, label, weight }) => {
+        {CATEGORIES.map(({ key, label, weight }, i) => {
           const pct = productMix[key];
-          const nrvValue = (cyNrv * pct) / 100;
-          const nrvStr = formatNrv(nrvValue);
+          const nrvKey = NRV_KEYS[i];
+          const nrvValue = productMix[nrvKey] ?? 0;
+          const nrvStr = nrvValue > 0 ? formatNrv(nrvValue) : null;
           const isCatE = key === "categoryE";
           const isCatAorB = key === "categoryA" || key === "categoryB";
           const barClass = [
@@ -67,11 +71,11 @@ export function ProductMix({ data }: Props) {
               <div className="w-20 text-slate-700 text-sm shrink-0">{label}</div>
               <div className="flex-1 h-6 bg-slate-200 rounded overflow-hidden relative min-w-0 flex items-center justify-end pr-2">
                 <div className={barClass} style={barStyle}>
-                  {mounted && pct >= 8 && (
-                    <span className="text-xs font-medium text-white drop-shadow-sm tabular-nums truncate">{nrvStr}</span>
+                  {mounted && nrvStr && (
+                    <span className="text-[10px] font-normal text-white drop-shadow-sm tabular-nums truncate">{nrvStr}</span>
                   )}
                 </div>
-                <span className="relative z-10 text-xs font-medium text-slate-700 tabular-nums ml-1">{pct}%</span>
+                <span className="relative z-10 text-[10px] font-normal text-slate-700 tabular-nums ml-1">{pct}%</span>
               </div>
               <span className="text-[10px] text-slate-500 w-6 tabular-nums">{weight}</span>
             </div>
