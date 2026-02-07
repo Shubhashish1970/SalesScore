@@ -64,23 +64,18 @@ export function OverdueMoney({ data }: Props) {
             return (
               <div key={key} className="flex items-center gap-2">
                 <div className="w-28 text-slate-600 text-xs shrink-0">{label}</div>
-                <div className="flex-1 h-7 bg-slate-200 rounded overflow-hidden relative min-w-0">
+                <div className="flex-1 h-7 bg-slate-200 rounded overflow-hidden relative min-w-0 flex items-center justify-end pr-2">
                   <div
-                    className="h-full rounded bg-slate-400"
+                    className="absolute inset-y-0 left-0 rounded bg-slate-400"
                     style={{ width: `${Math.max(pct, 3)}%` }}
                   />
-                </div>
-                <div className="flex items-center gap-1.5 w-24 shrink-0 justify-end">
                   {amountStr && (
-                    <span className="text-xs font-medium text-slate-700 tabular-nums">{amountStr}</span>
+                    <span className="relative z-10 text-xs font-medium text-slate-700 tabular-nums">{amountStr}</span>
                   )}
-                  {penaltyPct != null && (
-                    <span className="text-[10px] text-emerald-600 font-medium">{penaltyPct === 0 ? "0%" : `${penaltyPct}%`}</span>
-                  )}
-                  <span className="text-slate-700 text-sm font-medium tabular-nums w-7 text-right">
-                    {overdue[key]}%
-                  </span>
                 </div>
+                {penaltyPct != null && (
+                  <span className="text-[10px] text-emerald-600 font-medium w-8 shrink-0 text-right">{penaltyPct === 0 ? "0%" : `${penaltyPct}%`}</span>
+                )}
               </div>
             );
           })}
@@ -96,23 +91,18 @@ export function OverdueMoney({ data }: Props) {
             return (
               <div key={key} className="flex items-center gap-2">
                 <div className="w-28 text-slate-600 text-xs shrink-0">{label}</div>
-                <div className="flex-1 h-7 bg-slate-200 rounded overflow-hidden relative min-w-0">
+                <div className="flex-1 h-7 bg-slate-200 rounded overflow-hidden relative min-w-0 flex items-center justify-end pr-2">
                   <div
-                    className={`h-full rounded animate-overdue-penalized ${showRed ? "bg-red-500" : "bg-slate-400"}`}
+                    className={`absolute inset-y-0 left-0 rounded animate-overdue-penalized ${showRed ? "bg-red-500" : "bg-slate-400"}`}
                     style={{ width: `${Math.max(pct, 3)}%` }}
                   />
-                </div>
-                <div className="flex items-center gap-1.5 w-24 shrink-0 justify-end">
                   {amountStr && (
-                    <span className="text-xs font-medium text-slate-700 tabular-nums">{amountStr}</span>
+                    <span className="relative z-10 text-xs font-medium text-slate-700 tabular-nums">{amountStr}</span>
                   )}
-                  {penaltyPct != null && penaltyPct > 0 && (
-                    <span className="text-[10px] text-amber-600 font-medium">{penaltyPct}%</span>
-                  )}
-                  <span className="text-slate-700 text-sm font-medium tabular-nums w-7 text-right">
-                    {overdue[key]}%
-                  </span>
                 </div>
+                {penaltyPct != null && penaltyPct > 0 && (
+                  <span className="text-[10px] text-amber-600 font-medium w-8 shrink-0 text-right">{penaltyPct}%</span>
+                )}
               </div>
             );
           })}
