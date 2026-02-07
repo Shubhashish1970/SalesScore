@@ -32,9 +32,14 @@ export function ProductMix({ data }: Props) {
   const { productMix } = data;
   const helped = productMix.nrvFactor >= 0.65;
   const [mounted, setMounted] = useState(false);
+  const [mountedAB, setMountedAB] = useState(false);
   useEffect(() => {
-    const id = setTimeout(() => setMounted(true), 80);
-    return () => clearTimeout(id);
+    const t1 = setTimeout(() => setMounted(true), 80);
+    const t2 = setTimeout(() => setMountedAB(true), 320);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
   }, []);
 
   return (
@@ -62,8 +67,9 @@ export function ProductMix({ data }: Props) {
             isCatE ? "" : "bg-indigo-500",
             isCatAorB ? "animate-product-mix-bar-ab" : "",
           ].filter(Boolean).join(" ");
+          const barMounted = isCatAorB ? mountedAB : mounted;
           const barStyle: React.CSSProperties = {
-            width: mounted ? `${pct}%` : "0%",
+            width: barMounted ? `${pct}%` : "0%",
             ...(isCatE ? { backgroundColor: "#ff2c2c" } : {}),
           };
           return (
@@ -71,7 +77,7 @@ export function ProductMix({ data }: Props) {
               <div className="w-20 text-slate-700 text-sm shrink-0">{label}</div>
               <div className="flex-1 h-6 bg-slate-200 rounded overflow-hidden relative min-w-0 flex items-center justify-end pr-2">
                 <div className={barClass} style={barStyle}>
-                  {mounted && nrvStr && (
+                  {barMounted && nrvStr && (
                     <span className="text-[10px] font-normal text-white drop-shadow-sm tabular-nums truncate">{nrvStr}</span>
                   )}
                 </div>
