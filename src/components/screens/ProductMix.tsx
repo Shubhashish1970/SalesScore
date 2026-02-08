@@ -32,8 +32,9 @@ const NRV_KEYS: ("categoryANrv" | "categoryBNrv" | "categoryCNrv" | "categoryDNr
 const SMALL_BAR_PCT = 18;
 
 export function ProductMix({ data }: Props) {
-  const { productMix } = data;
+  const { productMix, growth } = data;
   const helped = productMix.nrvFactor >= 0.65;
+  const totalNrvStr = growth.CY_NRV > 0 ? formatNrv(growth.CY_NRV) : null;
   const [mounted, setMounted] = useState(false);
   const [mountedAB, setMountedAB] = useState(false);
   useEffect(() => {
@@ -57,6 +58,12 @@ export function ProductMix({ data }: Props) {
       <p className="text-[#2f41a7] text-xs mt-0 mb-4 pr-16">
         Share of sales from each category. Higher categories (A, B) improve your score more.
       </p>
+      {totalNrvStr != null && (
+        <div className="mb-6">
+          <p className="text-3xl font-bold text-slate-900 tabular-nums">{totalNrvStr}</p>
+          <p className="text-slate-500 text-sm">Total NRV (CY)</p>
+        </div>
+      )}
       <div className="space-y-2 mb-6">
         {CATEGORIES.map(({ key, label, weight }, i) => {
           const pct = productMix[key] ?? 0;

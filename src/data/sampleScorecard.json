@@ -92,7 +92,7 @@
     "entityName": "Prayagraj",
     "growth": { "CY_NRV": 12000000, "LY_NRV": 7000000, "growthPercent": 73.8, "growthFactor": 1 },
     "dso": { "dsoDays": 126.76, "dsoScore": 33, "dsoBand": "110-170", "dsoFactor": 1 },
-    "overdue": { "notDue": 59, "d1_110": 11, "d111_180": 28, "d181_270": 1, "d271_365": 1, "gt365": 0, "overdueScore": 31.7, "bucketAmounts": { "notDue": 0.31, "d1_110": 0.06, "d111_180": 0.15, "d181_270": 0.01, "d271_365": 0, "gt365": 0 } },
+    "overdue": { "notDue": 59, "d1_110": 11, "d111_180": 28, "d181_270": 1, "d271_365": 1, "gt365": 0, "overdueScore": 31.7, "bucketAmounts": { "notDue": 31, "d1_110": 6, "d111_180": 15, "d181_270": 1, "d271_365": 0, "gt365": 0 } },
     "overdueBucketPenalties": { "notDue": 0, "d1_110": 0, "d111_180": 20, "d181_270": 50, "d271_365": 100, "gt365": 200 },
     "productMix": { "categoryA": 1.81, "categoryB": 57.67, "categoryC": 3.57, "categoryD": 28.04, "categoryE": 8.91, "nrvFactor": 38.3, "categoryANrv": 215970, "categoryBNrv": 6896622, "categoryCNrv": 426671, "categoryDNrv": 3353020, "categoryENrv": 1065773 },
     "finalScore": 103,

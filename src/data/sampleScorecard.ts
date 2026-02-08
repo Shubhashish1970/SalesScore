@@ -163,7 +163,7 @@ export const samplePrayagrajTM: ScorecardData = {
     d271_365: 1,
     gt365: 0,
     overdueScore: 31.7,
-    bucketAmounts: { notDue: 0.31, d1_110: 0.06, d111_180: 0.15, d181_270: 0.01, d271_365: 0, gt365: 0 },
+    bucketAmounts: { notDue: 31, d1_110: 6, d111_180: 15, d181_270: 1, d271_365: 0, gt365: 0 },
   },
   overdueBucketPenalties: { notDue: 0, d1_110: 0, d111_180: 20, d181_270: 50, d271_365: 100, gt365: 200 },
   productMix: {

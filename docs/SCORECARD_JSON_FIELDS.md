@@ -55,7 +55,7 @@ Use these **exact JSON key names** in your API response. Below, each key is expl
 | `overdue.bucketAmounts.d271_365` | **Amount in 271–365 days bucket** (same unit). E.g. 0.04. |
 | `overdue.bucketAmounts.gt365` | **Amount in over-365-days bucket** (same unit). E.g. 0.91. |
 
-**Note:** The six `overdue.*` share fields (notDue, d1_110, …) should sum to 100 (percent of total outstanding). The six `bucketAmounts.*` values are the actual amounts and should use a consistent unit (e.g. all in Cr).
+**Note:** The six `overdue.*` share fields (notDue, d1_110, …) should sum to 100 (percent of total outstanding). The six `bucketAmounts.*` values are the actual amounts and should use a consistent unit: **Lacs (Lakhs)** for "X L" display (e.g. 31, 6, 15, 1) or Crores (e.g. 0.31, 0.06) for "X K" when &lt; 1 Lakh.
 
 ---
 
