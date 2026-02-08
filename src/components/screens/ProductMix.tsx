@@ -59,7 +59,7 @@ export function ProductMix({ data }: Props) {
       </p>
       <div className="space-y-2 mb-6">
         {CATEGORIES.map(({ key, label, weight }, i) => {
-          const pct = productMix[key];
+          const pct = productMix[key] ?? 0;
           const nrvKey = NRV_KEYS[i];
           const nrvValue = productMix[nrvKey] ?? 0;
           const nrvStr = nrvValue > 0 ? formatNrv(nrvValue) : null;
