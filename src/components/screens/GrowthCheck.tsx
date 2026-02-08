@@ -64,9 +64,9 @@ export function GrowthCheck({ data }: Props) {
   const animationClass = isFlatOrRed ? "animate-growth-pct-attention" : "animate-growth-pct";
 
   return (
-    <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6">
-      <h2 className="text-lg font-semibold text-slate-800 mb-0">Growth Check ( Qualifying Criteria )</h2>
-      <p className="text-[#2f41a7] text-xs mt-0.5 mb-10">
+    <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6 relative">
+      <h2 className="text-lg font-semibold text-slate-800 mb-0.5 pr-14">Growth Check ( Qualifying Criteria )</h2>
+      <p className="text-[#2f41a7] text-xs mt-0 mb-10 pr-16">
         Sales this year vs last year — growth is required for your score to count.
       </p>
       <div className="space-y-3 mb-4">

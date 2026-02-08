@@ -43,7 +43,7 @@ export function CollectionSpeed({ data }: Props) {
         {Math.round(dso.dsoScore)}
       </div>
       <h2 className="text-lg font-semibold text-slate-800 mb-0.5 pr-14">Collection Speed (DSO)</h2>
-      <p className="text-[#2f41a7] text-xs mt-0 mb-4">
+      <p className="text-[#2f41a7] text-xs mt-0 mb-4 pr-16">
         How many days, on average, your customers take to pay. Fewer days is better.
       </p>
       <div className="mb-6">

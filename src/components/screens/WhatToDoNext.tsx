@@ -27,9 +27,9 @@ export function WhatToDoNext({ data }: Props) {
   const actions = data.recommendedActions.slice(0, 5);
 
   return (
-    <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6">
-      <h2 className="text-lg font-semibold text-slate-800 mb-0.5">What to do next</h2>
-      <p className="text-[#2f41a7] text-xs mt-0 mb-5">
+    <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6 relative">
+      <h2 className="text-lg font-semibold text-slate-800 mb-0.5 pr-14">What to do next</h2>
+      <p className="text-[#2f41a7] text-xs mt-0 mb-5 pr-16">
         Focus on these actions to improve your score. Do the high-impact ones first.
       </p>
       <ul className="space-y-4">
