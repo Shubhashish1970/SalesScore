@@ -4,6 +4,7 @@
  */
 
 import type { ScorecardData } from "@/types/scorecard";
+import actionPlanDevansh from "./actionPlanDevansh.json";
 
 /** TM sample: realistic values from Dindigul / Pushpanathan (score 111/120, CY 1.9 Cr, DSO 74 days, OS 0.69 Cr). */
 export const sampleTM: ScorecardData = {
@@ -185,23 +186,7 @@ export const samplePrayagrajTM: ScorecardData = {
   kpiWeights: { productMix: 34, overdue: 33, dso: 33 },
   achievementMessage: "Your score is in the Green zone — keep it up.",
   dsoBandFactors: { "<50": 1.2, "50-110": 1.1, "110-170": 1.0, ">170": 0 },
-  recommendedActions: [
-    {
-      whatToDo: "[Replace with your action 1]",
-      whyItHelps: "[Replace with reason]",
-      expectedImpact: "High",
-    },
-    {
-      whatToDo: "[Replace with your action 2]",
-      whyItHelps: "[Replace with reason]",
-      expectedImpact: "Medium",
-    },
-    {
-      whatToDo: "[Replace with your action 3]",
-      whyItHelps: "[Replace with reason]",
-      expectedImpact: "Medium",
-    },
-  ],
+  recommendedActions: actionPlanDevansh.recommendedActions as ScorecardData["recommendedActions"],
 };
 
 export const sampleRM: ScorecardData = {
