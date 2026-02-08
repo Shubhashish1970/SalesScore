@@ -36,7 +36,7 @@ export function OverdueMoney({ data }: Props) {
   const osScore = overdue.overdueScore ?? null;
 
   return (
-    <section className="min-h-[80dvh] flex flex-col justify-center px-5 py-6 relative">
+    <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6 relative">
       {osScore != null && (
         <div
           className="absolute top-6 right-5 w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold tabular-nums bg-amber-500 text-slate-900"
