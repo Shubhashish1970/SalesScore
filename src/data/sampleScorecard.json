@@ -85,6 +85,27 @@
       { "whatToDo": "Push Category A and B share in under-performing dealers", "whyItHelps": "Product mix at 38.3% can improve NRV factor further", "expectedImpact": "Medium" }
     ]
   },
+  "prayagrajExample": {
+    "mobile": "9118199000",
+    "name": "Devansh Singh",
+    "role": "TM",
+    "entityName": "Prayagraj",
+    "growth": { "CY_NRV": 12000000, "LY_NRV": 7000000, "growthPercent": 73.8, "growthFactor": 1 },
+    "dso": { "dsoDays": 126.76, "dsoScore": 33, "dsoBand": "110-170", "dsoFactor": 1 },
+    "overdue": { "notDue": 59, "d1_110": 11, "d111_180": 28, "d181_270": 1, "d271_365": 1, "gt365": 0, "overdueScore": 31.7, "bucketAmounts": { "notDue": 0.31, "d1_110": 0.06, "d111_180": 0.15, "d181_270": 0.01, "d271_365": 0, "gt365": 0 } },
+    "overdueBucketPenalties": { "notDue": 0, "d1_110": 0, "d111_180": 20, "d181_270": 50, "d271_365": 100, "gt365": 200 },
+    "productMix": { "categoryA": 25, "categoryB": 25, "categoryC": 25, "categoryD": 15, "categoryE": 10, "nrvFactor": 1.126 },
+    "finalScore": 103,
+    "maxScore": 120,
+    "scoreBandThresholds": { "redEnd": 80, "amberEnd": 90 },
+    "achievementMessage": "Your score is in the Green zone — keep it up.",
+    "dsoBandFactors": { "<50": 1.2, "50-110": 1.1, "110-170": 1, ">170": 0 },
+    "recommendedActions": [
+      { "whatToDo": "[Replace with your action 1]", "whyItHelps": "[Replace with reason]", "expectedImpact": "High" },
+      { "whatToDo": "[Replace with your action 2]", "whyItHelps": "[Replace with reason]", "expectedImpact": "Medium" },
+      { "whatToDo": "[Replace with your action 3]", "whyItHelps": "[Replace with reason]", "expectedImpact": "Medium" }
+    ]
+  },
   "dsoBands": ["<50", "50-110", "110-170", ">170"],
   "impactLevels": ["High", "Medium", "Low"]
 }

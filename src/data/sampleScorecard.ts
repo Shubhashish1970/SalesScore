@@ -137,6 +137,67 @@ export const sampleGorakhpurTM: ScorecardData = {
   ],
 };
 
+/** TM sample: Prayagraj — Devansh Singh (Emp 22730). Score 103/120, CY 1.2 Cr, growth 73.8%, DSO 126.76 days, OS 0.53 Cr. */
+export const samplePrayagrajTM: ScorecardData = {
+  mobile: "9118199000",
+  name: "Devansh Singh",
+  role: "TM",
+  entityName: "Prayagraj",
+  growth: {
+    CY_NRV: 12000000,
+    LY_NRV: 7000000,
+    growthPercent: 73.8,
+    growthFactor: 1,
+  },
+  dso: {
+    dsoDays: 126.76,
+    dsoScore: 33,
+    dsoBand: "110-170",
+    dsoFactor: 1.0,
+  },
+  overdue: {
+    notDue: 59,
+    d1_110: 11,
+    d111_180: 28,
+    d181_270: 1,
+    d271_365: 1,
+    gt365: 0,
+    overdueScore: 31.7,
+    bucketAmounts: { notDue: 0.31, d1_110: 0.06, d111_180: 0.15, d181_270: 0.01, d271_365: 0, gt365: 0 },
+  },
+  overdueBucketPenalties: { notDue: 0, d1_110: 0, d111_180: 20, d181_270: 50, d271_365: 100, gt365: 200 },
+  productMix: {
+    categoryA: 25,
+    categoryB: 25,
+    categoryC: 25,
+    categoryD: 15,
+    categoryE: 10,
+    nrvFactor: 1.126,
+  },
+  finalScore: 103,
+  maxScore: 120,
+  scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
+  achievementMessage: "Your score is in the Green zone — keep it up.",
+  dsoBandFactors: { "<50": 1.2, "50-110": 1.1, "110-170": 1.0, ">170": 0 },
+  recommendedActions: [
+    {
+      whatToDo: "[Replace with your action 1]",
+      whyItHelps: "[Replace with reason]",
+      expectedImpact: "High",
+    },
+    {
+      whatToDo: "[Replace with your action 2]",
+      whyItHelps: "[Replace with reason]",
+      expectedImpact: "Medium",
+    },
+    {
+      whatToDo: "[Replace with your action 3]",
+      whyItHelps: "[Replace with reason]",
+      expectedImpact: "Medium",
+    },
+  ],
+};
+
 export const sampleRM: ScorecardData = {
   mobile: "9876510002",
   name: "Priya",
@@ -327,6 +388,7 @@ export const scorecardByMobile: Record<string, ScorecardData> = {
   "9876510001": sampleTM,
   "9080340493": sampleTM,
   "9151003714": sampleGorakhpurTM,
+  "9118199000": samplePrayagrajTM,
   "9876510002": sampleRM,
   "9876510003": sampleZM,
   "9876510004": sampleBU,
@@ -339,6 +401,7 @@ export const scorecardByMobile: Record<string, ScorecardData> = {
 export const scorecardByToken: Record<string, ScorecardData> = {
   "d_tm": sampleTM,
   "d_gorakhpur": sampleGorakhpurTM,
+  "d_prayagraj": samplePrayagrajTM,
   "d_rm": sampleRM,
   "d_zm": sampleZM,
   "d_bu": sampleBU,
