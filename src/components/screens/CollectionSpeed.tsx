@@ -32,18 +32,20 @@ export function CollectionSpeed({ data }: Props) {
   const { dso } = data;
   const factors = data.dsoBandFactors;
   const activeBandConfig = BANDS.find((b) => b.band === dso.dsoBand);
-  const roundelColor = activeBandConfig?.roundelColor ?? "bg-slate-500 text-white";
+  const badgeColor = activeBandConfig?.roundelColor ?? "bg-slate-500 text-white";
+  const dsoScoreRounded = Math.round(dso.dsoScore);
+  const dsoWeight = data.kpiWeights?.dso ?? 33;
 
   return (
     <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6 relative">
       <div
-        className={`absolute top-6 right-5 w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold tabular-nums ${roundelColor}`}
-        aria-label={`DSO score: ${Math.round(dso.dsoScore)}`}
+        className={`absolute top-6 right-5 rounded-lg px-2.5 py-1.5 flex items-center justify-center text-base font-bold tabular-nums min-w-[4.5rem] ${badgeColor}`}
+        aria-label={`DSO score: ${dsoScoreRounded} out of ${dsoWeight}`}
       >
-        {Math.round(dso.dsoScore)}
+        {dsoScoreRounded}/{dsoWeight}
       </div>
-      <h2 className="text-lg font-semibold text-slate-800 mb-0.5 pr-14">Collection Speed (DSO)</h2>
-      <p className="text-[#2f41a7] text-xs mt-0 mb-4 pr-16">
+      <h2 className="text-lg font-semibold text-slate-800 mb-0.5 pr-20">Collection Speed (DSO)</h2>
+      <p className="text-[#2f41a7] text-xs mt-0 mb-4 pr-20">
         How many days, on average, your customers take to pay. Fewer days is better.
       </p>
       <div className="mb-6">

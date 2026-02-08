@@ -182,6 +182,7 @@ export const samplePrayagrajTM: ScorecardData = {
   finalScore: 103,
   maxScore: 120,
   scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
+  kpiWeights: { productMix: 34, overdue: 33, dso: 33 },
   achievementMessage: "Your score is in the Green zone — keep it up.",
   dsoBandFactors: { "<50": 1.2, "50-110": 1.1, "110-170": 1.0, ">170": 0 },
   recommendedActions: [

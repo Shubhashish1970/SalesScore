@@ -38,19 +38,20 @@ export function OverdueMoney({ data }: Props) {
     ? BUCKETS.reduce((s, b) => s + (amounts[b.key] ?? 0), 0)
     : 0;
   const totalOverdueStr = totalOverdueLakhs > 0 ? formatAmount(totalOverdueLakhs) : null;
+  const overdueWeight = data.kpiWeights?.overdue ?? 33;
 
   return (
     <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6 relative">
       {osScore != null && (
         <div
-          className="absolute top-6 right-5 w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold tabular-nums bg-amber-500 text-slate-900"
-          aria-label={`OS score: ${Math.round(osScore)}`}
+          className="absolute top-6 right-5 rounded-lg px-2.5 py-1.5 flex items-center justify-center text-base font-bold tabular-nums bg-amber-500 text-slate-900 min-w-[4.5rem]"
+          aria-label={`OS score: ${Math.round(osScore)} out of ${overdueWeight}`}
         >
-          {Math.round(osScore)}
+          {Math.round(osScore)}/{overdueWeight}
         </div>
       )}
-      <h2 className="text-lg font-semibold text-slate-800 mb-0.5 pr-14">Overdue money</h2>
-      <p className="text-[#2f41a7] text-xs mt-0 mb-4 pr-16">
+      <h2 className="text-lg font-semibold text-slate-800 mb-0.5 pr-20">Overdue money</h2>
+      <p className="text-[#2f41a7] text-xs mt-0 mb-4 pr-20">
         Money that is late. The older the delay, the more it hurts your score.
       </p>
       {totalOverdueStr != null && (

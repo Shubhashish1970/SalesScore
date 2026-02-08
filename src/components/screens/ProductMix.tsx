@@ -46,16 +46,19 @@ export function ProductMix({ data }: Props) {
     };
   }, []);
 
+  const score = Math.round(productMix.nrvFactor);
+  const weight = data.kpiWeights?.productMix ?? 34;
+
   return (
     <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6 relative">
       <div
-        className="absolute top-6 right-5 w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold tabular-nums bg-indigo-500 text-white"
-        aria-label={`Product score: ${Math.round(productMix.nrvFactor)}`}
+        className="absolute top-6 right-5 rounded-lg px-2.5 py-1.5 flex items-center justify-center text-base font-bold tabular-nums bg-indigo-500 text-white min-w-[4.5rem]"
+        aria-label={`Product score: ${score} out of ${weight}`}
       >
-        {Math.round(productMix.nrvFactor)}
+        {score}/{weight}
       </div>
-      <h2 className="text-lg font-semibold text-slate-800 mb-0.5 pr-14">Product mix</h2>
-      <p className="text-[#2f41a7] text-xs mt-0 mb-4 pr-16">
+      <h2 className="text-lg font-semibold text-slate-800 mb-0.5 pr-20">Product mix</h2>
+      <p className="text-[#2f41a7] text-xs mt-0 mb-4 pr-20">
         Share of sales from each category. Higher categories (A, B) improve your score more.
       </p>
       {totalNrvStr != null && (

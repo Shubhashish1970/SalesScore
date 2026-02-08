@@ -100,7 +100,12 @@ Use these **exact JSON key names** in your API response. Below, each key is expl
 | `maxScore` | **Maximum possible score.** E.g. 120. |
 | `scoreBandThresholds.redEnd` | Score below this = Red zone. E.g. 80. |
 | `scoreBandThresholds.amberEnd` | Score from redEnd to amberEnd = Amber; above = Green. E.g. 90. |
+| `kpiWeights.productMix` | **Max score (weight) for Product Mix KPI** — shown as score/max in badge (e.g. 38/34). E.g. 34. |
+| `kpiWeights.overdue` | **Max score (weight) for Overdue KPI** — e.g. 33. |
+| `kpiWeights.dso` | **Max score (weight) for Collection Speed (DSO) KPI** — e.g. 33. |
 | `achievementMessage` | **One-line message under the gauge;** e.g. “Your score is in the Red zone — focus on DSO and overdue to improve.” |
+
+If `kpiWeights` is omitted, defaults are used (productMix 34, overdue 33, dso 33). The app shows each KPI score as score/weight in a rectangular badge (e.g. 38/34).
 
 ---
 
@@ -131,5 +136,6 @@ Use these **exact JSON key names** in your API response. Below, each key is expl
 - `overdue.overdueScore` — optional; if omitted, the OS roundel may be hidden.
 - `overdue.bucketAmounts` — optional; if omitted, only percentage bars are shown (no amounts on bars).
 - `productMix.categoryANrv` … `categoryENrv` — optional; if omitted, NRV inside bars is not shown.
+- `kpiWeights` — optional; if omitted, badge shows score/default weight (34 for product mix, 33 for overdue, 33 for DSO).
 
 All other fields in the tables above are **required** for a full scorecard.

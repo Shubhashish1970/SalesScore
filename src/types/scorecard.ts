@@ -69,6 +69,16 @@ export interface ScoreBandThresholds {
   amberEnd: number;
 }
 
+/** Max score (weight) per KPI for "score/max" display in badge. Optional; defaults: productMix 34, overdue 33, dso 33. */
+export interface KpiWeights {
+  /** Product mix (NRV factor) — e.g. 34. */
+  productMix?: number;
+  /** Overdue money (OS) — e.g. 33. */
+  overdue?: number;
+  /** Collection Speed (DSO) — e.g. 33. */
+  dso?: number;
+}
+
 /** DSO factor per band; from JSON or global API. Shown over bands; replaces hardcoded Norms. */
 export type DsoBandFactors = Record<Dso["dsoBand"], number>;
 
@@ -94,5 +104,7 @@ export interface ScorecardData {
   dsoBandFactors?: DsoBandFactors;
   /** OD weightage: penalty % per bucket (0, 0, 20, 50, 100, 200). From JSON/API; shown like DSO factors. */
   overdueBucketPenalties?: OverdueBucketPenalties;
+  /** KPI weights for score/max badge (e.g. 38/34). Optional; defaults used per KPI. */
+  kpiWeights?: KpiWeights;
   recommendedActions: RecommendedAction[];
 }
