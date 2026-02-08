@@ -25,7 +25,7 @@ const BANDS: {
 function impactText(factor: number): string {
   if (factor <= 0) return "Collection speed is blocking your score. Improving it will unlock the score.";
   if (factor < 1) return "Collection speed is partly limiting your score. Reducing days will help.";
-  return "Collection speed is in a good band and helping your score.";
+  return "Collection speed is in a good band and helping your score, but you can do better by moving to <50 band.";
 }
 
 export function CollectionSpeed({ data }: Props) {
