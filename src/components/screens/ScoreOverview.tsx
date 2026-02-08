@@ -32,7 +32,7 @@ export function ScoreOverview({ data }: Props) {
   const achievementLine = data.achievementMessage || "Your score at a glance.";
 
   return (
-    <section className="min-h-[80dvh] flex flex-col justify-center px-5 py-6">
+    <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6">
       <p className="text-slate-500 text-sm mb-1">{getRoleLabel(data.role)}</p>
       <h1 className="text-xl font-semibold text-slate-800 mb-2">{data.entityName}</h1>
       <div className="my-2">
