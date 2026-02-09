@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "highcharts": "^12.5.0",
     "highcharts-react-official": "^3.2.3",
     "next": "14.2.18",

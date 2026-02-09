@@ -11,6 +11,7 @@ import {
   sampleBU,
 } from "@/data/sampleScorecard";
 import type { ScorecardData } from "@/types/scorecard";
+import { mergeCommentaryIntoScorecard } from "@/gemini";
 import { ScoreOverview } from "@/components/screens/ScoreOverview";
 import { GrowthCheck } from "@/components/screens/GrowthCheck";
 import { CollectionSpeed } from "@/components/screens/CollectionSpeed";
@@ -53,19 +54,30 @@ function HomeContent() {
   const isDemoMode = !isPersonalLink;
 
   useEffect(() => {
+    let scorecard: ScorecardData | undefined;
     if (userToken) {
-      const scorecard = scorecardByToken[userToken];
-      if (scorecard) {
-        setData(scorecard);
-      }
+      scorecard = scorecardByToken[userToken];
+      if (scorecard) setData(scorecard);
       // Else: in production, fetch GET /api/scorecard?u={userToken} and setData(response)
     } else if (mobileFromUrl) {
-      const scorecard = scorecardByMobile[mobileFromUrl];
+      scorecard = scorecardByMobile[mobileFromUrl];
       if (scorecard) setData(scorecard);
     } else {
       setData(defaultScorecard);
     }
     setCurrentIndex(0);
+
+    // When opened via personal link, fetch Gemini commentary and merge into scorecard.
+    if (scorecard) {
+      fetch("/api/gemini/commentary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(scorecard),
+      })
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error("Commentary failed"))))
+        .then((commentary) => setData(mergeCommentaryIntoScorecard(scorecard!, commentary)))
+        .catch(() => {});
+    }
   }, [userToken, mobileFromUrl, setCurrentIndex]);
 
   const Screen = SCREENS[currentIndex];
