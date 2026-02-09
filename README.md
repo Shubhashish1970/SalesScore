@@ -83,4 +83,4 @@ Each push to `main` runs the **Deploy to Firebase Hosting** workflow: it builds 
 
 **Live site (after first deploy):** `https://salesscore-c34f3.web.app`
 
-You can also run the workflow manually: **Actions** → **Deploy to Firebase Hosting** → **Run workflow**.
+You can also run the workflow manually: **Actions** → **Deploy to Firebase Hosting** → **Run workflow**. See `docs/FIREBASE_DEPLOY_SETUP.md` for secrets setup.
