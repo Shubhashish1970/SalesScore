@@ -4,7 +4,6 @@
  */
 
 import type { ScorecardData } from "@/types/scorecard";
-import actionPlanDevansh from "./actionPlanDevansh.json";
 
 /** TM sample: realistic values from Dindigul / Pushpanathan (score 111/120, CY 1.9 Cr, DSO 74 days, OS 0.69 Cr). */
 export const sampleTM: ScorecardData = {
@@ -186,7 +185,12 @@ export const samplePrayagrajTM: ScorecardData = {
   kpiWeights: { productMix: 34, overdue: 33, dso: 33 },
   achievementMessage: "Your score is in the Green zone — keep it up.",
   dsoBandFactors: { "<50": 1.2, "50-110": 1.1, "110-170": 1.0, ">170": 0 },
-  recommendedActions: actionPlanDevansh.recommendedActions as ScorecardData["recommendedActions"],
+  recommendedActions: [
+    { whatToDo: "Bring DSO below 110 days to unlock higher factor", whyItHelps: "You are in the 110–170 days band. Moving to 50–110 days unlocks a better DSO factor and lifts your overall score.", expectedImpact: "High" },
+    { whatToDo: "Clear overdue in 111–180 days bucket on priority", whyItHelps: "15 L is in the 20% penalty bucket. Clearing it reduces penalty drag and improves your OS score.", expectedImpact: "High" },
+    { whatToDo: "Push Category A and B share in under-performing outlets", whyItHelps: "Your mix is already helping (38/34). More of Category A and B will improve the NRV factor further.", expectedImpact: "Medium" },
+    { whatToDo: "Keep growth momentum and monitor 181+ day overdue", whyItHelps: "Growth is strong; keeping 181+ day bucket minimal avoids the highest penalties and protects your score.", expectedImpact: "Medium" },
+  ],
 };
 
 export const sampleRM: ScorecardData = {

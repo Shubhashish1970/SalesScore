@@ -35,3 +35,6 @@ yarn-error.log*
 
 # Vercel (if ever used)
 .vercel
+
+# Local / no-deploy (not pushed to GitHub)
+_local/
