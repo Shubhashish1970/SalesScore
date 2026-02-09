@@ -68,8 +68,10 @@ function HomeContent() {
     setCurrentIndex(0);
 
     // When opened via personal link, fetch Gemini commentary and merge into scorecard.
+    // With static export (Firebase Hosting) there is no same-origin API; set NEXT_PUBLIC_GEMINI_COMMENTARY_URL to your hosted API.
     if (scorecard) {
-      fetch("/api/gemini/commentary", {
+      const commentaryUrl = process.env.NEXT_PUBLIC_GEMINI_COMMENTARY_URL ?? "/api/gemini/commentary";
+      fetch(commentaryUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(scorecard),
