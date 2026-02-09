@@ -89,9 +89,11 @@ export function CollectionSpeed({ data }: Props) {
           </div>
         ))}
       </div>
-      <div className="rounded-xl bg-slate-100 p-4">
-        <p className="text-slate-700 text-sm">{impactText(dso.dsoFactor)}</p>
-      </div>
+      {data.dsoComment?.trim() ? (
+        <div className="rounded-xl bg-slate-100 p-4">
+          <p className="text-slate-700 text-sm">{data.dsoComment.trim()}</p>
+        </div>
+      ) : null}
     </section>
   );
 }

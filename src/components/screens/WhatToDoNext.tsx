@@ -24,7 +24,7 @@ function impactBadge(impact: string) {
 }
 
 export function WhatToDoNext({ data }: Props) {
-  const actions = data.recommendedActions.slice(0, 5);
+  const actions = Array.isArray(data.recommendedActions) ? data.recommendedActions.slice(0, 5) : [];
 
   return (
     <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6 relative">
@@ -32,15 +32,17 @@ export function WhatToDoNext({ data }: Props) {
       <p className="text-[#2f41a7] text-xs mt-0 mb-5 pr-16">
         Focus on these actions to improve your score. Do the high-impact ones first.
       </p>
-      <ul className="space-y-4">
-        {actions.map((action, i) => (
-          <li key={i} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="font-medium text-slate-900 mb-1">{action.whatToDo}</p>
-            <p className="text-slate-600 text-sm mb-2">{action.whyItHelps}</p>
-            {impactBadge(action.expectedImpact)}
-          </li>
-        ))}
-      </ul>
+      {actions.length > 0 ? (
+        <ul className="space-y-4">
+          {actions.map((action, i) => (
+            <li key={i} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <p className="font-medium text-slate-900 mb-1">{action.whatToDo}</p>
+              <p className="text-slate-600 text-sm mb-2">{action.whyItHelps}</p>
+              {impactBadge(action.expectedImpact)}
+            </li>
+          ))}
+        </ul>
+      ) : null}
       <p className="mt-8 text-slate-500 text-sm">You’ve reached the end. Revisit this list regularly.</p>
     </section>
   );

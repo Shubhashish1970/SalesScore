@@ -139,3 +139,20 @@ If `kpiWeights` is omitted, defaults are used (productMix 34, overdue 33, dso 33
 - `kpiWeights` — optional; if omitted, badge shows score/default weight (34 for product mix, 33 for overdue, 33 for DSO).
 
 All other fields in the tables above are **required** for a full scorecard.
+
+---
+
+## Gemini-generated commentary (optional)
+
+When using an AI (e.g. Gemini) to generate personalised commentary, merge its output into `ScorecardData`. **If a field is missing or empty, the UI skips that text entirely** (no fallback), so users are not shown wrong or generic guidance. All prompts and the output contract are in `src/lib/gemini-prompts.ts`, organized by role for use from API routes or other programs.
+
+| JSON key | Screen | Purpose |
+|----------|--------|---------|
+| `achievementMessage` | Score Overview | Single line under the gauge. |
+| `growthComment` | Growth Check | Bottom explanatory box. |
+| `dsoComment` | Collection Speed (DSO) | Grey explanatory box. |
+| `overdueComment` | Overdue Money | Yellow insight box. |
+| `productMixComment` | Product Mix | Green/amber explanatory box. |
+| `recommendedActions` | What to do next | Array of 3–5 actions: `whatToDo`, `whyItHelps`, `expectedImpact` ("High" \| "Medium" \| "Low"). |
+
+All of these are optional. Do not invent numbers; keep tone clear, practical, and encouraging.

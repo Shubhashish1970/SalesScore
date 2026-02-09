@@ -118,13 +118,11 @@ export function ProductMix({ data }: Props) {
           );
         })}
       </div>
-      <div className={`rounded-xl p-4 ${helped ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800"}`}>
-        <p className="text-sm font-medium">
-          {helped
-            ? "Your mix is helping your score. More of Category A and B will help further."
-            : "Your mix is diluting the score. Shifting more sales to Category A and B will improve it."}
-        </p>
-      </div>
+      {data.productMixComment?.trim() ? (
+        <div className={`rounded-xl p-4 ${helped ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800"}`}>
+          <p className="text-sm font-medium">{data.productMixComment.trim()}</p>
+        </div>
+      ) : null}
     </section>
   );
 }

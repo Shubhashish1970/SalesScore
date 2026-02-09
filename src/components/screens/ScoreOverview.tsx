@@ -29,7 +29,7 @@ function getRoleLabel(role: ScorecardData["role"]) {
 export function ScoreOverview({ data }: Props) {
   const redEnd = data.scoreBandThresholds?.redEnd ?? 80;
   const amberEnd = data.scoreBandThresholds?.amberEnd ?? 90;
-  const achievementLine = data.achievementMessage || "Your score at a glance.";
+  const achievementLine = data.achievementMessage?.trim();
 
   return (
     <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6">
@@ -43,7 +43,9 @@ export function ScoreOverview({ data }: Props) {
           amberEnd={amberEnd}
         />
       </div>
-      <p className="text-slate-700 text-base leading-relaxed max-w-sm">{achievementLine}</p>
+      {achievementLine ? (
+        <p className="text-slate-700 text-base leading-relaxed max-w-sm">{achievementLine}</p>
+      ) : null}
     </section>
   );
 }

@@ -106,5 +106,13 @@ export interface ScorecardData {
   overdueBucketPenalties?: OverdueBucketPenalties;
   /** KPI weights for score/max badge (e.g. 38/34). Optional; defaults used per KPI. */
   kpiWeights?: KpiWeights;
+  /** Gemini-generated: comment in bottom box (Growth Check). When absent, fallback to hardcoded growth message. */
+  growthComment?: string;
+  /** Gemini-generated: comment in grey box (Collection Speed). When absent, fallback to hardcoded DSO message. */
+  dsoComment?: string;
+  /** Gemini-generated: comment in yellow box (Overdue). When absent, fallback to hardcoded overdue message. */
+  overdueComment?: string;
+  /** Gemini-generated: comment in green/amber box (Product Mix). When absent, fallback to hardcoded mix message. */
+  productMixComment?: string;
   recommendedActions: RecommendedAction[];
 }

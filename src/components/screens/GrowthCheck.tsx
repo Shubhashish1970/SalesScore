@@ -86,17 +86,15 @@ export function GrowthCheck({ data }: Props) {
         </span>
         <GrowthArrow band={band} direction={direction} />
       </div>
-      <div
-        className={`rounded-xl p-4 ${
-          achieved ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800"
-        }`}
-      >
-        {achieved ? (
-          <p className="font-medium">Growth achieved → your score is enabled.</p>
-        ) : (
-          <p className="font-medium">No growth → score is blocked until you grow over last year.</p>
-        )}
-      </div>
+      {data.growthComment?.trim() ? (
+        <div
+          className={`rounded-xl p-4 ${
+            achieved ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800"
+          }`}
+        >
+          <p className="font-medium">{data.growthComment.trim()}</p>
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -119,13 +119,11 @@ export function OverdueMoney({ data }: Props) {
           })}
         </div>
       </div>
-      <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
-        <p className="text-amber-900 text-sm">
-          {badShare > 0.1
-            ? "A large share of overdue is beyond 180 days. This applies the highest penalty and hurts your score the most."
-            : "Most overdue is in earlier buckets. Focus on clearing anything beyond 180 days first."}
-        </p>
-      </div>
+      {data.overdueComment?.trim() ? (
+        <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
+          <p className="text-amber-900 text-sm">{data.overdueComment.trim()}</p>
+        </div>
+      ) : null}
     </section>
   );
 }
