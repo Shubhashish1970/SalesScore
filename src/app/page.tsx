@@ -78,7 +78,9 @@ function HomeContent() {
       })
         .then((r) => (r.ok ? r.json() : Promise.reject(new Error("Commentary failed"))))
         .then((commentary) => setData(mergeCommentaryIntoScorecard(scorecard!, commentary)))
-        .catch(() => {});
+        .catch((err) => {
+          console.warn("[Scorecard] Commentary request failed, using sample text:", err?.message || err);
+        });
     }
   }, [userToken, mobileFromUrl, setCurrentIndex]);
 
