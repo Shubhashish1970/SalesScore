@@ -1,0 +1,10 @@
+{
+  "name": "gemini-commentary-api",
+  "version": "1.0.0",
+  "description": "GCP Cloud Function: Gemini commentary for Sales Scorecard",
+  "main": "index.js",
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1"
+  }
+}

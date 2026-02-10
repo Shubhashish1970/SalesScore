@@ -32,6 +32,8 @@ jobs:
         run: npm ci
 
       - name: Build
+        env:
+          NEXT_PUBLIC_GEMINI_COMMENTARY_URL: https://us-central1-${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}.cloudfunctions.net/gemini-commentary
         run: npm run build
 
       - name: Deploy to Firebase Hosting

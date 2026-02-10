@@ -1,0 +1,62 @@
+# Deploy Gemini commentary API to GCP Cloud Functions (Gen2) on push to main.
+#
+# Secrets required:
+#   - FIREBASE_SERVICE_ACCOUNT_JSON (or GCP_SA_KEY): GCP service account key JSON with
+#     Cloud Functions Developer + Service Account User (to deploy).
+#   - GEMINI_API_KEY: Gemini API key; passed to the function as env var.
+#
+# After deploy, set NEXT_PUBLIC_GEMINI_COMMENTARY_URL in your app build to the function URL.
+
+name: Deploy Gemini API (GCP)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "gcp-gemini-api/**"
+      - ".github/workflows/deploy-gemini-api.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}
+
+      - name: Enable required APIs
+        run: |
+          gcloud services enable cloudfunctions.googleapis.com cloudbuild.googleapis.com run.googleapis.com --quiet
+
+      - name: Deploy Cloud Function (Gemini commentary)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+        run: |
+          PROJECT_ID="${PROJECT_ID:-salesscore-c34f3}"
+          if [ -z "$GEMINI_API_KEY" ]; then
+            echo "::warning::GEMINI_API_KEY not set; function will return 503 until key is set in GCP Console."
+          fi
+          gcloud functions deploy gemini-commentary \
+            --gen2 \
+            --runtime=nodejs20 \
+            --region=us-central1 \
+            --source=./gcp-gemini-api \
+            --entry-point=geminiCommentary \
+            --trigger-http \
+            --allow-unauthenticated \
+            --set-env-vars "GEMINI_API_KEY=$GEMINI_API_KEY" \
+            --project="$PROJECT_ID" \
+            --quiet
+          echo "Function URL: https://us-central1-${PROJECT_ID}.cloudfunctions.net/gemini-commentary"
+          echo "NEXT_PUBLIC_GEMINI_COMMENTARY_URL is set automatically in the Firebase build."

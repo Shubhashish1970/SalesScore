@@ -1,0 +1,171 @@
+/**
+ * GCP Cloud Function (Gen2): POST body = scorecard JSON → returns Gemini commentary JSON.
+ * Set GEMINI_API_KEY (or GOOGLE_API_KEY) in the function's environment.
+ */
+
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+const DEFAULT_MODEL = "gemini-1.5-flash";
+
+const GEMINI_OUTPUT_SCHEMA = `
+You MUST return ONLY valid JSON in this exact structure. No extra keys. No commentary. No markdown.
+
+{
+  "achievementMessage": "string",
+  "growthComment": "string",
+  "dsoComment": "string",
+  "overdueComment": "string",
+  "productMixComment": "string",
+  "recommendedActions": [
+    {
+      "whatToDo": "string",
+      "whyItHelps": "string",
+      "expectedImpact": "High" | "Medium" | "Low"
+    }
+  ]
+}
+
+Rules:
+- All strings must be concise and UI-safe.
+- Do not invent numbers; refer only to concepts and bands provided in the input.
+- Tone: clear, practical, encouraging.
+- recommendedActions: minimum 3, maximum 5 items.
+`.trim();
+
+const SCORECARD_CONTEXT = `
+You are a coach for a Sales Scorecard. The scorecard has already computed all scores and KPIs.
+Your job is ONLY to generate short, human-readable commentary and 3–5 recommended actions.
+
+## Overall score
+- finalScore out of maxScore (e.g. 120).
+- Bands: Red (score < redEnd, e.g. 80), Amber (redEnd to amberEnd, e.g. 90), Green (above amberEnd).
+- achievementMessage: One short sentence under the gauge. Summarize band and encourage, caution, or celebrate.
+
+## Growth (Screen 2)
+- growthPercent: YoY growth %. growthFactor: 1 = achieved, 0 = not achieved (score blocked).
+- Green: >5%, Amber: 0–5%, Red: <0%.
+- growthComment: One short sentence. State whether growth is achieved and what it means for the score.
+
+## Collection Speed – DSO (Screen 3)
+- dsoDays: days to collect. Bands: <50 (best), 50–110, 110–170, >170 (worst). Each band has a factor (e.g. 1.2, 1.1, 1, 0).
+- dsoComment: One short sentence. Say if DSO is helping, limiting, or blocking; suggest moving toward <50 if relevant.
+
+## Overdue (Screen 4)
+- Buckets: on time, 1–110, 111–180, 181–270, 271–365, >365 days. Penalties increase with age (e.g. 0, 0, 20%, 50%, 100%, 200%).
+- overdueComment: One short sentence. Where is overdue concentrated? Prioritise clearing 180+ days first.
+
+## Product Mix (Screen 5)
+- categoryA–E: share of sales. A/B help score most; E hurts. nrvFactor: product mix score.
+- productMixComment: One short sentence. Is mix helping or diluting? Suggest pushing A/B.
+
+## What to do next (Screen 6)
+- recommendedActions: 3–5 items. Each: whatToDo (short title), whyItHelps (1–2 sentences), expectedImpact: High | Medium | Low.
+- Focus on the levers that will improve this person's score most.
+`.trim();
+
+const ROLE_INSTRUCTIONS = {
+  TM: "The user is a Territory Manager. Commentary should be direct and action-oriented for their territory.",
+  RM: "The user is a Regional Manager. Commentary can reference aggregate performance and regional levers.",
+  ZM: "The user is a Zonal Manager. Commentary can reference zone-level priorities and delegation.",
+  BU: "The user is a BU Head. Commentary can reference business-unit goals and policy.",
+};
+
+function getSystemPrompt() {
+  return [SCORECARD_CONTEXT, "\n\n## Output format\n", GEMINI_OUTPUT_SCHEMA].join("");
+}
+
+function getUserPrompt(scorecardJson, role) {
+  const roleNote = ROLE_INSTRUCTIONS[role] || ROLE_INSTRUCTIONS.TM;
+  return [
+    roleNote,
+    "",
+    "Based on the following scorecard data, generate the commentary and actions. Return ONLY the JSON object as specified.",
+    "",
+    "Scorecard data (JSON):",
+    JSON.stringify(scorecardJson, null, 0),
+  ].join("\n");
+}
+
+function extractJson(text) {
+  const trimmed = text.trim();
+  const jsonBlock = trimmed.match(/^```(?:json)?\s*([\s\S]*?)```$/);
+  return jsonBlock ? jsonBlock[1].trim() : trimmed;
+}
+
+async function generateCommentary(scorecard, apiKey) {
+  if (!apiKey || !apiKey.trim()) {
+    throw new Error("Gemini API key is missing. Set GEMINI_API_KEY or GOOGLE_API_KEY.");
+  }
+  const role = scorecard.role || "TM";
+  const systemPrompt = getSystemPrompt();
+  const userPrompt = getUserPrompt(scorecard, role);
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({
+    model: DEFAULT_MODEL,
+    systemInstruction: systemPrompt,
+  });
+  const result = await model.generateContent(userPrompt);
+  const raw = result.response.text();
+  const jsonStr = extractJson(raw);
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonStr);
+  } catch {
+    throw new Error("Gemini returned invalid JSON for commentary.");
+  }
+  if (!parsed || typeof parsed !== "object" || !("achievementMessage" in parsed)) {
+    throw new Error("Gemini response does not match commentary schema.");
+  }
+  return {
+    achievementMessage: String(parsed.achievementMessage ?? ""),
+    growthComment: String(parsed.growthComment ?? ""),
+    dsoComment: String(parsed.dsoComment ?? ""),
+    overdueComment: String(parsed.overdueComment ?? ""),
+    productMixComment: String(parsed.productMixComment ?? ""),
+    recommendedActions: Array.isArray(parsed.recommendedActions) ? parsed.recommendedActions : [],
+  };
+}
+
+function setCors(res) {
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Content-Type");
+}
+
+/**
+ * Cloud Function entry point (Gen2 HTTP).
+ */
+exports.geminiCommentary = async (req, res) => {
+  setCors(res);
+  if (req.method === "OPTIONS") {
+    res.status(204).end();
+    return;
+  }
+  if (req.method !== "POST") {
+    res.status(405).json({ error: "Method not allowed. Use POST." });
+    return;
+  }
+  let scorecard;
+  try {
+    scorecard = typeof req.body === "object" && req.body !== null ? req.body : JSON.parse(req.body || "{}");
+  } catch {
+    res.status(400).json({ error: "Invalid JSON body." });
+    return;
+  }
+  if (!scorecard.role || !scorecard.mobile) {
+    res.status(400).json({ error: "Invalid scorecard: role and mobile required." });
+    return;
+  }
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  if (!apiKey || !apiKey.trim()) {
+    res.status(503).json({ error: "Gemini API key not configured." });
+    return;
+  }
+  try {
+    const commentary = await generateCommentary(scorecard, apiKey);
+    res.status(200).json(commentary);
+  } catch (err) {
+    const message = err.message || "Commentary generation failed.";
+    res.status(500).json({ error: message });
+  }
+};
