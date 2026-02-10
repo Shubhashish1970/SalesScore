@@ -1,6 +1,7 @@
 "use client";
 
 import type { ScorecardData } from "@/types/scorecard";
+import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 
 /**
  * Screen 3: DSO in plain language. Band shown visually; labels under each segment; impact explained.
@@ -90,8 +91,9 @@ export function CollectionSpeed({ data }: Props) {
         ))}
       </div>
       {data.dsoComment?.trim() ? (
-        <div className="rounded-xl bg-slate-100 p-4">
-          <p className="text-slate-700 text-sm">{data.dsoComment.trim()}</p>
+        <div className="rounded-xl bg-slate-100 p-4 flex items-start gap-2">
+          <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
+          <p className="text-slate-700 text-sm flex-1">{data.dsoComment.trim()}</p>
         </div>
       ) : null}
     </section>

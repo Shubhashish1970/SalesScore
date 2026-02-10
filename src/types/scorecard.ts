@@ -115,4 +115,6 @@ export interface ScorecardData {
   /** Gemini-generated: comment in green/amber box (Product Mix). When absent, fallback to hardcoded mix message. */
   productMixComment?: string;
   recommendedActions: RecommendedAction[];
+  /** True when commentary was applied from Gemini API; used to show the Gemini-assist icon. */
+  commentaryFromGemini?: boolean;
 }

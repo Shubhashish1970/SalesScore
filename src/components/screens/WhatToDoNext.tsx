@@ -1,6 +1,7 @@
 "use client";
 
 import type { ScorecardData } from "@/types/scorecard";
+import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 
 /**
  * Screen 6: Recommended actions from JSON — what to do, why, expected impact (H/M/L).
@@ -28,7 +29,10 @@ export function WhatToDoNext({ data }: Props) {
 
   return (
     <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6 relative">
-      <h2 className="text-lg font-semibold text-slate-800 mb-0.5 pr-14">What to do next</h2>
+      <h2 className="text-lg font-semibold text-slate-800 mb-0.5 pr-14 flex items-center gap-2">
+        What to do next
+        <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} />
+      </h2>
       <p className="text-[#2f41a7] text-xs mt-0 mb-5 pr-16">
         Focus on these actions to improve your score. Do the high-impact ones first.
       </p>

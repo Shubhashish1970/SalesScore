@@ -1,6 +1,7 @@
 "use client";
 
 import type { ScorecardData } from "@/types/scorecard";
+import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 import type { OverdueBucketKey } from "@/types/scorecard";
 
 /**
@@ -120,8 +121,9 @@ export function OverdueMoney({ data }: Props) {
         </div>
       </div>
       {data.overdueComment?.trim() ? (
-        <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
-          <p className="text-amber-900 text-sm">{data.overdueComment.trim()}</p>
+        <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 flex items-start gap-2">
+          <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
+          <p className="text-amber-900 text-sm flex-1">{data.overdueComment.trim()}</p>
         </div>
       ) : null}
     </section>

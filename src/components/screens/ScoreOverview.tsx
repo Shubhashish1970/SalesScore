@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import type { ScorecardData } from "@/types/scorecard";
+import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 
 const ScoreGaugeHighcharts = dynamic(
   () => import("@/components/ScoreGaugeHighcharts").then((m) => m.ScoreGaugeHighcharts),
@@ -44,7 +45,10 @@ export function ScoreOverview({ data }: Props) {
         />
       </div>
       {achievementLine ? (
-        <p className="text-slate-700 text-base leading-relaxed max-w-sm">{achievementLine}</p>
+        <p className="text-slate-700 text-base leading-relaxed max-w-sm flex items-start gap-2">
+          <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
+          <span>{achievementLine}</span>
+        </p>
       ) : null}
     </section>
   );

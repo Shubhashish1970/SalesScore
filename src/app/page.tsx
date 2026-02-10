@@ -83,7 +83,7 @@ function HomeContent() {
               ? raw
               : (raw?.data ?? raw?.result ?? raw);
           const merged = mergeCommentaryIntoScorecard(scorecard!, commentary);
-          setData(merged);
+          setData({ ...merged, commentaryFromGemini: true });
           if (commentary?.achievementMessage) {
             console.info("[Scorecard] Commentary applied from API.");
           }

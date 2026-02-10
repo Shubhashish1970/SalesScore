@@ -1,6 +1,7 @@
 "use client";
 
 import type { ScorecardData } from "@/types/scorecard";
+import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 
 /**
  * Screen 2: Gatekeeper — growth achieved or not.
@@ -88,11 +89,12 @@ export function GrowthCheck({ data }: Props) {
       </div>
       {data.growthComment?.trim() ? (
         <div
-          className={`rounded-xl p-4 ${
+          className={`rounded-xl p-4 flex items-start gap-2 ${
             achieved ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800"
           }`}
         >
-          <p className="font-medium">{data.growthComment.trim()}</p>
+          <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
+          <p className="font-medium flex-1">{data.growthComment.trim()}</p>
         </div>
       ) : null}
     </section>

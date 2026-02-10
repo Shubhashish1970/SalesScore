@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { ScorecardData } from "@/types/scorecard";
+import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 
 /**
  * Screen 5: Category distribution. Higher category = higher score impact; helped vs diluted.
@@ -119,8 +120,9 @@ export function ProductMix({ data }: Props) {
         })}
       </div>
       {data.productMixComment?.trim() ? (
-        <div className={`rounded-xl p-4 ${helped ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800"}`}>
-          <p className="text-sm font-medium">{data.productMixComment.trim()}</p>
+        <div className={`rounded-xl p-4 flex items-start gap-2 ${helped ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800"}`}>
+          <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
+          <p className="text-sm font-medium flex-1">{data.productMixComment.trim()}</p>
         </div>
       ) : null}
     </section>
