@@ -5,7 +5,7 @@
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const DEFAULT_MODEL = "gemini-1.5-flash";
+const DEFAULT_MODEL = "gemini-1.5-flash-001";
 
 const GEMINI_OUTPUT_SCHEMA = `
 You MUST return ONLY valid JSON in this exact structure. No extra keys. No commentary. No markdown.

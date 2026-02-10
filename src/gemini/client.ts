@@ -8,7 +8,7 @@ import { getPromptsForRole } from "@/lib/gemini-prompts";
 import type { GeminiCommentaryOutput } from "@/lib/gemini-prompts";
 import type { ScorecardData } from "@/types/scorecard";
 
-const DEFAULT_MODEL = "gemini-1.5-flash";
+const DEFAULT_MODEL = "gemini-1.5-flash-001";
 
 /**
  * Strips optional markdown code fence around JSON so we can parse.
