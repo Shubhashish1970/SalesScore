@@ -12,7 +12,9 @@ This folder is deployed to **Google Cloud Functions (Gen2)** as an HTTP-triggere
 2. **Trigger deploy:**
    - Push a change under `gcp-gemini-api/` or run **Actions → Deploy Gemini API (GCP) → Run workflow**.
 
-3. **URL:** After a successful run, the function is at:
+3. **First-time only:** If the workflow fails with an API-not-enabled error, enable **Cloud Functions**, **Cloud Build**, and **Cloud Run** in **GCP Console → APIs & Services → Enable APIs**. The Firebase service account cannot enable APIs from the workflow.
+
+4. **URL:** After a successful run, the function is at:
    `https://us-central1-<PROJECT_ID>.cloudfunctions.net/gemini-commentary`
 
 The main app’s Firebase build sets `NEXT_PUBLIC_GEMINI_COMMENTARY_URL` to this URL so the deployed scorecard app uses the function automatically.
