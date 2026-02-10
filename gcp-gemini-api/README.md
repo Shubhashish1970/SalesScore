@@ -20,7 +20,13 @@ This folder is deployed to **Google Cloud Functions (Gen2)** as an HTTP-triggere
    - Edit that principal → **Add another role** → search **Cloud Build Service Account** → Save.
    - Then re-run the workflow.
 
-5. **URL:** After a successful run, the function is at:
+5. **First-time only (Cloud Run IAM):** If the workflow fails with *"Permission 'run.services.setIamPolicy' denied"* on `gemini-commentary`, the **Firebase Admin SDK** service account needs permission to set IAM on the Cloud Run service. Grant it **Cloud Run Admin** (`roles/run.admin`):
+   - **GCP Console** → **IAM & Admin** → **IAM**.
+   - Find **`firebase-adminsdk-fbsvc@<PROJECT_ID>.iam.gserviceaccount.com`** (e.g. `firebase-adminsdk-fbsvc@salesscore-c34f3.iam.gserviceaccount.com`).
+   - Edit → **Add another role** → search **Cloud Run Admin** → Save.
+   - Then re-run the workflow.
+
+6. **URL:** After a successful run, the function is at:
    `https://us-central1-<PROJECT_ID>.cloudfunctions.net/gemini-commentary`
 
 The main app’s Firebase build sets `NEXT_PUBLIC_GEMINI_COMMENTARY_URL` to this URL so the deployed scorecard app uses the function automatically.
