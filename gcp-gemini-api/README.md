@@ -6,7 +6,7 @@ This folder is deployed to **Google Cloud Functions (Gen2)** as an HTTP-triggere
 
 1. **Secrets** (repo → Settings → Secrets and variables → Actions):
    - **`GEMINI_API_KEY`** — Gemini API key (required for the function to work).
-   - **`FIREBASE_SERVICE_ACCOUNT_JSON`** or **`GCP_SA_KEY`** — GCP service account key JSON with roles: **Cloud Functions Developer**, **Service Account User** (same key as Firebase deploy is fine if it has these roles).
+   - **`FIREBASE_SERVICE_ACCOUNT_JSON`** — GCP service account key JSON with roles: **Cloud Functions Developer**, **Service Account User** (same key as Firebase deploy is fine if it has these roles).
    - **`FIREBASE_PROJECT_ID`** — e.g. `salesscore-c34f3` (optional if you use the default in the workflow).
 
 2. **Trigger deploy:**

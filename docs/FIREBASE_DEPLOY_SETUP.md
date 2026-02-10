@@ -49,7 +49,7 @@ Use this guide to enable GitHub Actions → Firebase Hosting deploy. You only ne
 4. **Value:** Paste the **entire** contents of the JSON key file (from Step 2). One line or pretty-printed both work.
 5. Click **Add secret**.
 
-You do **not** need to set `FIREBASE_TOKEN` or `FIREBASE_PROJECT_ID` when using Option A; the workflow infers the project from `.firebaserc` / `firebase.json` and uses the default project id `salesscore-c34f3` if needed.
+The workflow uses only **`FIREBASE_SERVICE_ACCOUNT_JSON`** for authentication. You do not need `FIREBASE_TOKEN` (deprecated; tokens expire). Optional: **`FIREBASE_PROJECT_ID`** (default `salesscore-c34f3`).
 
 ### Step 5: Deploy
 
@@ -58,17 +58,9 @@ You do **not** need to set `FIREBASE_TOKEN` or `FIREBASE_PROJECT_ID` when using 
 
 ---
 
-## Option B (deprecated): CI token
+## Token auth (no longer supported)
 
-Only if you cannot use a service account:
-
-1. Install Firebase CLI locally: `npm install -g firebase-tools`.
-2. Run: `firebase login:ci` (browser opens; sign in with the Google account that has access to the Firebase project).
-3. Copy the **token** printed in the terminal.
-4. In GitHub: **Settings** → **Secrets and variables** → **Actions**:
-   - Add secret `FIREBASE_TOKEN` = that token.
-   - Add secret `FIREBASE_PROJECT_ID` = `salesscore-c34f3` (or your project ID).
-5. Tokens can expire; prefer Option A.
+The workflow no longer uses `FIREBASE_TOKEN` (from `firebase login:ci`) because tokens expire and cause authentication failures. Use **Option A** (service account JSON) only.
 
 ---
 

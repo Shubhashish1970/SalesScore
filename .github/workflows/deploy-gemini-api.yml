@@ -1,11 +1,10 @@
 # Deploy Gemini commentary API to GCP Cloud Functions (Gen2) on push to main.
 #
 # Secrets required:
-#   - FIREBASE_SERVICE_ACCOUNT_JSON (or GCP_SA_KEY): GCP service account key JSON with
-#     Cloud Functions Developer + Service Account User (to deploy).
+#   - FIREBASE_SERVICE_ACCOUNT_JSON: GCP service account key JSON (same as Firebase deploy)
+#     with Cloud Functions Developer + Service Account User (to deploy).
 #   - GEMINI_API_KEY: Gemini API key; passed to the function as env var.
-#
-# After deploy, set NEXT_PUBLIC_GEMINI_COMMENTARY_URL in your app build to the function URL.
+# Optional: FIREBASE_PROJECT_ID (default salesscore-c34f3).
 
 name: Deploy Gemini API (GCP)
 

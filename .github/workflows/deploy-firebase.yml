@@ -1,12 +1,8 @@
 # Deploy Sales Scorecard to Firebase Hosting on push to main.
 #
-# Auth (use one):
-#   Option A (recommended): Add secret FIREBASE_SERVICE_ACCOUNT_JSON = contents of your
-#     Firebase service account key JSON (Project Settings > Service accounts > Generate new key).
-#   Option B (deprecated): Add secrets FIREBASE_TOKEN (from firebase login:ci) and
-#     FIREBASE_PROJECT_ID (e.g. salesscore-c34f3). Token may expire; prefer Option A.
-#
-# Hosting site is set in firebase.json ("site": "salesscore-c34f3") so deploy target resolves.
+# Required: FIREBASE_SERVICE_ACCOUNT_JSON = full contents of your Firebase/GCP service account
+#   key JSON (Firebase Console → Project Settings → Service accounts → Generate new private key).
+# Optional: FIREBASE_PROJECT_ID (default salesscore-c34f3).
 
 name: Deploy to Firebase Hosting
 
@@ -36,24 +32,15 @@ jobs:
           NEXT_PUBLIC_GEMINI_COMMENTARY_URL: https://us-central1-${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}.cloudfunctions.net/gemini-commentary
         run: npm run build
 
+      - name: Authenticate to GCP (Firebase)
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+
       - name: Deploy to Firebase Hosting
         env:
           CI: true
-          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}
         run: |
           npm install -g firebase-tools
-          PROJECT_ID="${FIREBASE_PROJECT_ID:-salesscore-c34f3}"
-          if [ -n "$FIREBASE_SERVICE_ACCOUNT_JSON" ]; then
-            echo "Using service account authentication"
-            echo "$FIREBASE_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/firebase-sa.json"
-            export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-sa.json"
-            firebase deploy --only hosting --project "$PROJECT_ID"
-          elif [ -n "$FIREBASE_TOKEN" ]; then
-            echo "Using token authentication (consider switching to service account)"
-            firebase deploy --only hosting --token "$FIREBASE_TOKEN" --project "$PROJECT_ID"
-          else
-            echo "::error::Add FIREBASE_SERVICE_ACCOUNT_JSON or FIREBASE_TOKEN and FIREBASE_PROJECT_ID to repo secrets"
-            exit 1
-          fi
+          firebase deploy --only hosting --project "$PROJECT_ID"
