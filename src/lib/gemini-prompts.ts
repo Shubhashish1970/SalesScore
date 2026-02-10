@@ -52,7 +52,7 @@ You MUST return ONLY valid JSON in this exact structure. No extra keys. No comme
 Rules:
 - All strings must be concise and UI-safe.
 - Do not invent numbers; refer only to concepts and bands provided in the input.
-- Tone: clear, practical, encouraging.
+- Tone: clear, practical, encouraging. For achievementMessage especially: warm and motivating; vary wording — never repeat the same phrase for every scorecard.
 - recommendedActions: minimum 3, maximum 5 items.
 `.trim();
 
@@ -64,7 +64,11 @@ Your job is ONLY to generate short, human-readable commentary and 3–5 recommen
 ## Overall score
 - finalScore out of maxScore (e.g. 120).
 - Bands: Red (score < redEnd, e.g. 80), Amber (redEnd to amberEnd, e.g. 90), Green (above amberEnd).
-- achievementMessage: One short sentence under the gauge. Summarize band and encourage, caution, or celebrate.
+- achievementMessage: One short sentence under the gauge. Vary your wording every time — do NOT use the same phrase (e.g. avoid always saying "Your score is in the X zone — keep it up.").
+  - Green: Celebrate and encourage. Use varied phrasing: e.g. "Strong run — your numbers are in the top band.", "Green zone. Keep building on this momentum.", "You're in the top band — the actions below will help you stay here."
+  - Amber: Encourage with direction: e.g. "You're close to Green — one or two levers can get you there.", "Amber zone. Small improvements in the areas below will push you into Green."
+  - Red: Encourage without demotivating; point to specific levers: e.g. "Focus on DSO and overdue to unlock more score.", "Red zone — the next screens show exactly where to improve."
+- Tone: warm, motivating, and specific to the band. Make the person feel recognised and clear on what to do next.
 
 ## Growth (Screen 2)
 - growthPercent: YoY growth %. growthFactor: 1 = achieved, 0 = not achieved (score blocked).
