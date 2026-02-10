@@ -212,6 +212,8 @@ exports.geminiCommentary = async (req, res) => {
   }
   try {
     const commentary = await generateCommentary(scorecard, apiKey);
+    const msg = commentary.achievementMessage || "";
+    console.log("Commentary achievementMessage:", msg.slice(0, 120) + (msg.length > 120 ? "…" : ""));
     res.status(200).json(commentary);
   } catch (err) {
     const message = err.message || "Commentary generation failed.";

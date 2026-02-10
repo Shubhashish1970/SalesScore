@@ -77,7 +77,17 @@ function HomeContent() {
         body: JSON.stringify(scorecard),
       })
         .then((r) => (r.ok ? r.json() : Promise.reject(new Error("Commentary failed"))))
-        .then((commentary) => setData(mergeCommentaryIntoScorecard(scorecard!, commentary)))
+        .then((raw) => {
+          const commentary =
+            typeof raw?.achievementMessage === "string"
+              ? raw
+              : (raw?.data ?? raw?.result ?? raw);
+          const merged = mergeCommentaryIntoScorecard(scorecard!, commentary);
+          setData(merged);
+          if (commentary?.achievementMessage) {
+            console.info("[Scorecard] Commentary applied from API.");
+          }
+        })
         .catch((err) => {
           console.warn("[Scorecard] Commentary request failed, using sample text:", err?.message || err);
         });
