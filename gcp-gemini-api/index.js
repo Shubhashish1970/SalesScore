@@ -5,7 +5,9 @@
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const DEFAULT_MODEL = "gemini-1.5-flash-001";
+// Best for reasoning + commentary with fast, accurate response (per Vertex AI models doc)
+const DEFAULT_MODEL = "gemini-2.5-flash";
+const FALLBACK_MODELS = ["gemini-2.0-flash", "gemini-pro"];
 
 const GEMINI_OUTPUT_SCHEMA = `
 You MUST return ONLY valid JSON in this exact structure. No extra keys. No commentary. No markdown.
@@ -92,6 +94,15 @@ function extractJson(text) {
   return jsonBlock ? jsonBlock[1].trim() : trimmed;
 }
 
+async function generateWithModel(genAI, modelId, systemPrompt, userPrompt) {
+  const model = genAI.getGenerativeModel({
+    model: modelId,
+    systemInstruction: systemPrompt,
+  });
+  const result = await model.generateContent(userPrompt);
+  return result.response.text();
+}
+
 async function generateCommentary(scorecard, apiKey) {
   if (!apiKey || !apiKey.trim()) {
     throw new Error("Gemini API key is missing. Set GEMINI_API_KEY or GOOGLE_API_KEY.");
@@ -100,12 +111,27 @@ async function generateCommentary(scorecard, apiKey) {
   const systemPrompt = getSystemPrompt();
   const userPrompt = getUserPrompt(scorecard, role);
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
-    model: DEFAULT_MODEL,
-    systemInstruction: systemPrompt,
-  });
-  const result = await model.generateContent(userPrompt);
-  const raw = result.response.text();
+  const modelsToTry = [DEFAULT_MODEL, ...FALLBACK_MODELS];
+  let raw;
+  let lastErr;
+  for (const modelId of modelsToTry) {
+    try {
+      raw = await generateWithModel(genAI, modelId, systemPrompt, userPrompt);
+      lastErr = null;
+      break;
+    } catch (err) {
+      lastErr = err;
+      const msg = err?.message || String(err);
+      if (msg.includes("404") || msg.includes("not found")) {
+        console.warn("Commentary: model", modelId, "not available, trying next. ", msg.slice(0, 60));
+      } else {
+        throw err;
+      }
+    }
+  }
+  if (lastErr || raw === undefined) {
+    throw lastErr || new Error("No model available.");
+  }
   const jsonStr = extractJson(raw);
   let parsed;
   try {
