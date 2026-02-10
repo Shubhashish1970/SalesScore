@@ -6,6 +6,7 @@
 # (GCP Console → APIs & Services → Enable APIs) if this is the first deploy.
 
 name: Deploy Gemini API (GCP)
+# Trigger: push to main (gcp-gemini-api/** or this file) or Run workflow
 
 on:
   push:
