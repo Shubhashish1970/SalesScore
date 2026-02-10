@@ -132,6 +132,16 @@ function setCors(res) {
   res.set("Access-Control-Allow-Headers", "Content-Type");
 }
 
+/** Read raw body from request stream (Cloud Run/Gen2 may not populate req.body). */
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let data = "";
+    req.on("data", (chunk) => { data += chunk; });
+    req.on("end", () => resolve(data));
+    req.on("error", reject);
+  });
+}
+
 /**
  * Cloud Function entry point (Gen2 HTTP).
  */
@@ -147,8 +157,21 @@ exports.geminiCommentary = async (req, res) => {
   }
   let scorecard;
   try {
-    scorecard = typeof req.body === "object" && req.body !== null ? req.body : JSON.parse(req.body || "{}");
-  } catch {
+    let raw = req.body;
+    if (raw === undefined || raw === null) {
+      raw = await readBody(req);
+    }
+    if (typeof raw === "string") {
+      scorecard = raw.trim() ? JSON.parse(raw) : {};
+    } else if (Buffer.isBuffer(raw)) {
+      scorecard = raw.length ? JSON.parse(raw.toString()) : {};
+    } else if (typeof raw === "object" && raw !== null) {
+      scorecard = raw;
+    } else {
+      scorecard = {};
+    }
+  } catch (e) {
+    console.error("Commentary body parse error:", e?.message || e);
     res.status(400).json({ error: "Invalid JSON body." });
     return;
   }
@@ -166,6 +189,7 @@ exports.geminiCommentary = async (req, res) => {
     res.status(200).json(commentary);
   } catch (err) {
     const message = err.message || "Commentary generation failed.";
+    console.error("Commentary generation error:", message, err?.stack || "");
     res.status(500).json({ error: message });
   }
 };
