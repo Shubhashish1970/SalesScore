@@ -141,3 +141,31 @@ body {
 .animate-product-cat-none {
   animation: product-cat-none 2.5s ease-in-out infinite;
 }
+
+/* Gemini commentary: pulsating dot + ring to draw attention on white background */
+@keyframes gemini-pulse-ring {
+  0%, 100% {
+    transform: scale(0.85);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.2;
+  }
+}
+@keyframes gemini-pulse-core {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.85;
+  }
+}
+.gemini-pulse-ring {
+  animation: gemini-pulse-ring 1.6s ease-in-out infinite;
+}
+.gemini-pulse-core {
+  animation: gemini-pulse-core 1.6s ease-in-out infinite;
+}
