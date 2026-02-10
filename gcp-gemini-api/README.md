@@ -12,9 +12,15 @@ This folder is deployed to **Google Cloud Functions (Gen2)** as an HTTP-triggere
 2. **Trigger deploy:**
    - Push a change under `gcp-gemini-api/` or run **Actions → Deploy Gemini API (GCP) → Run workflow**.
 
-3. **First-time only:** If the workflow fails with an API-not-enabled error, enable **Cloud Functions**, **Cloud Build**, and **Cloud Run** in **GCP Console → APIs & Services → Enable APIs**. The Firebase service account cannot enable APIs from the workflow.
+3. **First-time only (APIs):** If the workflow fails with an API-not-enabled error, enable **Cloud Functions**, **Cloud Build**, and **Cloud Run** in **GCP Console → APIs & Services → Enable APIs**.
 
-4. **URL:** After a successful run, the function is at:
+4. **First-time only (build permission):** If the workflow fails with *"Build failed... missing permission on the build service account"*, grant the **Cloud Build default service account** the role **Cloud Build Service Account** (`roles/cloudbuild.builds.builder`):
+   - **GCP Console** → **IAM & Admin** → **IAM**.
+   - Find the principal **`<PROJECT_NUMBER>-compute@developer.gserviceaccount.com`** (e.g. `1062602051125-compute@developer.gserviceaccount.com`). Project number is in Project Settings or the error message.
+   - Edit that principal → **Add another role** → search **Cloud Build Service Account** → Save.
+   - Then re-run the workflow.
+
+5. **URL:** After a successful run, the function is at:
    `https://us-central1-<PROJECT_ID>.cloudfunctions.net/gemini-commentary`
 
 The main app’s Firebase build sets `NEXT_PUBLIC_GEMINI_COMMENTARY_URL` to this URL so the deployed scorecard app uses the function automatically.
