@@ -13,7 +13,16 @@ interface Props {
 }
 
 function getBands(data: ScorecardData): DsoBandDefinition[] {
-  return data.dsoBands && data.dsoBands.length > 0 ? data.dsoBands : DEFAULT_DSO_BANDS;
+  const apiBands = data.dsoBands && data.dsoBands.length > 0 ? data.dsoBands : null;
+  if (!apiBands) return DEFAULT_DSO_BANDS;
+  return apiBands.map((b) => {
+    const def = DEFAULT_DSO_BANDS.find((d) => d.id === b.id);
+    return {
+      ...b,
+      color: b.color ?? def?.color ?? "bg-slate-500",
+      roundelColor: b.roundelColor ?? def?.roundelColor ?? "bg-slate-500 text-white",
+    };
+  });
 }
 
 function impactText(factor: number): string {

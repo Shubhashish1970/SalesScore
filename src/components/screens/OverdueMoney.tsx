@@ -22,6 +22,9 @@ function formatAmount(n: number): string {
   return `${(n * 100).toFixed(0)} K`;
 }
 
+/** Bar width % below which the amount is shown beside the bar instead of inside it (matches Product Mix behavior). */
+const SMALL_BAR_PCT = 18;
+
 export function OverdueMoney({ data }: Props) {
   const { overdue } = data;
   const buckets = getOverdueBuckets(data);
@@ -71,6 +74,8 @@ export function OverdueMoney({ data }: Props) {
             const pct = total ? (overdue[key] / total) * 100 : 0;
             const amountStr = amounts ? formatAmount(amounts[key]) : null;
             const penaltyPct = penalties ? penalties[key] : null;
+            const showAmountInBar = amountStr && pct >= SMALL_BAR_PCT;
+            const showAmountBeside = amountStr && pct < SMALL_BAR_PCT;
             return (
               <div key={key} className="flex items-center gap-2">
                 <div className="w-28 text-slate-600 text-xs shrink-0">{label}</div>
@@ -79,10 +84,13 @@ export function OverdueMoney({ data }: Props) {
                     className="absolute inset-y-0 left-0 rounded bg-slate-400"
                     style={{ width: `${Math.max(pct, 3)}%` }}
                   />
-                  {amountStr && (
+                  {showAmountInBar && (
                     <span className="relative z-10 text-xs font-medium text-slate-700 tabular-nums">{amountStr}</span>
                   )}
                 </div>
+                {showAmountBeside && (
+                  <span className="text-xs font-medium text-slate-700 tabular-nums shrink-0">{amountStr}</span>
+                )}
                 {penaltyPct != null && (
                   <span className="text-[10px] text-emerald-600 font-medium w-8 shrink-0 text-right">{penaltyPct === 0 ? "0%" : `${penaltyPct}%`}</span>
                 )}
@@ -100,6 +108,8 @@ export function OverdueMoney({ data }: Props) {
             const showRed = hasMoney;
             const amountStr = amounts ? formatAmount(amounts[key]) : null;
             const penaltyPct = penalties ? penalties[key] : null;
+            const showAmountInBar = amountStr && pct >= SMALL_BAR_PCT;
+            const showAmountBeside = amountStr && pct < SMALL_BAR_PCT;
             return (
               <div key={key} className="flex items-center gap-2">
                 <div className="w-28 text-slate-600 text-xs shrink-0">{label}</div>
@@ -108,10 +118,13 @@ export function OverdueMoney({ data }: Props) {
                     className={`absolute inset-y-0 left-0 rounded animate-overdue-penalized origin-left ${showRed ? "bg-red-600 animate-overdue-bar-attention ring-1 ring-red-400/50" : "bg-slate-400"}`}
                     style={{ width: `${Math.max(pct, 3)}%` }}
                   />
-                  {amountStr && (
+                  {showAmountInBar && (
                     <span className="relative z-10 text-xs font-medium text-slate-700 tabular-nums">{amountStr}</span>
                   )}
                 </div>
+                {showAmountBeside && (
+                  <span className="text-xs font-medium text-slate-700 tabular-nums shrink-0">{amountStr}</span>
+                )}
                 {penaltyPct != null && penaltyPct > 0 && (
                   <span className="text-[10px] text-amber-600 font-medium w-8 shrink-0 text-right">{penaltyPct}%</span>
                 )}

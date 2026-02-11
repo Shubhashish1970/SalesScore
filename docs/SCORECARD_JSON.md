@@ -12,12 +12,66 @@ The KPI Data API and scorecard API return a `ScorecardData` object. All configur
 | `entityName` | string | Territory/Region/Zone/BU name |
 | `growth` | object | `CY_NRV`, `LY_NRV`, `growthPercent`, `growthFactor` |
 | `dso` | object | `dsoDays`, `dsoScore`, `dsoBand`, `dsoFactor` |
-| `overdue` | object | Bucket percentages and amounts |
-| `productMix` | object | `categoryA`–`categoryE`, `nrvFactor`, optional NRV per category |
+| `overdue` | object | Bucket percentages, `bucketAmounts`, `overdueScore` — see [Overdue object](#overdue-object) |
+| `productMix` | object | `categoryA`–`categoryE`, `nrvFactor`, optional NRV per category — see [Product Mix object](#product-mix-object) |
 | `finalScore` | number | Current score |
 | `maxScore` | number | Maximum score (e.g. 120) |
 | `achievementMessage` | string | One line under the gauge |
-| `recommendedActions` | array | 3–5 items: `whatToDo`, `whyItHelps`, `expectedImpact` |
+| `recommendedActions` | array | 3–5 items: `whatToDo`, `whyItHelps`, `expectedImpact` (`"High"` \| `"Medium"` \| `"Low"`) |
+
+---
+
+## Object details
+
+### Overdue object
+
+```json
+{
+  "notDue": 94,
+  "d1_110": 2,
+  "d111_180": 2,
+  "d181_270": 1,
+  "d271_365": 0.5,
+  "gt365": 0.5,
+  "overdueScore": 33,
+  "bucketAmounts": {
+    "notDue": 65,
+    "d1_110": 2,
+    "d111_180": 1,
+    "d181_270": 0.5,
+    "d271_365": 0.3,
+    "gt365": 0.2
+  }
+}
+```
+
+- **Bucket keys** (`notDue` … `gt365`): Share (percentage) of total in each aging bucket.
+- **`bucketAmounts`** (optional): Amount per bucket in same units (e.g. lakhs). Sum = **total outstanding**.
+- **`overdueScore`** (optional): OS score shown in roundel; backend-computed.
+
+### Product Mix object
+
+```json
+{
+  "categoryA": 38,
+  "categoryB": 28,
+  "categoryC": 22,
+  "categoryD": 8,
+  "categoryE": 4,
+  "nrvFactor": 1.22,
+  "categoryANrv": 7220000,
+  "categoryBNrv": 5320000,
+  "categoryCNrv": 4180000,
+  "categoryDNrv": 1520000,
+  "categoryENrv": 760000
+}
+```
+
+- **categoryA**–**categoryE**: Share (percentage) of sales in each category.
+- **nrvFactor**: Product mix score (backend-computed).
+- **category*Nrv** (optional): NRV per category in rupees; shown inside bars when present.
+
+**Bar colors (Screen 5):** A/B green, C/D grey, E red.
 
 ---
 
@@ -25,20 +79,20 @@ The KPI Data API and scorecard API return a `ScorecardData` object. All configur
 
 ### 1. `dsoBands` — DSO band definitions
 
-Array of band definitions for Collection Speed (Screen 3). Each band:
+Array of band definitions for Collection Speed (Screen 3). **Each band must include `color` and `roundelColor`** (Tailwind classes) so bars render correctly; the 50–110 band in particular must have explicit color.
+
+Example full array:
 
 ```json
-{
-  "id": "<50" | "50-110" | "110-170" | ">170",
-  "label": "Under 50 days",
-  "shortLabel": "<50",
-  "factor": 1.2,
-  "color": "bg-emerald-500",
-  "roundelColor": "bg-emerald-500 text-white"
-}
+[
+  { "id": "<50", "label": "Under 50 days", "shortLabel": "<50", "factor": 1.2, "color": "bg-emerald-500", "roundelColor": "bg-emerald-500 text-white" },
+  { "id": "50-110", "label": "50–110 days", "shortLabel": "50–110", "factor": 1.1, "color": "bg-lime-600", "roundelColor": "bg-lime-600 text-white" },
+  { "id": "110-170", "label": "110–170 days", "shortLabel": "110–170", "factor": 1.0, "color": "bg-amber-500", "roundelColor": "bg-amber-500 text-slate-900" },
+  { "id": ">170", "label": "Over 170 days", "shortLabel": ">170", "factor": 0, "color": "bg-red-500", "roundelColor": "bg-red-500 text-white" }
+]
 ```
 
-**Default:** See `DEFAULT_DSO_BANDS` in `src/types/scorecard.ts`.
+If `color` or `roundelColor` is omitted for any band, the app falls back to defaults. **Default:** See `DEFAULT_DSO_BANDS` in `src/types/scorecard.ts`.
 
 ---
 
@@ -140,6 +194,20 @@ Used for "score/max" badges (e.g. `38/34`). **Default:** `DEFAULT_KPI_WEIGHTS`.
 ### 8. `productMixHelpThreshold`
 
 Threshold for "helped" vs "diluted" styling: `nrvFactor >= productMixHelpThreshold` → green, else amber. **Default:** `0.65`.
+
+---
+
+### 9. Gemini commentary fields
+
+Optional fields populated by the Gemini API or backend:
+
+| Field | Description |
+|-------|-------------|
+| `growthComment` | Comment for Growth Check (Screen 2) |
+| `dsoComment` | Comment for Collection Speed (Screen 3) |
+| `overdueComment` | Comment for Overdue (Screen 4) |
+| `productMixComment` | Comment for Product Mix (Screen 5) |
+| `commentaryFromGemini` | `true` when commentary was applied from Gemini API; shows the Gemini-assist icon |
 
 ---
 

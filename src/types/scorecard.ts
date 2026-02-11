@@ -151,7 +151,7 @@ export type DsoBandFactors = Record<DsoBandId, number>;
 /** DSO band definitions from API/JSON. Each band: id, label, factor, colors. UI reads this for display. */
 export const DEFAULT_DSO_BANDS: DsoBandDefinition[] = [
   { id: "<50", label: "Under 50 days", shortLabel: "<50", factor: 1.2, color: "bg-emerald-500", roundelColor: "bg-emerald-500 text-white" },
-  { id: "50-110", label: "50–110 days", shortLabel: "50–110", factor: 1.1, color: "bg-lime-500", roundelColor: "bg-lime-600 text-white" },
+  { id: "50-110", label: "50–110 days", shortLabel: "50–110", factor: 1.1, color: "bg-lime-600", roundelColor: "bg-lime-600 text-white" },
   { id: "110-170", label: "110–170 days", shortLabel: "110–170", factor: 1.0, color: "bg-amber-500", roundelColor: "bg-amber-500 text-slate-900" },
   { id: ">170", label: "Over 170 days", shortLabel: ">170", factor: 0, color: "bg-red-500", roundelColor: "bg-red-500 text-white" },
 ];

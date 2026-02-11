@@ -25,7 +25,7 @@ function formatNrv(rupees: number): string {
   return `${(rupees / 1e3).toFixed(1)} K`;
 }
 
-/** Bar width % below which the NRV amount is shown only in a tooltip (same font/size as category label). */
+/** Bar width % below which the NRV amount is shown beside the bar instead of inside it. */
 const SMALL_BAR_PCT = 18;
 
 export function ProductMix({ data }: Props) {
@@ -93,7 +93,7 @@ export function ProductMix({ data }: Props) {
             ...(isCatE ? { backgroundColor: "#ff2c2c" } : {}),
           };
           const showNrvInBar = barMounted && nrvStr && pct >= SMALL_BAR_PCT;
-          const showNrvInTooltip = barMounted && nrvStr && pct < SMALL_BAR_PCT;
+          const showNrvBeside = barMounted && nrvStr && pct < SMALL_BAR_PCT;
           return (
             <div key={key} className="flex items-center gap-2">
               <div className="w-20 text-slate-700 text-sm shrink-0">{label}</div>
@@ -103,16 +103,11 @@ export function ProductMix({ data }: Props) {
                     <span className="text-[10px] font-normal text-white drop-shadow-sm tabular-nums truncate">{nrvStr}</span>
                   )}
                 </div>
-                {showNrvInTooltip && (
-                  <div
-                    className="pointer-events-none absolute bottom-full left-0 mb-1 hidden rounded bg-white px-2 py-1 shadow-md ring-1 ring-slate-200 group-hover:block z-20"
-                    aria-hidden
-                  >
-                    <span className="text-sm text-slate-700 tabular-nums whitespace-nowrap">{nrvStr}</span>
-                  </div>
-                )}
                 <span className="relative z-10 text-[10px] font-normal text-slate-700 tabular-nums ml-1">{pct}%</span>
               </div>
+              {showNrvBeside && (
+                <span className="text-[10px] font-normal text-slate-700 tabular-nums shrink-0">{nrvStr}</span>
+              )}
               <span className="text-[10px] text-slate-500 w-6 tabular-nums">{weight}</span>
             </div>
           );
