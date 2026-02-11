@@ -27,10 +27,17 @@ function getRoleLabel(role: ScorecardData["role"]) {
   return labels[role];
 }
 
+function getBandStyle(score: number, redEnd: number, amberEnd: number) {
+  if (score >= amberEnd) return "bg-emerald-50 text-emerald-800 border-emerald-200";
+  if (score >= redEnd) return "bg-amber-50 text-amber-800 border-amber-200";
+  return "bg-red-50 text-red-800 border-red-200";
+}
+
 export function ScoreOverview({ data }: Props) {
   const redEnd = data.scoreBandThresholds?.redEnd ?? 80;
   const amberEnd = data.scoreBandThresholds?.amberEnd ?? 90;
   const achievementLine = data.achievementMessage?.trim();
+  const bandStyle = getBandStyle(data.finalScore, redEnd, amberEnd);
 
   return (
     <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6">
@@ -45,10 +52,12 @@ export function ScoreOverview({ data }: Props) {
         />
       </div>
       {achievementLine ? (
-        <p className="text-slate-700 text-base leading-relaxed max-w-sm flex items-start gap-2">
+        <div
+          className={`rounded-xl p-4 flex items-start gap-2 border ${bandStyle}`}
+        >
           <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
-          <span>{achievementLine}</span>
-        </p>
+          <p className="font-medium flex-1 text-base leading-relaxed">{achievementLine}</p>
+        </div>
       ) : null}
     </section>
   );
