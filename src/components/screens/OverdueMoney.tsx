@@ -33,10 +33,13 @@ export function OverdueMoney({ data }: Props) {
   const total = buckets.reduce((s, b) => s + overdue[b.key], 0) || 1;
   const badShare = (overdue.d181_270 + overdue.d271_365 + overdue.gt365) / total;
   const osScore = overdue.overdueScore ?? null;
-  const totalOverdueLakhs = amounts
+  const totalOutstanding = amounts
     ? buckets.reduce((s, b) => s + (amounts[b.key] ?? 0), 0)
     : 0;
-  const totalOverdueStr = totalOverdueLakhs > 0 ? formatAmount(totalOverdueLakhs) : null;
+  const onTimeAmount = amounts ? (amounts.notDue ?? 0) : 0;
+  const totalOverdueAmount = totalOutstanding - onTimeAmount;
+  const totalOutstandingStr = totalOutstanding > 0 ? formatAmount(totalOutstanding) : null;
+  const totalOverdueStr = totalOverdueAmount > 0 ? formatAmount(totalOverdueAmount) : null;
   const overdueWeight = data.kpiWeights?.overdue ?? DEFAULT_KPI_WEIGHTS.overdue;
   const noPenaltyBuckets = buckets.filter((b) => (penalties[b.key] ?? b.penaltyPct) === 0);
   const penalizedBuckets = buckets.filter((b) => (penalties[b.key] ?? b.penaltyPct) > 0);
@@ -51,14 +54,20 @@ export function OverdueMoney({ data }: Props) {
           {Math.round(osScore)}/{overdueWeight}
         </div>
       )}
-      <h2 className="text-lg font-semibold text-slate-800 mb-0.5 pr-20">Overdue money</h2>
+      <h2 className="text-lg font-semibold text-slate-800 mb-0.5 pr-20">Outstanding money</h2>
       <p className="text-[#2f41a7] text-xs mt-0 mb-4 pr-20">
-        Money that is late. The older the delay, the more it hurts your score.
+        Total money owed by customers. Late (overdue) amounts hurt your score.
       </p>
-      {totalOverdueStr != null && (
-        <div className="mb-6">
+      {totalOverdueAmount > 0 && totalOverdueStr != null && (
+        <div className="mb-4">
           <p className="text-3xl font-bold text-slate-900 tabular-nums">{totalOverdueStr}</p>
-          <p className="text-slate-500 text-sm">total overdue</p>
+          <p className="text-slate-500 text-sm">overdue</p>
+        </div>
+      )}
+      {totalOutstandingStr != null && (
+        <div className="mb-6">
+          <p className="text-xl font-semibold text-slate-700 tabular-nums">{totalOutstandingStr}</p>
+          <p className="text-slate-500 text-sm">total outstanding</p>
         </div>
       )}
       {penalties && (
@@ -86,11 +95,11 @@ export function OverdueMoney({ data }: Props) {
                     style={{ width: `${barWidth}%` }}
                   />
                   {showAmountInBar && (
-                    <span className="relative z-10 text-xs font-medium text-slate-700 tabular-nums">{amountStr}</span>
+                    <span className="relative z-10 text-[10px] font-normal text-slate-700 tabular-nums">{amountStr}</span>
                   )}
                   {showAmountBeside && (
                     <span
-                      className="absolute z-10 text-xs font-medium text-slate-700 tabular-nums whitespace-nowrap"
+                      className="absolute z-10 text-[10px] font-normal text-slate-700 tabular-nums whitespace-nowrap"
                       style={{ left: `calc(${barWidth}% + 6px)` }}
                     >
                       {amountStr}
@@ -126,11 +135,11 @@ export function OverdueMoney({ data }: Props) {
                     style={{ width: `${barWidth}%` }}
                   />
                   {showAmountInBar && (
-                    <span className="relative z-10 text-xs font-medium text-slate-700 tabular-nums">{amountStr}</span>
+                    <span className="relative z-10 text-[10px] font-normal text-slate-700 tabular-nums">{amountStr}</span>
                   )}
                   {showAmountBeside && (
                     <span
-                      className="absolute z-10 text-xs font-medium text-slate-700 tabular-nums whitespace-nowrap"
+                      className="absolute z-10 text-[10px] font-normal text-slate-700 tabular-nums whitespace-nowrap"
                       style={{ left: `calc(${barWidth}% + 6px)` }}
                     >
                       {amountStr}
