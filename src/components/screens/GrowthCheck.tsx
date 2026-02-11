@@ -1,11 +1,13 @@
 "use client";
 
 import type { ScorecardData } from "@/types/scorecard";
+import { DEFAULT_GROWTH_BAND_THRESHOLDS } from "@/types/scorecard";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 
 /**
  * Screen 2: Gatekeeper — growth achieved or not.
- * Shows Growth % (from JSON) in big font with arrow; Green >5%, Amber 0–5%, Red <0%.
+ * Shows Growth % (from JSON) in big font with arrow.
+ * Bands from data.growthBandThresholds or DEFAULT_GROWTH_BAND_THRESHOLDS.
  */
 interface Props {
   data: ScorecardData;
@@ -20,9 +22,9 @@ function formatMoney(n: number): string {
 
 type GrowthBand = "green" | "amber" | "red";
 
-function getGrowthBand(pct: number): GrowthBand {
-  if (pct > 5) return "green";
-  if (pct >= 0) return "amber";
+function getGrowthBand(pct: number, thresholds: { greenAbove: number; amberAbove: number }): GrowthBand {
+  if (pct > thresholds.greenAbove) return "green";
+  if (pct >= thresholds.amberAbove) return "amber";
   return "red";
 }
 
@@ -55,9 +57,10 @@ function GrowthArrow({ band, direction }: { band: GrowthBand; direction: "up" | 
 
 export function GrowthCheck({ data }: Props) {
   const { growth } = data;
+  const thresholds = data.growthBandThresholds ?? DEFAULT_GROWTH_BAND_THRESHOLDS;
   const achieved = growth.growthFactor === 1;
   const pct = growth.growthPercent;
-  const band = getGrowthBand(pct);
+  const band = getGrowthBand(pct, thresholds);
   const direction: "up" | "down" | "flat" = pct > 0 ? "up" : pct < 0 ? "down" : "flat";
   const colors = bandColors[band];
 

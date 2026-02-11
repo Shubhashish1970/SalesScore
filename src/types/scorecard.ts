@@ -13,11 +13,24 @@ export interface Growth {
   growthFactor: 0 | 1;
 }
 
+export type DsoBandId = "<50" | "50-110" | "110-170" | ">170";
+
+export interface DsoBandDefinition {
+  id: DsoBandId;
+  label: string;
+  shortLabel: string;
+  factor: number;
+  /** Tailwind bar color, e.g. "bg-emerald-500" */
+  color: string;
+  /** Tailwind badge/roundel color, e.g. "bg-emerald-500 text-white" */
+  roundelColor: string;
+}
+
 export interface Dso {
   dsoDays: number;
   /** DSO score (e.g. 0–100); shown in roundel. Backend-computed; distinct from dsoDays. */
   dsoScore: number;
-  dsoBand: "<50" | "50-110" | "110-170" | ">170";
+  dsoBand: DsoBandId;
   dsoFactor: number; // 0 = blocked, 0.5 = partial, 1 = full
 }
 
@@ -26,6 +39,28 @@ export type OverdueBucketKey = "notDue" | "d1_110" | "d111_180" | "d181_270" | "
 
 /** Penalty % per bucket (0 = no penalty). From JSON/API. */
 export type OverdueBucketPenalties = Record<OverdueBucketKey, number>;
+
+/** Overdue bucket definition: key, label, penalty %. From JSON/API. */
+export interface OverdueBucketDefinition {
+  key: OverdueBucketKey;
+  label: string;
+  penaltyPct: number;
+}
+
+/** Product mix category: id (matches productMix keys), label, weight for score impact. From JSON/API. */
+export type ProductMixCategoryKey = "categoryA" | "categoryB" | "categoryC" | "categoryD" | "categoryE";
+
+export interface ProductMixCategoryDefinition {
+  id: ProductMixCategoryKey;
+  label: string;
+  weight: number;
+}
+
+/** Growth band thresholds: greenAbove = % above which is green, amberAbove = % above which is amber. Red = below amberAbove. */
+export interface GrowthBandThresholds {
+  greenAbove: number;
+  amberAbove: number;
+}
 
 export interface Overdue {
   notDue: number;
@@ -79,8 +114,47 @@ export interface KpiWeights {
   dso?: number;
 }
 
-/** DSO factor per band; from JSON or global API. Shown over bands; replaces hardcoded Norms. */
-export type DsoBandFactors = Record<Dso["dsoBand"], number>;
+export const DEFAULT_KPI_WEIGHTS: Required<KpiWeights> = {
+  productMix: 34,
+  overdue: 33,
+  dso: 33,
+};
+
+/** Overdue bucket definitions from API/JSON. When absent, use this default. */
+export const DEFAULT_OVERDUE_BUCKETS: OverdueBucketDefinition[] = [
+  { key: "notDue", label: "On time", penaltyPct: 0 },
+  { key: "d1_110", label: "1–110 days late", penaltyPct: 0 },
+  { key: "d111_180", label: "111–180 days late", penaltyPct: 20 },
+  { key: "d181_270", label: "181–270 days late", penaltyPct: 50 },
+  { key: "d271_365", label: "271–365 days late", penaltyPct: 100 },
+  { key: "gt365", label: "Over 365 days late", penaltyPct: 200 },
+];
+
+/** Product mix category definitions from API/JSON. When absent, use this default. */
+export const DEFAULT_PRODUCT_MIX_CATEGORIES: ProductMixCategoryDefinition[] = [
+  { id: "categoryA", label: "Category A", weight: 1.4 },
+  { id: "categoryB", label: "Category B", weight: 1.3 },
+  { id: "categoryC", label: "Category C", weight: 1.2 },
+  { id: "categoryD", label: "Category D", weight: 1.1 },
+  { id: "categoryE", label: "Category E", weight: 0 },
+];
+
+/** Growth band thresholds from API/JSON. Green: >greenAbove, Amber: amberAbove to greenAbove, Red: <amberAbove. */
+export const DEFAULT_GROWTH_BAND_THRESHOLDS: GrowthBandThresholds = {
+  greenAbove: 5,
+  amberAbove: 0,
+};
+
+/** DSO factor per band; derived from dsoBands when present. Fallback when dsoBands omitted. */
+export type DsoBandFactors = Record<DsoBandId, number>;
+
+/** DSO band definitions from API/JSON. Each band: id, label, factor, colors. UI reads this for display. */
+export const DEFAULT_DSO_BANDS: DsoBandDefinition[] = [
+  { id: "<50", label: "Under 50 days", shortLabel: "<50", factor: 1.2, color: "bg-emerald-500", roundelColor: "bg-emerald-500 text-white" },
+  { id: "50-110", label: "50–110 days", shortLabel: "50–110", factor: 1.1, color: "bg-lime-500", roundelColor: "bg-lime-600 text-white" },
+  { id: "110-170", label: "110–170 days", shortLabel: "110–170", factor: 1.0, color: "bg-amber-500", roundelColor: "bg-amber-500 text-slate-900" },
+  { id: ">170", label: "Over 170 days", shortLabel: ">170", factor: 0, color: "bg-red-500", roundelColor: "bg-red-500 text-white" },
+];
 
 export interface ScorecardData {
   /** Unique identifier: user's mobile number. Used when opening app from WhatsApp CTA; backend resolves person and role from this. */
@@ -100,10 +174,20 @@ export interface ScorecardData {
   scoreBandThresholds?: ScoreBandThresholds;
   /** Single line for Score Overview under the gauge; backend-derived from score and bands (Red/Amber/Green). */
   achievementMessage: string;
-  /** DSO factor by band (e.g. &lt;50→1.2, 50–110→1.1, …). From JSON or global API; shown over bands. */
+  /** DSO band definitions from API. Each band has id, label, shortLabel, factor, color, roundelColor. UI reads this. */
+  dsoBands?: DsoBandDefinition[];
+  /** DSO factor by band. Derived from dsoBands when present; otherwise from API. Kept for backward compat. */
   dsoBandFactors?: DsoBandFactors;
-  /** OD weightage: penalty % per bucket (0, 0, 20, 50, 100, 200). From JSON/API; shown like DSO factors. */
+  /** Overdue bucket definitions (key, label, penaltyPct). When absent, use DEFAULT_OVERDUE_BUCKETS. */
+  overdueBuckets?: OverdueBucketDefinition[];
+  /** OD weightage: penalty % per bucket. Can be derived from overdueBuckets or sent separately. */
   overdueBucketPenalties?: OverdueBucketPenalties;
+  /** Product mix category definitions (id, label, weight). When absent, use DEFAULT_PRODUCT_MIX_CATEGORIES. */
+  productMixCategories?: ProductMixCategoryDefinition[];
+  /** Growth band thresholds (greenAbove, amberAbove). When absent, use DEFAULT_GROWTH_BAND_THRESHOLDS. */
+  growthBandThresholds?: GrowthBandThresholds;
+  /** Product mix "helped" threshold: nrvFactor >= this shows green. Optional; default 0.65. */
+  productMixHelpThreshold?: number;
   /** KPI weights for score/max badge (e.g. 38/34). Optional; defaults used per KPI. */
   kpiWeights?: KpiWeights;
   /** Gemini-generated: comment in bottom box (Growth Check). When absent, fallback to hardcoded growth message. */

@@ -1,27 +1,20 @@
 "use client";
 
-import type { ScorecardData } from "@/types/scorecard";
+import type { ScorecardData, DsoBandDefinition } from "@/types/scorecard";
+import { DEFAULT_DSO_BANDS, DEFAULT_KPI_WEIGHTS } from "@/types/scorecard";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 
 /**
  * Screen 3: DSO in plain language. Band shown visually; labels under each segment; impact explained.
+ * Bands come from data.dsoBands (API) or fall back to DEFAULT_DSO_BANDS.
  */
 interface Props {
   data: ScorecardData;
 }
 
-const BANDS: {
-  band: ScorecardData["dso"]["dsoBand"];
-  label: string;
-  shortLabel: string;
-  color: string;
-  roundelColor: string;
-}[] = [
-  { band: "<50", label: "Under 50 days", shortLabel: "<50", color: "bg-emerald-500", roundelColor: "bg-emerald-500 text-white" },
-  { band: "50-110", label: "50–110 days", shortLabel: "50–110", color: "bg-lime-500", roundelColor: "bg-lime-600 text-white" },
-  { band: "110-170", label: "110–170 days", shortLabel: "110–170", color: "bg-amber-500", roundelColor: "bg-amber-500 text-slate-900" },
-  { band: ">170", label: "Over 170 days", shortLabel: ">170", color: "bg-red-500", roundelColor: "bg-red-500 text-white" },
-];
+function getBands(data: ScorecardData): DsoBandDefinition[] {
+  return data.dsoBands && data.dsoBands.length > 0 ? data.dsoBands : DEFAULT_DSO_BANDS;
+}
 
 function impactText(factor: number): string {
   if (factor <= 0) return "Collection speed is blocking your score. Improving it will unlock the score.";
@@ -31,11 +24,12 @@ function impactText(factor: number): string {
 
 export function CollectionSpeed({ data }: Props) {
   const { dso } = data;
-  const factors = data.dsoBandFactors;
-  const activeBandConfig = BANDS.find((b) => b.band === dso.dsoBand);
+  const bands = getBands(data);
+  const factors = data.dsoBandFactors ?? Object.fromEntries(bands.map((b) => [b.id, b.factor]));
+  const activeBandConfig = bands.find((b) => b.id === dso.dsoBand);
   const badgeColor = activeBandConfig?.roundelColor ?? "bg-slate-500 text-white";
   const dsoScoreRounded = Math.round(dso.dsoScore);
-  const dsoWeight = data.kpiWeights?.dso ?? 33;
+  const dsoWeight = data.kpiWeights?.dso ?? DEFAULT_KPI_WEIGHTS.dso;
 
   return (
     <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6 relative">
@@ -53,28 +47,24 @@ export function CollectionSpeed({ data }: Props) {
         <p className="text-3xl font-bold text-slate-900 tabular-nums">{dso.dsoDays}</p>
         <p className="text-slate-500 text-sm">days to collect</p>
       </div>
-      {factors && (
-        <>
-          <p className="text-xs text-slate-500 mb-1">
-            DSO Factor = weight for your score in this band (higher = better for score).
-          </p>
-          <div className="flex gap-1 mb-0.5">
-            {BANDS.map((b) => (
-              <div key={b.band} className="flex-1 text-center">
-                <span className="text-xs font-medium text-slate-600 tabular-nums" title={`${b.label}: factor ${factors[b.band]}`}>
-                  {factors[b.band]}
-                </span>
-              </div>
-            ))}
+      <p className="text-xs text-slate-500 mb-1">
+        DSO Factor = weight for your score in this band (higher = better for score).
+      </p>
+      <div className="flex gap-1 mb-0.5">
+        {bands.map((b) => (
+          <div key={b.id} className="flex-1 text-center">
+            <span className="text-xs font-medium text-slate-600 tabular-nums" title={`${b.label}: factor ${b.factor}`}>
+              {b.factor}
+            </span>
           </div>
-        </>
-      )}
+        ))}
+      </div>
       <div className="flex gap-1 mb-1">
-        {BANDS.map((b) => (
-          <div key={b.band} className="flex-1 flex flex-col items-center">
+        {bands.map((b) => (
+          <div key={b.id} className="flex-1 flex flex-col items-center">
             <div
               className={`w-full h-2 rounded-full ${b.color} ${
-                b.band === dso.dsoBand
+                b.id === dso.dsoBand
                   ? "ring-2 ring-offset-2 ring-slate-400 animate-dso-band"
                   : "opacity-40"
               }`}
@@ -84,8 +74,8 @@ export function CollectionSpeed({ data }: Props) {
         ))}
       </div>
       <div className="flex gap-1 mb-6">
-        {BANDS.map((b) => (
-          <div key={b.band} className="flex-1 text-center">
+        {bands.map((b) => (
+          <div key={b.id} className="flex-1 text-center">
             <span className="text-xs text-slate-500">{b.shortLabel}</span>
           </div>
         ))}

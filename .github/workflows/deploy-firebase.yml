@@ -30,6 +30,7 @@ jobs:
       - name: Build
         env:
           NEXT_PUBLIC_GEMINI_COMMENTARY_URL: https://us-central1-${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}.cloudfunctions.net/gemini-commentary
+          NEXT_PUBLIC_KPI_DATA_API_URL: ${{ secrets.KPI_DATA_API_URL || '' }}
         run: npm run build
 
       - name: Authenticate to GCP (Firebase)

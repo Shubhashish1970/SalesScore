@@ -1,26 +1,20 @@
 "use client";
 
 import type { ScorecardData } from "@/types/scorecard";
+import { DEFAULT_OVERDUE_BUCKETS, DEFAULT_KPI_WEIGHTS } from "@/types/scorecard";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
-import type { OverdueBucketKey } from "@/types/scorecard";
 
 /**
  * Screen 4: Overdue buckets; outstanding on bar; red for penalized; OS score roundel; OD weightage.
+ * Buckets from data.overdueBuckets or DEFAULT_OVERDUE_BUCKETS.
  */
 interface Props {
   data: ScorecardData;
 }
 
-const BUCKETS: { key: OverdueBucketKey; label: string }[] = [
-  { key: "notDue", label: "On time" },
-  { key: "d1_110", label: "1–110 days late" },
-  { key: "d111_180", label: "111–180 days late" },
-  { key: "d181_270", label: "181–270 days late" },
-  { key: "d271_365", label: "271–365 days late" },
-  { key: "gt365", label: "Over 365 days late" },
-];
-
-const PENALTY_START_INDEX = 2;
+function getOverdueBuckets(data: ScorecardData) {
+  return data.overdueBuckets && data.overdueBuckets.length > 0 ? data.overdueBuckets : DEFAULT_OVERDUE_BUCKETS;
+}
 
 function formatAmount(n: number): string {
   if (n >= 100) return `${(n / 100).toFixed(1)} Cr`;
@@ -30,16 +24,19 @@ function formatAmount(n: number): string {
 
 export function OverdueMoney({ data }: Props) {
   const { overdue } = data;
-  const penalties = data.overdueBucketPenalties;
+  const buckets = getOverdueBuckets(data);
+  const penalties = data.overdueBucketPenalties ?? Object.fromEntries(buckets.map((b) => [b.key, b.penaltyPct]));
   const amounts = overdue.bucketAmounts;
-  const total = BUCKETS.reduce((s, b) => s + overdue[b.key], 0) || 1;
+  const total = buckets.reduce((s, b) => s + overdue[b.key], 0) || 1;
   const badShare = (overdue.d181_270 + overdue.d271_365 + overdue.gt365) / total;
   const osScore = overdue.overdueScore ?? null;
   const totalOverdueLakhs = amounts
-    ? BUCKETS.reduce((s, b) => s + (amounts[b.key] ?? 0), 0)
+    ? buckets.reduce((s, b) => s + (amounts[b.key] ?? 0), 0)
     : 0;
   const totalOverdueStr = totalOverdueLakhs > 0 ? formatAmount(totalOverdueLakhs) : null;
-  const overdueWeight = data.kpiWeights?.overdue ?? 33;
+  const overdueWeight = data.kpiWeights?.overdue ?? DEFAULT_KPI_WEIGHTS.overdue;
+  const noPenaltyBuckets = buckets.filter((b) => (penalties[b.key] ?? b.penaltyPct) === 0);
+  const penalizedBuckets = buckets.filter((b) => (penalties[b.key] ?? b.penaltyPct) > 0);
 
   return (
     <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6 relative">
@@ -67,9 +64,10 @@ export function OverdueMoney({ data }: Props) {
         </p>
       )}
       <div className="space-y-2 mb-2">
+        {noPenaltyBuckets.length > 0 && (
         <div className="rounded-lg border-2 border-emerald-400 bg-emerald-50/30 p-2 space-y-1.5">
           <p className="text-[10px] text-emerald-800 font-medium px-0.5 -mt-0.5">No penalty (on time / 1–110 days)</p>
-          {BUCKETS.slice(0, PENALTY_START_INDEX).map(({ key, label }) => {
+          {noPenaltyBuckets.map(({ key, label }) => {
             const pct = total ? (overdue[key] / total) * 100 : 0;
             const amountStr = amounts ? formatAmount(amounts[key]) : null;
             const penaltyPct = penalties ? penalties[key] : null;
@@ -92,9 +90,11 @@ export function OverdueMoney({ data }: Props) {
             );
           })}
         </div>
+        )}
+        {penalizedBuckets.length > 0 && (
         <div className="rounded-lg border-2 border-dashed border-amber-400 bg-amber-50/20 p-2 space-y-1.5 animate-overdue-dashed-glow">
           <p className="text-[10px] text-amber-800 font-medium px-0.5 -mt-0.5">Penalized (111+ days)</p>
-          {BUCKETS.slice(PENALTY_START_INDEX).map(({ key, label }) => {
+          {penalizedBuckets.map(({ key, label }) => {
             const pct = total ? (overdue[key] / total) * 100 : 0;
             const hasMoney = overdue[key] > 0;
             const showRed = hasMoney;
@@ -119,6 +119,7 @@ export function OverdueMoney({ data }: Props) {
             );
           })}
         </div>
+        )}
       </div>
       {data.overdueComment?.trim() ? (
         <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 flex items-start gap-2">

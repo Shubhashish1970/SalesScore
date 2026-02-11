@@ -13,14 +13,16 @@ import {
 import type { ScorecardData } from "@/types/scorecard";
 import type { GeminiCommentaryOutput } from "@/gemini";
 import { mergeCommentaryIntoScorecard } from "@/gemini";
+import { BreakScreen } from "@/components/screens/BreakScreen";
 import { ScoreOverview } from "@/components/screens/ScoreOverview";
 import { GrowthCheck } from "@/components/screens/GrowthCheck";
 import { CollectionSpeed } from "@/components/screens/CollectionSpeed";
 import { OverdueMoney } from "@/components/screens/OverdueMoney";
 import { ProductMix } from "@/components/screens/ProductMix";
 import { WhatToDoNext } from "@/components/screens/WhatToDoNext";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
+import { fetchScorecard, isKpiApiConfigured } from "@/lib/kpi-api";
 
 const SCREENS = [
   ScoreOverview,
@@ -48,28 +50,27 @@ function HomeContent() {
   const searchParams = useSearchParams();
   const userToken = searchParams.get("u");
   const mobileFromUrl = searchParams.get("mobile");
+  const roleFromUrl = searchParams.get("role");
   const [data, setData] = useState<ScorecardData>(defaultScorecard);
+  const [fetchError, setFetchError] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
   const { currentIndex, setCurrentIndex, goNext, goPrev, onTouchStart, onTouchEnd } = useSwipe(0);
 
   const isPersonalLink = Boolean(userToken || mobileFromUrl);
   const isDemoMode = !isPersonalLink;
 
+  const retryLoad = useCallback(() => {
+    setFetchError(false);
+    setLoading(true);
+    setRetryKey((k) => k + 1);
+  }, []);
+
   useEffect(() => {
-    let scorecard: ScorecardData | undefined;
-    if (userToken) {
-      scorecard = scorecardByToken[userToken];
-      if (scorecard) setData(scorecard);
-      // Else: in production, fetch GET /api/scorecard?u={userToken} and setData(response)
-    } else if (mobileFromUrl) {
-      scorecard = scorecardByMobile[mobileFromUrl];
-      if (scorecard) setData(scorecard);
-    } else {
-      setData(defaultScorecard);
-    }
+    let cancelled = false;
     setCurrentIndex(0);
 
-    // Two-phase fetch: achievement first (fast, personalized), then rest. Screen 1 updates in ~5–15s.
-    if (scorecard) {
+    const runCommentary = (scorecard: ScorecardData) => {
       const commentaryUrl = process.env.NEXT_PUBLIC_GEMINI_COMMENTARY_URL ?? "/api/gemini/commentary";
 
       const post = (payload: unknown) =>
@@ -87,46 +88,115 @@ function HomeContent() {
         return (obj ?? {}) as Partial<GeminiCommentaryOutput>;
       };
 
-      // Phase 1: achievement only — minimal prompt, fast model, uses name. Updates Screen 1 quickly.
       post({ scorecard, fields: ["achievementMessage"] })
         .then((raw) => {
+          if (cancelled) return;
           const commentary = unwrap(raw);
           if (commentary?.achievementMessage) {
-            const merged = mergeCommentaryIntoScorecard(scorecard!, commentary);
+            const merged = mergeCommentaryIntoScorecard(scorecard, commentary);
             setData({ ...merged, commentaryFromGemini: true });
-            console.info("[Scorecard] Achievement message applied.");
           }
         })
         .catch(() => {
-          // Fallback: try full request for backward compat (old API).
           post(scorecard)
             .then((raw) => {
+              if (cancelled) return;
               const commentary = unwrap(raw);
-              const merged = mergeCommentaryIntoScorecard(scorecard!, commentary);
+              const merged = mergeCommentaryIntoScorecard(scorecard, commentary);
               setData({ ...merged, commentaryFromGemini: true });
             })
             .catch((err) => {
-              console.warn("[Scorecard] Commentary request failed, using sample text:", (err as Error)?.message || err);
+              if (!cancelled) console.warn("[Scorecard] Commentary failed:", (err as Error)?.message);
             });
         });
 
-      // Phase 2: rest (screens 2–6). Fire in parallel; merge when done.
       post({ scorecard, fields: ["growthComment", "dsoComment", "overdueComment", "productMixComment", "recommendedActions"] })
         .then((raw) => {
+          if (cancelled) return;
           const commentary = unwrap(raw);
-          setData((prev) => {
-            const merged = mergeCommentaryIntoScorecard(prev, commentary);
-            return { ...merged, commentaryFromGemini: true };
-          });
-          console.info("[Scorecard] Rest commentary applied.");
+          setData((prev) => ({ ...mergeCommentaryIntoScorecard(prev, commentary), commentaryFromGemini: true }));
         })
-        .catch(() => {
-          // Rest failed — achievement may have succeeded; don't overwrite.
-        });
+        .catch(() => {});
+    };
+
+    if (isDemoMode) {
+      setData(defaultScorecard);
+      setFetchError(false);
+      setLoading(false);
+      return;
     }
-  }, [userToken, mobileFromUrl, setCurrentIndex]);
+
+    if (userToken) {
+      const scorecard = scorecardByToken[userToken];
+      if (scorecard) {
+        setData(scorecard);
+        setFetchError(false);
+        setLoading(false);
+        runCommentary(scorecard);
+      } else {
+        setFetchError(true);
+        setLoading(false);
+      }
+      return () => { cancelled = true; };
+    }
+
+    if (mobileFromUrl) {
+      const role = (roleFromUrl === "TM" || roleFromUrl === "RM" || roleFromUrl === "ZM" || roleFromUrl === "BU"
+        ? roleFromUrl
+        : "TM") as ScorecardData["role"];
+
+      if (isKpiApiConfigured()) {
+        setLoading(true);
+        fetchScorecard(mobileFromUrl, role)
+          .then((scorecard) => {
+            if (cancelled) return;
+            setData(scorecard);
+            setFetchError(false);
+            setLoading(false);
+            runCommentary(scorecard);
+          })
+          .catch(() => {
+            if (cancelled) return;
+            setFetchError(true);
+            setLoading(false);
+          });
+      } else {
+        const scorecard = scorecardByMobile[mobileFromUrl];
+        if (scorecard) {
+          setData(scorecard);
+          setFetchError(false);
+          runCommentary(scorecard);
+        } else {
+          setFetchError(true);
+        }
+        setLoading(false);
+      }
+      return () => { cancelled = true; };
+    }
+
+    setData(defaultScorecard);
+    setFetchError(false);
+    setLoading(false);
+    return () => { cancelled = true; };
+  }, [userToken, mobileFromUrl, roleFromUrl, isDemoMode, setCurrentIndex, retryKey]);
 
   const Screen = SCREENS[currentIndex];
+
+  if (fetchError) {
+    return (
+      <main className="h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
+        <BreakScreen onRetry={retryLoad} />
+      </main>
+    );
+  }
+
+  if (loading) {
+    return (
+      <main className="h-dvh max-h-dvh flex items-center justify-center bg-white">
+        <div className="text-slate-500">Loading your scorecard…</div>
+      </main>
+    );
+  }
 
   return (
     <main className="h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white shadow-sm overflow-hidden">

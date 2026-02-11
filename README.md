@@ -32,7 +32,18 @@ Scores are per person (TM, RM, ZM, BU). The app is opened from a **WhatsApp bot 
 
 - **Types:** `src/types/scorecard.ts`
 - **Sample data:** `src/data/sampleScorecard.ts`
+- **JSON schema:** See `docs/SCORECARD_JSON.md` for full API contract and all configuration blocks.
 - Replace with API response in production; shape must match `ScorecardData`.
+
+**Configuration blocks (all optional; app uses built-in defaults when omitted):**
+
+| Block | Purpose |
+|-------|---------|
+| `dsoBands` | DSO band definitions (id, label, factor, colors). See `DEFAULT_DSO_BANDS`. |
+| `overdueBuckets` | Overdue bucket definitions (key, label, penaltyPct). See `DEFAULT_OVERDUE_BUCKETS`. |
+| `productMixCategories` | Product mix categories (id, label, weight). See `DEFAULT_PRODUCT_MIX_CATEGORIES`. |
+| `growthBandThresholds` | Growth % bands (greenAbove, amberAbove). See `DEFAULT_GROWTH_BAND_THRESHOLDS`. |
+| `kpiWeights` | KPI max scores for badges (productMix, overdue, dso). See `DEFAULT_KPI_WEIGHTS`. |
 
 ## Gemini commentary (optional)
 

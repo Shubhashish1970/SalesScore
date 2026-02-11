@@ -2,22 +2,22 @@
 
 import { useState, useEffect } from "react";
 import type { ScorecardData } from "@/types/scorecard";
+import { DEFAULT_PRODUCT_MIX_CATEGORIES, DEFAULT_KPI_WEIGHTS } from "@/types/scorecard";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 
 /**
  * Screen 5: Category distribution. Higher category = higher score impact; helped vs diluted.
+ * Categories from data.productMixCategories or DEFAULT_PRODUCT_MIX_CATEGORIES.
  */
 interface Props {
   data: ScorecardData;
 }
 
-const CATEGORIES: { key: keyof ScorecardData["productMix"]; label: string; weight: number }[] = [
-  { key: "categoryA", label: "Category A", weight: 1.4 },
-  { key: "categoryB", label: "Category B", weight: 1.3 },
-  { key: "categoryC", label: "Category C", weight: 1.2 },
-  { key: "categoryD", label: "Category D", weight: 1.1 },
-  { key: "categoryE", label: "Category E", weight: 0 },
-];
+const NRV_KEY_MAP = { categoryA: "categoryANrv", categoryB: "categoryBNrv", categoryC: "categoryCNrv", categoryD: "categoryDNrv", categoryE: "categoryENrv" } as const;
+
+function getProductMixCategories(data: ScorecardData) {
+  return data.productMixCategories && data.productMixCategories.length > 0 ? data.productMixCategories : DEFAULT_PRODUCT_MIX_CATEGORIES;
+}
 
 function formatNrv(rupees: number): string {
   if (rupees >= 1e7) return `${(rupees / 1e7).toFixed(2)} Cr`;
@@ -25,16 +25,14 @@ function formatNrv(rupees: number): string {
   return `${(rupees / 1e3).toFixed(1)} K`;
 }
 
-const NRV_KEYS: ("categoryANrv" | "categoryBNrv" | "categoryCNrv" | "categoryDNrv" | "categoryENrv")[] = [
-  "categoryANrv", "categoryBNrv", "categoryCNrv", "categoryDNrv", "categoryENrv",
-];
-
 /** Bar width % below which the NRV amount is shown only in a tooltip (same font/size as category label). */
 const SMALL_BAR_PCT = 18;
 
 export function ProductMix({ data }: Props) {
   const { productMix, growth } = data;
-  const helped = productMix.nrvFactor >= 0.65;
+  const categories = getProductMixCategories(data);
+  const helpThreshold = data.productMixHelpThreshold ?? 0.65;
+  const helped = productMix.nrvFactor >= helpThreshold;
   const totalNrvStr = growth.CY_NRV > 0 ? formatNrv(growth.CY_NRV) : null;
   const [mounted, setMounted] = useState(false);
   const [mountedAB, setMountedAB] = useState(false);
@@ -48,7 +46,7 @@ export function ProductMix({ data }: Props) {
   }, []);
 
   const score = Math.round(productMix.nrvFactor);
-  const weight = data.kpiWeights?.productMix ?? 34;
+  const weight = data.kpiWeights?.productMix ?? DEFAULT_KPI_WEIGHTS.productMix;
   const ratio = weight > 0 ? productMix.nrvFactor / weight : 0;
   const badgeColor =
     ratio > 1
@@ -76,9 +74,10 @@ export function ProductMix({ data }: Props) {
         </div>
       )}
       <div className="space-y-2 mb-6">
-        {CATEGORIES.map(({ key, label, weight }, i) => {
+        {categories.map(({ id, label, weight }) => {
+          const key = id;
           const pct = productMix[key] ?? 0;
-          const nrvKey = NRV_KEYS[i];
+          const nrvKey = NRV_KEY_MAP[key];
           const nrvValue = productMix[nrvKey] ?? 0;
           const nrvStr = nrvValue > 0 ? formatNrv(nrvValue) : null;
           const isCatE = key === "categoryE";
