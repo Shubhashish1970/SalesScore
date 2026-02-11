@@ -44,11 +44,20 @@ export function OverdueMoney({ data }: Props) {
   const noPenaltyBuckets = buckets.filter((b) => (penalties[b.key] ?? b.penaltyPct) === 0);
   const penalizedBuckets = buckets.filter((b) => (penalties[b.key] ?? b.penaltyPct) > 0);
 
+  const badgeColor =
+    osScore != null
+      ? osScore > 33
+        ? "bg-emerald-500 text-white"
+        : osScore >= 27
+          ? "bg-amber-500 text-slate-900"
+          : "bg-red-500 text-white"
+      : "bg-amber-500 text-slate-900";
+
   return (
     <section className="min-h-[80dvh] flex flex-col px-5 pt-6 pb-6 relative">
       {osScore != null && (
         <div
-          className="absolute top-5 right-5 rounded-lg px-2.5 py-1.5 flex items-center justify-center text-base font-bold tabular-nums bg-amber-500 text-slate-900 min-w-[4.5rem]"
+          className={`absolute top-5 right-5 rounded-lg px-2.5 py-1.5 flex items-center justify-center text-base font-bold tabular-nums min-w-[4.5rem] ${badgeColor}`}
           aria-label={`OS score: ${Math.round(osScore)} out of ${overdueWeight}`}
         >
           {Math.round(osScore)}/{overdueWeight}
