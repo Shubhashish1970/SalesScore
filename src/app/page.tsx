@@ -11,6 +11,7 @@ import {
   sampleBU,
 } from "@/data/sampleScorecard";
 import type { ScorecardData } from "@/types/scorecard";
+import type { GeminiCommentaryOutput } from "@/gemini";
 import { mergeCommentaryIntoScorecard } from "@/gemini";
 import { ScoreOverview } from "@/components/screens/ScoreOverview";
 import { GrowthCheck } from "@/components/screens/GrowthCheck";
@@ -78,15 +79,18 @@ function HomeContent() {
           body: JSON.stringify(payload),
         }).then((r) => (r.ok ? r.json() : Promise.reject(new Error("Commentary failed"))));
 
-      const unwrap = (raw: unknown) =>
-        typeof (raw as { achievementMessage?: string })?.achievementMessage === "string"
-          ? (raw as Record<string, unknown>)
-          : ((raw as { data?: unknown })?.data ?? (raw as { result?: unknown })?.result ?? raw);
+      const unwrap = (raw: unknown): Partial<GeminiCommentaryOutput> => {
+        const obj =
+          typeof (raw as { achievementMessage?: string })?.achievementMessage === "string"
+            ? (raw as Record<string, unknown>)
+            : ((raw as { data?: unknown })?.data ?? (raw as { result?: unknown })?.result ?? raw);
+        return (obj ?? {}) as Partial<GeminiCommentaryOutput>;
+      };
 
       // Phase 1: achievement only — minimal prompt, fast model, uses name. Updates Screen 1 quickly.
       post({ scorecard, fields: ["achievementMessage"] })
         .then((raw) => {
-          const commentary = unwrap(raw) as { achievementMessage?: string };
+          const commentary = unwrap(raw);
           if (commentary?.achievementMessage) {
             const merged = mergeCommentaryIntoScorecard(scorecard!, commentary);
             setData({ ...merged, commentaryFromGemini: true });
