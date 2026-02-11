@@ -284,6 +284,59 @@ export const sampleRM: ScorecardData = {
   ],
 };
 
+/** Lucknow RM: Sandeep Singh Sikarwar (Emp 22815). From Nagarjuna NaCl dashboard. Score 41/120, DSO 179 days, OS 9.88 Cr. */
+export const sampleLucknowRM: ScorecardData = {
+  mobile: "8121026014",
+  name: "Sandeep Singh Sikarwar",
+  role: "RM",
+  entityName: "Lucknow",
+  growth: {
+    CY_NRV: 122000000,
+    LY_NRV: 102000000,
+    growthPercent: 19.6,
+    growthFactor: 1,
+  },
+  dso: {
+    dsoDays: 179.83,
+    dsoScore: 0,
+    dsoBand: ">170",
+    dsoFactor: 0,
+  },
+  overdue: {
+    notDue: 43,
+    d1_110: 5,
+    d111_180: 0,
+    d181_270: 0,
+    d271_365: 0,
+    gt365: 52,
+    overdueScore: 6,
+    bucketAmounts: { notDue: 428, d1_110: 50, d111_180: 0, d181_270: 0, d271_365: 0, gt365: 510 },
+  },
+  overdueBuckets: SAMPLE_OVERDUE_BUCKETS,
+  overdueBucketPenalties: { notDue: 0, d1_110: 0, d111_180: 20, d181_270: 50, d271_365: 100, gt365: 200 },
+  productMix: {
+    categoryA: 35,
+    categoryB: 28,
+    categoryC: 22,
+    categoryD: 10,
+    categoryE: 5,
+    nrvFactor: 35.1,
+  },
+  finalScore: 41,
+  maxScore: 120,
+  scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
+  growthBandThresholds: SAMPLE_GROWTH_BAND_THRESHOLDS,
+  achievementMessage: "Your score is in the Red zone — focus on DSO and overdue to improve.",
+  dsoBands: SAMPLE_DSO_BANDS,
+  productMixCategories: SAMPLE_PRODUCT_MIX_CATEGORIES,
+  dsoBandFactors: { "<50": 1.2, "50-110": 1.1, "110-170": 1.0, ">170": 0 },
+  recommendedActions: [
+    { whatToDo: "Prioritise clearing >365 days overdue (4.87 Cr)", whyItHelps: "200% penalty on this bucket is severely hurting your OS score", expectedImpact: "High" },
+    { whatToDo: "Drive DSO below 170 days", whyItHelps: "DSO at 179 days is in the zero-factor band; improving unlocks score", expectedImpact: "High" },
+    { whatToDo: "Replicate growth from the 4 positive territories", whyItHelps: "57% of territories grew; scaling best practices can lift regional score", expectedImpact: "Medium" },
+  ],
+};
+
 export const sampleZM: ScorecardData = {
   mobile: "9876510003",
   name: "Amit",
@@ -424,6 +477,7 @@ export const scorecardByMobile: Record<string, ScorecardData> = {
   "9151003714": sampleGorakhpurTM,
   "9118199000": samplePrayagrajTM,
   "9876510002": sampleRM,
+  "8121026014": sampleLucknowRM,
   "9876510003": sampleZM,
   "9876510004": sampleBU,
 };
@@ -437,6 +491,7 @@ export const scorecardByToken: Record<string, ScorecardData> = {
   "d_gorakhpur": sampleGorakhpurTM,
   "d_prayagraj": samplePrayagrajTM,
   "d_rm": sampleRM,
+  "d_lucknow": sampleLucknowRM,
   "d_zm": sampleZM,
   "d_bu": sampleBU,
 };
