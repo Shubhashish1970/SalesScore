@@ -1,19 +1,15 @@
 "use client";
 
 import type { ScorecardData } from "@/types/scorecard";
-import { DEFAULT_OVERDUE_BUCKETS, DEFAULT_KPI_WEIGHTS } from "@/types/scorecard";
+import { getAppConfig } from "@/lib/app-config";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 
 /**
  * Screen 4: Overdue buckets; outstanding on bar; red for penalized; OS score roundel; OD weightage.
- * Buckets from data.overdueBuckets or DEFAULT_OVERDUE_BUCKETS.
+ * Buckets and thresholds from App Config.
  */
 interface Props {
   data: ScorecardData;
-}
-
-function getOverdueBuckets(data: ScorecardData) {
-  return data.overdueBuckets && data.overdueBuckets.length > 0 ? data.overdueBuckets : DEFAULT_OVERDUE_BUCKETS;
 }
 
 function formatAmount(n: number): string {
@@ -27,8 +23,7 @@ const SMALL_BAR_PCT = 18;
 
 export function OverdueMoney({ data }: Props) {
   const { overdue } = data;
-  const buckets = getOverdueBuckets(data);
-  const penalties = data.overdueBucketPenalties ?? Object.fromEntries(buckets.map((b) => [b.key, b.penaltyPct]));
+  const { overdueBuckets: buckets, overdueBucketPenalties: penalties, kpiWeights, overdueBadgeGreenAbove, overdueBadgeAmberAbove } = getAppConfig();
   const amounts = overdue.bucketAmounts;
   const total = buckets.reduce((s, b) => s + overdue[b.key], 0) || 1;
   const badShare = (overdue.d181_270 + overdue.d271_365 + overdue.gt365) / total;
@@ -40,15 +35,15 @@ export function OverdueMoney({ data }: Props) {
   const totalOverdueAmount = totalOutstanding - onTimeAmount;
   const totalOutstandingStr = totalOutstanding > 0 ? formatAmount(totalOutstanding) : null;
   const totalOverdueStr = totalOverdueAmount > 0 ? formatAmount(totalOverdueAmount) : null;
-  const overdueWeight = data.kpiWeights?.overdue ?? DEFAULT_KPI_WEIGHTS.overdue;
+  const overdueWeight = kpiWeights.overdue;
   const noPenaltyBuckets = buckets.filter((b) => (penalties[b.key] ?? b.penaltyPct) === 0);
   const penalizedBuckets = buckets.filter((b) => (penalties[b.key] ?? b.penaltyPct) > 0);
 
   const badgeColor =
     osScore != null
-      ? osScore > 33
+      ? osScore > overdueBadgeGreenAbove
         ? "bg-emerald-500 text-white"
-        : osScore >= 27
+        : osScore >= overdueBadgeAmberAbove
           ? "bg-amber-500 text-slate-900"
           : "bg-red-500 text-white"
       : "bg-amber-500 text-slate-900";

@@ -2,22 +2,18 @@
 
 import { useState, useEffect } from "react";
 import type { ScorecardData } from "@/types/scorecard";
-import { DEFAULT_PRODUCT_MIX_CATEGORIES, DEFAULT_KPI_WEIGHTS } from "@/types/scorecard";
+import { getAppConfig } from "@/lib/app-config";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 
 /**
  * Screen 5: Category distribution. Higher category = higher score impact; helped vs diluted.
- * Categories from data.productMixCategories or DEFAULT_PRODUCT_MIX_CATEGORIES.
+ * Categories and thresholds from App Config.
  */
 interface Props {
   data: ScorecardData;
 }
 
 const NRV_KEY_MAP = { categoryA: "categoryANrv", categoryB: "categoryBNrv", categoryC: "categoryCNrv", categoryD: "categoryDNrv", categoryE: "categoryENrv" } as const;
-
-function getProductMixCategories(data: ScorecardData) {
-  return data.productMixCategories && data.productMixCategories.length > 0 ? data.productMixCategories : DEFAULT_PRODUCT_MIX_CATEGORIES;
-}
 
 function formatNrv(rupees: number): string {
   if (rupees >= 1e7) return `${(rupees / 1e7).toFixed(2)} Cr`;
@@ -30,8 +26,7 @@ const SMALL_BAR_PCT = 18;
 
 export function ProductMix({ data }: Props) {
   const { productMix, growth } = data;
-  const categories = getProductMixCategories(data);
-  const helpThreshold = data.productMixHelpThreshold ?? 0.65;
+  const { productMixCategories: categories, productMixHelpThreshold: helpThreshold, kpiWeights, productMixBadgeGreenRatio, productMixBadgeAmberRatio } = getAppConfig();
   const helped = productMix.nrvFactor >= helpThreshold;
   const totalNrvStr = growth.CY_NRV > 0 ? formatNrv(growth.CY_NRV) : null;
   const [mounted, setMounted] = useState(false);
@@ -46,12 +41,12 @@ export function ProductMix({ data }: Props) {
   }, []);
 
   const score = Math.round(productMix.nrvFactor);
-  const weight = data.kpiWeights?.productMix ?? DEFAULT_KPI_WEIGHTS.productMix;
+  const weight = kpiWeights.productMix;
   const ratio = weight > 0 ? productMix.nrvFactor / weight : 0;
   const badgeColor =
-    ratio > 1
+    ratio > productMixBadgeGreenRatio
       ? "bg-emerald-500 text-white"
-      : ratio >= 0.8
+      : ratio >= productMixBadgeAmberRatio
         ? "bg-amber-500 text-slate-900"
         : "bg-red-500 text-white";
 

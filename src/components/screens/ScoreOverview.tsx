@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import type { ScorecardData } from "@/types/scorecard";
+import { getAppConfig } from "@/lib/app-config";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 
 const ScoreGaugeHighcharts = dynamic(
@@ -34,8 +35,9 @@ function getBandStyle(score: number, redEnd: number, amberEnd: number) {
 }
 
 export function ScoreOverview({ data }: Props) {
-  const redEnd = data.scoreBandThresholds?.redEnd ?? 80;
-  const amberEnd = data.scoreBandThresholds?.amberEnd ?? 90;
+  const { scoreBandThresholds } = getAppConfig();
+  const redEnd = scoreBandThresholds.redEnd;
+  const amberEnd = scoreBandThresholds.amberEnd;
   const achievementLine = data.achievementMessage?.trim();
   const bandStyle = getBandStyle(data.finalScore, redEnd, amberEnd);
 

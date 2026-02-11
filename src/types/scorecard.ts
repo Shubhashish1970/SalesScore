@@ -168,28 +168,10 @@ export interface ScorecardData {
   overdue: Overdue;
   productMix: ProductMix;
   finalScore: number;
-  /** Maximum possible score (e.g. 120). Gauge and display use this; not hardcoded. */
+  /** Maximum possible score (e.g. 120). Gauge and display use this; from API/JSON. */
   maxScore: number;
-  /** Gauge band thresholds: &lt; redEnd = red, redEnd–amberEnd = amber, &gt; amberEnd = green. Default 80, 90 if omitted. */
-  scoreBandThresholds?: ScoreBandThresholds;
   /** Single line for Score Overview under the gauge; backend-derived from score and bands (Red/Amber/Green). */
   achievementMessage: string;
-  /** DSO band definitions from API. Each band has id, label, shortLabel, factor, color, roundelColor. UI reads this. */
-  dsoBands?: DsoBandDefinition[];
-  /** DSO factor by band. Derived from dsoBands when present; otherwise from API. Kept for backward compat. */
-  dsoBandFactors?: DsoBandFactors;
-  /** Overdue bucket definitions (key, label, penaltyPct). When absent, use DEFAULT_OVERDUE_BUCKETS. */
-  overdueBuckets?: OverdueBucketDefinition[];
-  /** OD weightage: penalty % per bucket. Can be derived from overdueBuckets or sent separately. */
-  overdueBucketPenalties?: OverdueBucketPenalties;
-  /** Product mix category definitions (id, label, weight). When absent, use DEFAULT_PRODUCT_MIX_CATEGORIES. */
-  productMixCategories?: ProductMixCategoryDefinition[];
-  /** Growth band thresholds (greenAbove, amberAbove). When absent, use DEFAULT_GROWTH_BAND_THRESHOLDS. */
-  growthBandThresholds?: GrowthBandThresholds;
-  /** Product mix "helped" threshold: nrvFactor >= this shows green. Optional; default 0.65. */
-  productMixHelpThreshold?: number;
-  /** KPI weights for score/max badge (e.g. 38/34). Optional; defaults used per KPI. */
-  kpiWeights?: KpiWeights;
   /** Gemini-generated: comment in bottom box (Growth Check). When absent, fallback to hardcoded growth message. */
   growthComment?: string;
   /** Gemini-generated: comment in grey box (Collection Speed). When absent, fallback to hardcoded DSO message. */

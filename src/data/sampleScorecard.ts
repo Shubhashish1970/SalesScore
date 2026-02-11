@@ -1,24 +1,10 @@
 /**
  * Sample scorecard JSON for each role. Backend would replace this;
  * UI is fully driven by this structure.
+ * Config (bands, thresholds, weights) comes from App Config, not JSON.
  */
 
 import type { ScorecardData } from "@/types/scorecard";
-import {
-  DEFAULT_DSO_BANDS,
-  DEFAULT_OVERDUE_BUCKETS,
-  DEFAULT_PRODUCT_MIX_CATEGORIES,
-  DEFAULT_GROWTH_BAND_THRESHOLDS,
-} from "@/types/scorecard";
-
-/** DSO bands included in API JSON. KPI API should return dsoBands in this shape. */
-export const SAMPLE_DSO_BANDS = [...DEFAULT_DSO_BANDS];
-/** Overdue bucket definitions. KPI API should return overdueBuckets in this shape. */
-export const SAMPLE_OVERDUE_BUCKETS = [...DEFAULT_OVERDUE_BUCKETS];
-/** Product mix category definitions. KPI API should return productMixCategories in this shape. */
-export const SAMPLE_PRODUCT_MIX_CATEGORIES = [...DEFAULT_PRODUCT_MIX_CATEGORIES];
-/** Growth band thresholds. KPI API should return growthBandThresholds in this shape. */
-export const SAMPLE_GROWTH_BAND_THRESHOLDS = { ...DEFAULT_GROWTH_BAND_THRESHOLDS };
 
 /** TM sample: realistic values from Dindigul / Pushpanathan (score 111/120, CY 1.9 Cr, DSO 74 days, OS 0.69 Cr). */
 export const sampleTM: ScorecardData = {
@@ -48,8 +34,6 @@ export const sampleTM: ScorecardData = {
     overdueScore: 33,
     bucketAmounts: { notDue: 65, d1_110: 2, d111_180: 1, d181_270: 0.5, d271_365: 0.3, gt365: 0.2 },
   },
-  overdueBuckets: SAMPLE_OVERDUE_BUCKETS,
-  overdueBucketPenalties: { notDue: 0, d1_110: 0, d111_180: 20, d181_270: 50, d271_365: 100, gt365: 200 },
   productMix: {
     categoryA: 38,
     categoryB: 28,
@@ -65,12 +49,7 @@ export const sampleTM: ScorecardData = {
   },
   finalScore: 111,
   maxScore: 120,
-  scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
-  growthBandThresholds: SAMPLE_GROWTH_BAND_THRESHOLDS,
   achievementMessage: "Your score is in the Green zone — keep it up.",
-  dsoBands: SAMPLE_DSO_BANDS,
-  productMixCategories: SAMPLE_PRODUCT_MIX_CATEGORIES,
-  dsoBandFactors: { "<50": 1.2, "50-110": 1.1, "110-170": 1.0, ">170": 0 },
   recommendedActions: [
     {
       whatToDo: "Keep DSO below 110 days to retain full factor",
@@ -118,8 +97,6 @@ export const sampleGorakhpurTM: ScorecardData = {
     overdueScore: -1.9,
     bucketAmounts: { notDue: 0.74, d1_110: 0.16, d111_180: 0.09, d181_270: 0.05, d271_365: 0.04, gt365: 0.91 },
   },
-  overdueBuckets: SAMPLE_OVERDUE_BUCKETS,
-  overdueBucketPenalties: { notDue: 0, d1_110: 0, d111_180: 20, d181_270: 50, d271_365: 100, gt365: 200 },
   productMix: {
     categoryA: 24,
     categoryB: 14,
@@ -135,12 +112,7 @@ export const sampleGorakhpurTM: ScorecardData = {
   },
   finalScore: 36,
   maxScore: 120,
-  scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
-  growthBandThresholds: SAMPLE_GROWTH_BAND_THRESHOLDS,
   achievementMessage: "Your score is in the Red zone — focus on DSO and overdue to improve.",
-  dsoBands: SAMPLE_DSO_BANDS,
-  productMixCategories: SAMPLE_PRODUCT_MIX_CATEGORIES,
-  dsoBandFactors: { "<50": 1.2, "50-110": 1.1, "110-170": 1.0, ">170": 0 },
   recommendedActions: [
     {
       whatToDo: "Bring DSO below 170 days to unlock a DSO factor",
@@ -188,8 +160,6 @@ export const samplePrayagrajTM: ScorecardData = {
     overdueScore: 31.7,
     bucketAmounts: { notDue: 31, d1_110: 6, d111_180: 15, d181_270: 1, d271_365: 0, gt365: 0 },
   },
-  overdueBuckets: SAMPLE_OVERDUE_BUCKETS,
-  overdueBucketPenalties: { notDue: 0, d1_110: 0, d111_180: 20, d181_270: 50, d271_365: 100, gt365: 200 },
   productMix: {
     categoryA: 1.81,
     categoryB: 57.67,
@@ -205,13 +175,7 @@ export const samplePrayagrajTM: ScorecardData = {
   },
   finalScore: 103,
   maxScore: 120,
-  scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
-  growthBandThresholds: SAMPLE_GROWTH_BAND_THRESHOLDS,
-  kpiWeights: { productMix: 34, overdue: 33, dso: 33 },
   achievementMessage: "Your score is in the Green zone — keep it up.",
-  dsoBands: SAMPLE_DSO_BANDS,
-  productMixCategories: SAMPLE_PRODUCT_MIX_CATEGORIES,
-  dsoBandFactors: { "<50": 1.2, "50-110": 1.1, "110-170": 1.0, ">170": 0 },
   recommendedActions: [
     { whatToDo: "Bring DSO below 110 days to unlock higher factor", whyItHelps: "You are in the 110–170 days band. Moving to 50–110 days unlocks a better DSO factor and lifts your overall score.", expectedImpact: "High" },
     { whatToDo: "Clear overdue in 111–180 days bucket on priority", whyItHelps: "15 L is in the 20% penalty bucket. Clearing it reduces penalty drag and improves your OS score.", expectedImpact: "High" },
@@ -247,8 +211,6 @@ export const sampleRM: ScorecardData = {
     overdueScore: 68,
     bucketAmounts: { notDue: 23.2, d1_110: 9.6, d111_180: 4, d181_270: 2, d271_365: 0.8, gt365: 0.4 },
   },
-  overdueBuckets: SAMPLE_OVERDUE_BUCKETS,
-  overdueBucketPenalties: { notDue: 0, d1_110: 0, d111_180: 20, d181_270: 50, d271_365: 100, gt365: 200 },
   productMix: {
     categoryA: 32,
     categoryB: 30,
@@ -259,12 +221,7 @@ export const sampleRM: ScorecardData = {
   },
   finalScore: 62,
   maxScore: 120,
-  scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
-  growthBandThresholds: SAMPLE_GROWTH_BAND_THRESHOLDS,
   achievementMessage: "Your score is in the Red zone — focus on the areas below to improve.",
-  dsoBands: SAMPLE_DSO_BANDS,
-  productMixCategories: SAMPLE_PRODUCT_MIX_CATEGORIES,
-  dsoBandFactors: { "<50": 1.2, "50-110": 1.1, "110-170": 1.0, ">170": 0 },
   recommendedActions: [
     {
       whatToDo: "Review weak territories and reallocate dealer focus",
@@ -312,8 +269,6 @@ export const sampleLucknowRM: ScorecardData = {
     overdueScore: 6,
     bucketAmounts: { notDue: 428, d1_110: 50, d111_180: 0, d181_270: 0, d271_365: 0, gt365: 510 },
   },
-  overdueBuckets: SAMPLE_OVERDUE_BUCKETS,
-  overdueBucketPenalties: { notDue: 0, d1_110: 0, d111_180: 20, d181_270: 50, d271_365: 100, gt365: 200 },
   productMix: {
     categoryA: 35,
     categoryB: 28,
@@ -324,12 +279,7 @@ export const sampleLucknowRM: ScorecardData = {
   },
   finalScore: 41,
   maxScore: 120,
-  scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
-  growthBandThresholds: SAMPLE_GROWTH_BAND_THRESHOLDS,
   achievementMessage: "Your score is in the Red zone — focus on DSO and overdue to improve.",
-  dsoBands: SAMPLE_DSO_BANDS,
-  productMixCategories: SAMPLE_PRODUCT_MIX_CATEGORIES,
-  dsoBandFactors: { "<50": 1.2, "50-110": 1.1, "110-170": 1.0, ">170": 0 },
   recommendedActions: [
     { whatToDo: "Prioritise clearing >365 days overdue (4.87 Cr)", whyItHelps: "200% penalty on this bucket is severely hurting your OS score", expectedImpact: "High" },
     { whatToDo: "Drive DSO below 170 days", whyItHelps: "DSO at 179 days is in the zero-factor band; improving unlocks score", expectedImpact: "High" },
@@ -364,8 +314,6 @@ export const sampleZM: ScorecardData = {
     overdueScore: 62,
     bucketAmounts: { notDue: 22, d1_110: 10.4, d111_180: 4.4, d181_270: 2, d271_365: 0.8, gt365: 0.4 },
   },
-  overdueBuckets: SAMPLE_OVERDUE_BUCKETS,
-  overdueBucketPenalties: { notDue: 0, d1_110: 0, d111_180: 20, d181_270: 50, d271_365: 100, gt365: 200 },
   productMix: {
     categoryA: 30,
     categoryB: 28,
@@ -376,12 +324,7 @@ export const sampleZM: ScorecardData = {
   },
   finalScore: 54,
   maxScore: 120,
-  scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
-  growthBandThresholds: SAMPLE_GROWTH_BAND_THRESHOLDS,
   achievementMessage: "Your score is in the Red zone — focus on the areas below to improve.",
-  dsoBands: SAMPLE_DSO_BANDS,
-  productMixCategories: SAMPLE_PRODUCT_MIX_CATEGORIES,
-  dsoBandFactors: { "<50": 1.2, "50-110": 1.1, "110-170": 1.0, ">170": 0 },
   recommendedActions: [
     {
       whatToDo: "Roll out zone-level DSO targets and track weekly",
@@ -428,8 +371,6 @@ export const sampleBU: ScorecardData = {
     overdueScore: 58,
     bucketAmounts: { notDue: 20.8, d1_110: 10.8, d111_180: 4.8, d181_270: 2.4, d271_365: 0.8, gt365: 0.4 },
   },
-  overdueBuckets: SAMPLE_OVERDUE_BUCKETS,
-  overdueBucketPenalties: { notDue: 0, d1_110: 0, d111_180: 20, d181_270: 50, d271_365: 100, gt365: 200 },
   productMix: {
     categoryA: 28,
     categoryB: 26,
@@ -440,12 +381,7 @@ export const sampleBU: ScorecardData = {
   },
   finalScore: 58,
   maxScore: 120,
-  scoreBandThresholds: { redEnd: 80, amberEnd: 90 },
-  growthBandThresholds: SAMPLE_GROWTH_BAND_THRESHOLDS,
   achievementMessage: "Your score is in the Red zone — focus on the areas below to improve.",
-  dsoBands: SAMPLE_DSO_BANDS,
-  productMixCategories: SAMPLE_PRODUCT_MIX_CATEGORIES,
-  dsoBandFactors: { "<50": 1.2, "50-110": 1.1, "110-170": 1.0, ">170": 0 },
   recommendedActions: [
     {
       whatToDo: "Tighten credit policy for channels with DSO above 150 days",

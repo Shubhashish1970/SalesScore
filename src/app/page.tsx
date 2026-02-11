@@ -23,6 +23,7 @@ import { WhatToDoNext } from "@/components/screens/WhatToDoNext";
 import { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { fetchScorecard, isKpiApiConfigured } from "@/lib/kpi-api";
+import { getAppConfig } from "@/lib/app-config";
 
 const SCREENS = [
   ScoreOverview,
@@ -88,7 +89,8 @@ function HomeContent() {
         return (obj ?? {}) as Partial<GeminiCommentaryOutput>;
       };
 
-      post({ scorecard, fields: ["achievementMessage"] })
+      const config = getAppConfig();
+      post({ scorecard, config, fields: ["achievementMessage"] })
         .then((raw) => {
           if (cancelled) return;
           const commentary = unwrap(raw);
@@ -98,7 +100,7 @@ function HomeContent() {
           }
         })
         .catch(() => {
-          post(scorecard)
+          post({ scorecard, config })
             .then((raw) => {
               if (cancelled) return;
               const commentary = unwrap(raw);
@@ -110,7 +112,7 @@ function HomeContent() {
             });
         });
 
-      post({ scorecard, fields: ["growthComment", "dsoComment", "overdueComment", "productMixComment", "recommendedActions"] })
+      post({ scorecard, config, fields: ["growthComment", "dsoComment", "overdueComment", "productMixComment", "recommendedActions"] })
         .then((raw) => {
           if (cancelled) return;
           const commentary = unwrap(raw);

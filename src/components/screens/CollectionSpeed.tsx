@@ -1,28 +1,15 @@
 "use client";
 
 import type { ScorecardData, DsoBandDefinition } from "@/types/scorecard";
-import { DEFAULT_DSO_BANDS, DEFAULT_KPI_WEIGHTS } from "@/types/scorecard";
+import { getAppConfig } from "@/lib/app-config";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 
 /**
  * Screen 3: DSO in plain language. Band shown visually; labels under each segment; impact explained.
- * Bands come from data.dsoBands (API) or fall back to DEFAULT_DSO_BANDS.
+ * Bands from App Config (dsoBands).
  */
 interface Props {
   data: ScorecardData;
-}
-
-function getBands(data: ScorecardData): DsoBandDefinition[] {
-  const apiBands = data.dsoBands && data.dsoBands.length > 0 ? data.dsoBands : null;
-  if (!apiBands) return DEFAULT_DSO_BANDS;
-  return apiBands.map((b) => {
-    const def = DEFAULT_DSO_BANDS.find((d) => d.id === b.id);
-    return {
-      ...b,
-      color: b.color ?? def?.color ?? "bg-slate-500",
-      roundelColor: b.roundelColor ?? def?.roundelColor ?? "bg-slate-500 text-white",
-    };
-  });
 }
 
 function impactText(factor: number): string {
@@ -33,12 +20,11 @@ function impactText(factor: number): string {
 
 export function CollectionSpeed({ data }: Props) {
   const { dso } = data;
-  const bands = getBands(data);
-  const factors = data.dsoBandFactors ?? Object.fromEntries(bands.map((b) => [b.id, b.factor]));
-  const activeBandConfig = bands.find((b) => b.id === dso.dsoBand);
+  const { dsoBands: bands, kpiWeights } = getAppConfig();
+  const activeBandConfig = bands.find((b: DsoBandDefinition) => b.id === dso.dsoBand);
   const badgeColor = activeBandConfig?.roundelColor ?? "bg-slate-500 text-white";
   const dsoScoreRounded = Math.round(dso.dsoScore);
-  const dsoWeight = data.kpiWeights?.dso ?? DEFAULT_KPI_WEIGHTS.dso;
+  const dsoWeight = kpiWeights.dso;
 
   return (
     <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6 relative">

@@ -6,6 +6,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getPromptsForRole } from "@/lib/gemini-prompts";
 import type { GeminiCommentaryOutput } from "@/lib/gemini-prompts";
+import { getAppConfig } from "@/lib/app-config";
 import type { ScorecardData } from "@/types/scorecard";
 
 const DEFAULT_MODEL = "gemini-2.5-flash";
@@ -32,7 +33,8 @@ export async function generateCommentary(
     throw new Error("Gemini API key is missing. Set GEMINI_API_KEY or GOOGLE_API_KEY.");
   }
 
-  const { systemPrompt, userPrompt } = getPromptsForRole(scorecard.role, scorecard);
+  const config = getAppConfig();
+  const { systemPrompt, userPrompt } = getPromptsForRole(scorecard.role, scorecard, config);
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
     model: options?.model ?? DEFAULT_MODEL,

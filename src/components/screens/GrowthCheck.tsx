@@ -1,13 +1,13 @@
 "use client";
 
 import type { ScorecardData } from "@/types/scorecard";
-import { DEFAULT_GROWTH_BAND_THRESHOLDS } from "@/types/scorecard";
+import { getAppConfig } from "@/lib/app-config";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 
 /**
  * Screen 2: Gatekeeper — growth achieved or not.
  * Shows Growth % (from JSON) in big font with arrow.
- * Bands from data.growthBandThresholds or DEFAULT_GROWTH_BAND_THRESHOLDS.
+ * Bands from App Config (growthBandThresholds).
  */
 interface Props {
   data: ScorecardData;
@@ -57,7 +57,7 @@ function GrowthArrow({ band, direction }: { band: GrowthBand; direction: "up" | 
 
 export function GrowthCheck({ data }: Props) {
   const { growth } = data;
-  const thresholds = data.growthBandThresholds ?? DEFAULT_GROWTH_BAND_THRESHOLDS;
+  const thresholds = getAppConfig().growthBandThresholds;
   const achieved = growth.growthFactor === 1;
   const pct = growth.growthPercent;
   const band = getGrowthBand(pct, thresholds);
