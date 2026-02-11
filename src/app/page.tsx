@@ -23,7 +23,8 @@ import { WhatToDoNext } from "@/components/screens/WhatToDoNext";
 import { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { fetchScorecard, isKpiApiConfigured } from "@/lib/kpi-api";
-import { getAppConfig } from "@/lib/app-config";
+import { getAppConfig, loadConfigFromStorage } from "@/lib/app-config";
+import { AdminSettingsScreen } from "@/components/admin/AdminSettingsScreen";
 
 const SCREENS = [
   ScoreOverview,
@@ -40,6 +41,8 @@ const ROLE_DATA: Record<string, ScorecardData> = {
   ZM: sampleZM,
   BU: sampleBU,
 };
+
+const ADMIN_MOBILE = process.env.NEXT_PUBLIC_ADMIN_MOBILE ?? "1234567890";
 
 /**
  * Entry: WhatsApp CTA uses ?u=<token> (encrypted mobile or opaque token). Mobile never in URL.
@@ -58,8 +61,17 @@ function HomeContent() {
   const [retryKey, setRetryKey] = useState(0);
   const { currentIndex, setCurrentIndex, goNext, goPrev, onTouchStart, onTouchEnd } = useSwipe(0);
 
+  const isAdminMode = mobileFromUrl === ADMIN_MOBILE;
   const isPersonalLink = Boolean(userToken || mobileFromUrl);
-  const isDemoMode = !isPersonalLink;
+  const isDemoMode = !isPersonalLink && !isAdminMode;
+
+  if (isAdminMode) {
+    return (
+      <main className="min-h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
+        <AdminSettingsScreen />
+      </main>
+    );
+  }
 
   const retryLoad = useCallback(() => {
     setFetchError(false);
@@ -68,6 +80,8 @@ function HomeContent() {
   }, []);
 
   useEffect(() => {
+    loadConfigFromStorage();
+    if (mobileFromUrl === ADMIN_MOBILE) return;
     let cancelled = false;
     setCurrentIndex(0);
 

@@ -72,7 +72,53 @@ const DEFAULT_APP_CONFIG: AppConfig = {
   recommendedActionsMax: 5,
 };
 
+const STORAGE_KEY = "sales-scorecard-config";
+
 let _config: AppConfig = { ...DEFAULT_APP_CONFIG };
+
+function deepMerge<T extends object>(target: T, source: Partial<T>): T {
+  const out = { ...target } as Record<string, unknown>;
+  for (const k of Object.keys(source) as (keyof T)[]) {
+    const key = String(k);
+    const v = source[k];
+    if (v != null && typeof v === "object" && !Array.isArray(v) && typeof target[k] === "object" && target[k] != null && !Array.isArray(target[k])) {
+      out[key] = deepMerge((target[k] as object) || {}, v as Record<string, unknown>);
+    } else if (v !== undefined) {
+      out[key] = v;
+    }
+  }
+  return out as T;
+}
+
+/**
+ * Load config from localStorage (client-only). Merges into current _config.
+ */
+export function loadConfigFromStorage(): void {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw) as Partial<AppConfig>;
+    if (parsed && typeof parsed === "object") {
+      _config = deepMerge({ ...DEFAULT_APP_CONFIG }, parsed) as AppConfig;
+    }
+  } catch {
+    // ignore parse errors
+  }
+}
+
+/**
+ * Save config to localStorage and update _config.
+ */
+export function saveConfig(config: AppConfig): void {
+  _config = config;
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+  } catch {
+    // ignore quota errors
+  }
+}
 
 /**
  * Get the current app config. Used by screens and Gemini prompt building.
@@ -82,8 +128,13 @@ export function getAppConfig(): AppConfig {
 }
 
 /**
- * Reset to defaults (e.g. for tests or fallback).
+ * Reset to defaults. Does not clear localStorage; use saveConfig() to persist.
  */
 export function resetAppConfig(): void {
-  _config = { ...DEFAULT_APP_CONFIG };
+  _config = JSON.parse(JSON.stringify(DEFAULT_APP_CONFIG));
+}
+
+/** Get defaults for cloning/editing. */
+export function getDefaultConfig(): AppConfig {
+  return JSON.parse(JSON.stringify(DEFAULT_APP_CONFIG));
 }
