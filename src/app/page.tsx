@@ -67,29 +67,57 @@ function HomeContent() {
     }
     setCurrentIndex(0);
 
-    // When opened via personal link, fetch Gemini commentary and merge into scorecard.
-    // With static export (Firebase Hosting) there is no same-origin API; set NEXT_PUBLIC_GEMINI_COMMENTARY_URL to your hosted API.
+    // Two-phase fetch: achievement first (fast, personalized), then rest. Screen 1 updates in ~5–15s.
     if (scorecard) {
       const commentaryUrl = process.env.NEXT_PUBLIC_GEMINI_COMMENTARY_URL ?? "/api/gemini/commentary";
-      fetch(commentaryUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(scorecard),
-      })
-        .then((r) => (r.ok ? r.json() : Promise.reject(new Error("Commentary failed"))))
+
+      const post = (payload: unknown) =>
+        fetch(commentaryUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }).then((r) => (r.ok ? r.json() : Promise.reject(new Error("Commentary failed"))));
+
+      const unwrap = (raw: unknown) =>
+        typeof (raw as { achievementMessage?: string })?.achievementMessage === "string"
+          ? (raw as Record<string, unknown>)
+          : ((raw as { data?: unknown })?.data ?? (raw as { result?: unknown })?.result ?? raw);
+
+      // Phase 1: achievement only — minimal prompt, fast model, uses name. Updates Screen 1 quickly.
+      post({ scorecard, fields: ["achievementMessage"] })
         .then((raw) => {
-          const commentary =
-            typeof raw?.achievementMessage === "string"
-              ? raw
-              : (raw?.data ?? raw?.result ?? raw);
-          const merged = mergeCommentaryIntoScorecard(scorecard!, commentary);
-          setData({ ...merged, commentaryFromGemini: true });
+          const commentary = unwrap(raw) as { achievementMessage?: string };
           if (commentary?.achievementMessage) {
-            console.info("[Scorecard] Commentary applied from API.");
+            const merged = mergeCommentaryIntoScorecard(scorecard!, commentary);
+            setData({ ...merged, commentaryFromGemini: true });
+            console.info("[Scorecard] Achievement message applied.");
           }
         })
-        .catch((err) => {
-          console.warn("[Scorecard] Commentary request failed, using sample text:", err?.message || err);
+        .catch(() => {
+          // Fallback: try full request for backward compat (old API).
+          post(scorecard)
+            .then((raw) => {
+              const commentary = unwrap(raw);
+              const merged = mergeCommentaryIntoScorecard(scorecard!, commentary);
+              setData({ ...merged, commentaryFromGemini: true });
+            })
+            .catch((err) => {
+              console.warn("[Scorecard] Commentary request failed, using sample text:", (err as Error)?.message || err);
+            });
+        });
+
+      // Phase 2: rest (screens 2–6). Fire in parallel; merge when done.
+      post({ scorecard, fields: ["growthComment", "dsoComment", "overdueComment", "productMixComment", "recommendedActions"] })
+        .then((raw) => {
+          const commentary = unwrap(raw);
+          setData((prev) => {
+            const merged = mergeCommentaryIntoScorecard(prev, commentary);
+            return { ...merged, commentaryFromGemini: true };
+          });
+          console.info("[Scorecard] Rest commentary applied.");
+        })
+        .catch(() => {
+          // Rest failed — achievement may have succeeded; don't overwrite.
         });
     }
   }, [userToken, mobileFromUrl, setCurrentIndex]);

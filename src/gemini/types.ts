@@ -11,10 +11,11 @@ export type { GeminiCommentaryOutput };
 /**
  * Merges Gemini commentary into a scorecard. Only overwrites fields that exist
  * on the commentary object; leaves other scorecard fields unchanged.
+ * Accepts partial commentary (e.g. achievement-only or rest-only from two-phase fetch).
  */
 export function mergeCommentaryIntoScorecard(
   scorecard: ScorecardData,
-  commentary: GeminiCommentaryOutput
+  commentary: Partial<GeminiCommentaryOutput>
 ): ScorecardData {
   return {
     ...scorecard,

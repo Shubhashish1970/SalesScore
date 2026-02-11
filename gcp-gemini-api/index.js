@@ -5,9 +5,12 @@
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// Best for reasoning + commentary with fast, accurate response (per Vertex AI models doc)
+// Full commentary: reasoning + accuracy
 const DEFAULT_MODEL = "gemini-2.5-flash";
 const FALLBACK_MODELS = ["gemini-2.0-flash", "gemini-pro"];
+// Achievement-only: fastest model for first-screen update
+const ACHIEVEMENT_MODEL = "gemini-1.5-flash";
+const ACHIEVEMENT_FALLBACK = "gemini-1.5-flash-8b";
 
 const GEMINI_OUTPUT_SCHEMA = `
 You MUST return ONLY valid JSON in this exact structure. No extra keys. No commentary. No markdown.
@@ -41,8 +44,8 @@ Your job is ONLY to generate short, human-readable commentary and 3–5 recommen
 ## Overall score
 - finalScore out of maxScore (e.g. 120).
 - Bands: Red (score < redEnd, e.g. 80), Amber (redEnd to amberEnd, e.g. 90), Green (above amberEnd).
-- achievementMessage: One short sentence under the gauge. Vary your wording every time — do NOT use the same phrase (e.g. avoid always saying "Your score is in the X zone — keep it up.").
-  - Green: Celebrate and encourage. Use varied phrasing: e.g. "Strong run — your numbers are in the top band.", "Green zone. Keep building on this momentum.", "You're in the top band — the actions below will help you stay here."
+- achievementMessage: One short sentence under the gauge. MUST use the user's name to personalize (e.g. "Pushpanathan, strong run — your numbers are in the top band."). Vary wording; do NOT repeat the same phrase.
+  - Green: Celebrate and encourage. E.g. "[Name], strong run — your numbers are in the top band.", "Well done, [Name] — Green zone. Keep building on this momentum."
   - Amber: Encourage with direction: e.g. "You're close to Green — one or two levers can get you there.", "Amber zone. Small improvements in the areas below will push you into Green."
   - Red: Encourage without demotivating; point to specific levers: e.g. "Focus on DSO and overdue to unlock more score.", "Red zone — the next screens show exactly where to improve."
 - Tone: warm, motivating, and specific to the band. Make the person feel recognised and clear on what to do next.
@@ -69,6 +72,25 @@ Your job is ONLY to generate short, human-readable commentary and 3–5 recommen
 - Focus on the levers that will improve this person's score most.
 `.trim();
 
+const REST_FIELDS = ["growthComment", "dsoComment", "overdueComment", "productMixComment", "recommendedActions"];
+const REST_SCHEMA = `
+Return ONLY valid JSON with these keys. No achievementMessage. No extra keys. No markdown.
+
+{
+  "growthComment": "string",
+  "dsoComment": "string",
+  "overdueComment": "string",
+  "productMixComment": "string",
+  "recommendedActions": [
+    { "whatToDo": "string", "whyItHelps": "string", "expectedImpact": "High" | "Medium" | "Low" }
+  ]
+}
+`.trim();
+
+function getRestSystemPrompt() {
+  return [SCORECARD_CONTEXT, "\n\n## Output format (screens 2–6 only, no achievementMessage)\n", REST_SCHEMA].join("");
+}
+
 const ROLE_INSTRUCTIONS = {
   TM: "The user is a Territory Manager. Commentary should be direct and action-oriented for their territory.",
   RM: "The user is a Regional Manager. Commentary can reference aggregate performance and regional levers.",
@@ -76,20 +98,46 @@ const ROLE_INSTRUCTIONS = {
   BU: "The user is a BU Head. Commentary can reference business-unit goals and policy.",
 };
 
+/** Achievement-only: minimal prompt, use name for personalization. Fast first-screen update. */
+const ACHIEVEMENT_SCHEMA = `
+Return ONLY valid JSON: { "achievementMessage": "string" }
+- One short sentence under the gauge.
+- MUST use the user's name to personalize (e.g. "Pushpanathan, strong run — your numbers are in the top band." or "Well done, Pushpanathan — you're in the Green zone.").
+- Vary wording; do NOT repeat the same phrase every time.
+- By band: Green — celebrate; Amber — encourage to reach Green; Red — encourage, point to DSO/overdue.
+`.trim();
+
+function getAchievementSystemPrompt() {
+  return ACHIEVEMENT_SCHEMA;
+}
+
+function getAchievementUserPrompt(payload) {
+  const { name, finalScore, maxScore, redEnd = 80, amberEnd = 90, role } = payload;
+  return [
+    `User: ${name || "there"}. Role: ${role || "TM"}. Score: ${finalScore}/${maxScore}. Bands: Red <${redEnd}, Amber ${redEnd}–${amberEnd}, Green >${amberEnd}.`,
+    "",
+    "Generate achievementMessage. Return ONLY JSON: { \"achievementMessage\": \"...\" }",
+  ].join("\n");
+}
+
 function getSystemPrompt() {
   return [SCORECARD_CONTEXT, "\n\n## Output format\n", GEMINI_OUTPUT_SCHEMA].join("");
 }
 
-function getUserPrompt(scorecardJson, role) {
+function getUserPrompt(scorecardJson, role, restOnly = false) {
   const roleNote = ROLE_INSTRUCTIONS[role] || ROLE_INSTRUCTIONS.TM;
-  return [
+  const base = [
     roleNote,
     "",
     "Based on the following scorecard data, generate the commentary and actions. Return ONLY the JSON object as specified.",
     "",
     "Scorecard data (JSON):",
     JSON.stringify(scorecardJson, null, 0),
-  ].join("\n");
+  ];
+  if (!restOnly) {
+    base.splice(2, 0, "", "IMPORTANT: Use the user's name (from the scorecard) in achievementMessage to personalize (e.g. 'Pushpanathan, strong run — ...').");
+  }
+  return base.join("\n");
 }
 
 function extractJson(text) {
@@ -107,13 +155,108 @@ async function generateWithModel(genAI, modelId, systemPrompt, userPrompt) {
   return result.response.text();
 }
 
+async function generateAchievementOnly(scorecard, apiKey) {
+  if (!apiKey || !apiKey.trim()) {
+    throw new Error("Gemini API key is missing. Set GEMINI_API_KEY or GOOGLE_API_KEY.");
+  }
+  const payload = {
+    name: scorecard.name || "there",
+    finalScore: scorecard.finalScore ?? 0,
+    maxScore: scorecard.maxScore ?? 120,
+    redEnd: scorecard.scoreBandThresholds?.redEnd ?? 80,
+    amberEnd: scorecard.scoreBandThresholds?.amberEnd ?? 90,
+    role: scorecard.role || "TM",
+  };
+  const systemPrompt = getAchievementSystemPrompt();
+  const userPrompt = getAchievementUserPrompt(payload);
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const modelsToTry = [ACHIEVEMENT_MODEL, ACHIEVEMENT_FALLBACK, DEFAULT_MODEL, ...FALLBACK_MODELS];
+  let raw;
+  let lastErr;
+  for (const modelId of modelsToTry) {
+    try {
+      raw = await generateWithModel(genAI, modelId, systemPrompt, userPrompt);
+      lastErr = null;
+      break;
+    } catch (err) {
+      lastErr = err;
+      const msg = err?.message || String(err);
+      if (msg.includes("404") || msg.includes("not found")) {
+        console.warn("Achievement: model", modelId, "not available, trying next. ", msg.slice(0, 60));
+      } else {
+        throw err;
+      }
+    }
+  }
+  if (lastErr || raw === undefined) {
+    throw lastErr || new Error("No model available.");
+  }
+  const jsonStr = extractJson(raw);
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonStr);
+  } catch {
+    throw new Error("Gemini returned invalid JSON for achievementMessage.");
+  }
+  const msg = String(parsed?.achievementMessage ?? "");
+  if (!msg.trim()) {
+    throw new Error("Gemini returned empty achievementMessage.");
+  }
+  return { achievementMessage: msg };
+}
+
+async function generateCommentaryRest(scorecard, apiKey) {
+  if (!apiKey || !apiKey.trim()) {
+    throw new Error("Gemini API key is missing. Set GEMINI_API_KEY or GOOGLE_API_KEY.");
+  }
+  const role = scorecard.role || "TM";
+  const systemPrompt = getRestSystemPrompt();
+  const userPrompt = getUserPrompt(scorecard, role, true);
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const modelsToTry = [DEFAULT_MODEL, ...FALLBACK_MODELS];
+  let raw;
+  let lastErr;
+  for (const modelId of modelsToTry) {
+    try {
+      raw = await generateWithModel(genAI, modelId, systemPrompt, userPrompt);
+      lastErr = null;
+      break;
+    } catch (err) {
+      lastErr = err;
+      const msg = err?.message || String(err);
+      if (msg.includes("404") || msg.includes("not found")) {
+        console.warn("Commentary rest: model", modelId, "not available, trying next. ", msg.slice(0, 60));
+      } else {
+        throw err;
+      }
+    }
+  }
+  if (lastErr || raw === undefined) {
+    throw lastErr || new Error("No model available.");
+  }
+  const jsonStr = extractJson(raw);
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonStr);
+  } catch {
+    throw new Error("Gemini returned invalid JSON for commentary rest.");
+  }
+  return {
+    growthComment: String(parsed.growthComment ?? ""),
+    dsoComment: String(parsed.dsoComment ?? ""),
+    overdueComment: String(parsed.overdueComment ?? ""),
+    productMixComment: String(parsed.productMixComment ?? ""),
+    recommendedActions: Array.isArray(parsed.recommendedActions) ? parsed.recommendedActions : [],
+  };
+}
+
 async function generateCommentary(scorecard, apiKey) {
   if (!apiKey || !apiKey.trim()) {
     throw new Error("Gemini API key is missing. Set GEMINI_API_KEY or GOOGLE_API_KEY.");
   }
   const role = scorecard.role || "TM";
   const systemPrompt = getSystemPrompt();
-  const userPrompt = getUserPrompt(scorecard, role);
+  const userPrompt = getUserPrompt(scorecard, role, false);
   const genAI = new GoogleGenerativeAI(apiKey);
   const modelsToTry = [DEFAULT_MODEL, ...FALLBACK_MODELS];
   let raw;
@@ -142,9 +285,6 @@ async function generateCommentary(scorecard, apiKey) {
     parsed = JSON.parse(jsonStr);
   } catch {
     throw new Error("Gemini returned invalid JSON for commentary.");
-  }
-  if (!parsed || typeof parsed !== "object" || !("achievementMessage" in parsed)) {
-    throw new Error("Gemini response does not match commentary schema.");
   }
   return {
     achievementMessage: String(parsed.achievementMessage ?? ""),
@@ -205,7 +345,12 @@ exports.geminiCommentary = async (req, res) => {
     res.status(400).json({ error: "Invalid JSON body." });
     return;
   }
-  if (!scorecard.role || !scorecard.mobile) {
+  const body = typeof scorecard === "object" && scorecard !== null ? scorecard : {};
+  const payload = body.scorecard ?? body;
+  const fields = Array.isArray(body.fields) ? body.fields : null;
+  const reqScorecard = payload && typeof payload === "object" ? payload : scorecard;
+
+  if (!reqScorecard.role || !reqScorecard.mobile) {
     res.status(400).json({ error: "Invalid scorecard: role and mobile required." });
     return;
   }
@@ -214,10 +359,21 @@ exports.geminiCommentary = async (req, res) => {
     res.status(503).json({ error: "Gemini API key not configured." });
     return;
   }
+  const isAchievementOnly = fields && fields.length === 1 && fields[0] === "achievementMessage";
+  const isRestOnly = fields && fields.length >= 5 && fields.every((f) => REST_FIELDS.includes(f));
+
   try {
-    const commentary = await generateCommentary(scorecard, apiKey);
-    const msg = commentary.achievementMessage || "";
-    console.log("Commentary achievementMessage:", msg.slice(0, 120) + (msg.length > 120 ? "…" : ""));
+    let commentary;
+    if (isAchievementOnly) {
+      commentary = await generateAchievementOnly(reqScorecard, apiKey);
+      console.log("Achievement:", commentary.achievementMessage?.slice(0, 80) + (commentary.achievementMessage?.length > 80 ? "…" : ""));
+    } else if (isRestOnly) {
+      commentary = await generateCommentaryRest(reqScorecard, apiKey);
+    } else {
+      commentary = await generateCommentary(reqScorecard, apiKey);
+      const msg = commentary.achievementMessage || "";
+      console.log("Commentary achievementMessage:", msg.slice(0, 120) + (msg.length > 120 ? "…" : ""));
+    }
     res.status(200).json(commentary);
   } catch (err) {
     const message = err.message || "Commentary generation failed.";
