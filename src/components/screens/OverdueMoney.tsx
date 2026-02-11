@@ -72,6 +72,7 @@ export function OverdueMoney({ data }: Props) {
           <p className="text-[10px] text-emerald-800 font-medium px-0.5 -mt-0.5">No penalty (on time / 1–110 days)</p>
           {noPenaltyBuckets.map(({ key, label }) => {
             const pct = total ? (overdue[key] / total) * 100 : 0;
+            const barWidth = Math.max(pct, 3);
             const amountStr = amounts ? formatAmount(amounts[key]) : null;
             const penaltyPct = penalties ? penalties[key] : null;
             const showAmountInBar = amountStr && pct >= SMALL_BAR_PCT;
@@ -79,18 +80,23 @@ export function OverdueMoney({ data }: Props) {
             return (
               <div key={key} className="flex items-center gap-2">
                 <div className="w-28 text-slate-600 text-xs shrink-0">{label}</div>
-                <div className="flex-1 h-5 bg-slate-200 rounded overflow-hidden relative min-w-0 flex items-center justify-end pr-2">
+                <div className="flex-1 min-w-0 h-5 bg-slate-200 rounded overflow-hidden relative flex items-center justify-end pr-2">
                   <div
                     className="absolute inset-y-0 left-0 rounded bg-slate-400"
-                    style={{ width: `${Math.max(pct, 3)}%` }}
+                    style={{ width: `${barWidth}%` }}
                   />
                   {showAmountInBar && (
                     <span className="relative z-10 text-xs font-medium text-slate-700 tabular-nums">{amountStr}</span>
                   )}
+                  {showAmountBeside && (
+                    <span
+                      className="absolute z-10 text-xs font-medium text-slate-700 tabular-nums whitespace-nowrap"
+                      style={{ left: `calc(${barWidth}% + 6px)` }}
+                    >
+                      {amountStr}
+                    </span>
+                  )}
                 </div>
-                {showAmountBeside && (
-                  <span className="text-xs font-medium text-slate-700 tabular-nums shrink-0">{amountStr}</span>
-                )}
                 {penaltyPct != null && (
                   <span className="text-[10px] text-emerald-600 font-medium w-8 shrink-0 text-right">{penaltyPct === 0 ? "0%" : `${penaltyPct}%`}</span>
                 )}
@@ -104,6 +110,7 @@ export function OverdueMoney({ data }: Props) {
           <p className="text-[10px] text-amber-800 font-medium px-0.5 -mt-0.5">Penalized (111+ days)</p>
           {penalizedBuckets.map(({ key, label }) => {
             const pct = total ? (overdue[key] / total) * 100 : 0;
+            const barWidth = Math.max(pct, 3);
             const hasMoney = overdue[key] > 0;
             const showRed = hasMoney;
             const amountStr = amounts ? formatAmount(amounts[key]) : null;
@@ -113,18 +120,23 @@ export function OverdueMoney({ data }: Props) {
             return (
               <div key={key} className="flex items-center gap-2">
                 <div className="w-28 text-slate-600 text-xs shrink-0">{label}</div>
-                <div className="flex-1 h-5 bg-slate-200 rounded overflow-hidden relative min-w-0 flex items-center justify-end pr-2">
+                <div className="flex-1 min-w-0 h-5 bg-slate-200 rounded overflow-hidden relative flex items-center justify-end pr-2">
                   <div
                     className={`absolute inset-y-0 left-0 rounded animate-overdue-penalized origin-left ${showRed ? "bg-red-600 animate-overdue-bar-attention ring-1 ring-red-400/50" : "bg-slate-400"}`}
-                    style={{ width: `${Math.max(pct, 3)}%` }}
+                    style={{ width: `${barWidth}%` }}
                   />
                   {showAmountInBar && (
                     <span className="relative z-10 text-xs font-medium text-slate-700 tabular-nums">{amountStr}</span>
                   )}
+                  {showAmountBeside && (
+                    <span
+                      className="absolute z-10 text-xs font-medium text-slate-700 tabular-nums whitespace-nowrap"
+                      style={{ left: `calc(${barWidth}% + 6px)` }}
+                    >
+                      {amountStr}
+                    </span>
+                  )}
                 </div>
-                {showAmountBeside && (
-                  <span className="text-xs font-medium text-slate-700 tabular-nums shrink-0">{amountStr}</span>
-                )}
                 {penaltyPct != null && penaltyPct > 0 && (
                   <span className="text-[10px] text-amber-600 font-medium w-8 shrink-0 text-right">{penaltyPct}%</span>
                 )}

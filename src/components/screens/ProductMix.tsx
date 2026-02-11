@@ -97,18 +97,23 @@ export function ProductMix({ data }: Props) {
           return (
             <div key={key} className="flex items-center gap-2">
               <div className="w-20 text-slate-700 text-sm shrink-0">{label}</div>
-              <div className="group flex-1 h-6 bg-slate-200 rounded overflow-hidden relative min-w-0 flex items-center justify-end pr-2">
+              <div className="group flex-1 min-w-0 h-6 bg-slate-200 rounded overflow-hidden relative flex items-center">
                 <div className={barClass} style={barStyle}>
                   {showNrvInBar && (
                     <span className="text-[10px] font-normal text-white drop-shadow-sm tabular-nums truncate">{nrvStr}</span>
                   )}
                 </div>
-                <span className="relative z-10 text-[10px] font-normal text-slate-700 tabular-nums ml-1">{pct}%</span>
+                {showNrvBeside && (
+                  <span
+                    className="absolute z-10 text-[10px] font-normal text-slate-700 tabular-nums whitespace-nowrap"
+                    style={{ left: `calc(${pct}% + 6px)` }}
+                  >
+                    {nrvStr}
+                  </span>
+                )}
+                <span className="relative z-10 text-[10px] font-normal text-slate-700 tabular-nums ml-auto mr-2">{pct}%</span>
               </div>
-              {showNrvBeside && (
-                <span className="text-[10px] font-normal text-slate-700 tabular-nums shrink-0">{nrvStr}</span>
-              )}
-              <span className="text-[10px] text-slate-500 w-6 tabular-nums">{weight}</span>
+              <span className="text-[10px] text-slate-500 w-6 shrink-0 tabular-nums">{weight}</span>
             </div>
           );
         })}
