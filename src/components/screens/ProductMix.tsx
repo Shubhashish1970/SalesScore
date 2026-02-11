@@ -84,7 +84,7 @@ export function ProductMix({ data }: Props) {
           const isCatAorB = key === "categoryA" || key === "categoryB";
           const barClass = [
             "absolute inset-y-0 left-0 h-full rounded product-mix-bar flex items-center pl-2 min-w-0",
-            isCatE ? "" : isCatAorB ? "bg-emerald-500" : "bg-indigo-500",
+            isCatE ? "" : isCatAorB ? "bg-emerald-500" : "bg-slate-500",
             isCatAorB ? "animate-product-mix-bar-ab" : "",
           ].filter(Boolean).join(" ");
           const barMounted = isCatAorB ? mountedAB : mounted;
