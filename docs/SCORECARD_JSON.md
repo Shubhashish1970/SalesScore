@@ -12,7 +12,7 @@ The KPI Data API and scorecard API return a `ScorecardData` object. All configur
 | `entityName` | string | Territory/Region/Zone/BU name |
 | `growth` | object | `CY_NRV`, `LY_NRV`, `growthPercent`, `growthFactor` |
 | `dso` | object | `dsoDays`, `dsoScore`, `dsoBand`, `dsoFactor` |
-| `overdue` | object | Bucket percentages, `bucketAmounts`, `overdueScore` — see [Overdue object](#overdue-object) |
+| `overdue` | object | Bucket percentages, `bucketAmounts`, `overdueScore` — see [Overdue object](#overdue-object). Screen 4 is "Outstanding money" (emphasis on overdue). |
 | `productMix` | object | `categoryA`–`categoryE`, `nrvFactor`, optional NRV per category — see [Product Mix object](#product-mix-object) |
 | `finalScore` | number | Current score |
 | `maxScore` | number | Maximum score (e.g. 120) |
@@ -46,7 +46,9 @@ The KPI Data API and scorecard API return a `ScorecardData` object. All configur
 ```
 
 - **Bucket keys** (`notDue` … `gt365`): Share (percentage) of total in each aging bucket.
-- **`bucketAmounts`** (optional): Amount per bucket in same units (e.g. lakhs). Sum = **total outstanding**.
+- **`bucketAmounts`** (optional): Amount per bucket in same units (e.g. lakhs).
+  - Sum of all buckets = **total outstanding**.
+  - **Overdue** = total outstanding − `bucketAmounts.notDue` (on-time); shown prominently at top of Screen 4.
 - **`overdueScore`** (optional): OS score shown in roundel; backend-computed.
 
 ### Product Mix object
@@ -96,9 +98,9 @@ If `color` or `roundelColor` is omitted for any band, the app falls back to defa
 
 ---
 
-### 2. `overdueBuckets` — Overdue bucket definitions
+### 2. `overdueBuckets` — Outstanding bucket definitions
 
-Array of bucket definitions for Overdue (Screen 4). Each bucket:
+Array of bucket definitions for Outstanding (Screen 4). Each bucket:
 
 ```json
 {
@@ -205,7 +207,7 @@ Optional fields populated by the Gemini API or backend:
 |-------|-------------|
 | `growthComment` | Comment for Growth Check (Screen 2) |
 | `dsoComment` | Comment for Collection Speed (Screen 3) |
-| `overdueComment` | Comment for Overdue (Screen 4) |
+| `overdueComment` | Comment for Outstanding (Screen 4) |
 | `productMixComment` | Comment for Product Mix (Screen 5) |
 | `commentaryFromGemini` | `true` when commentary was applied from Gemini API; shows the Gemini-assist icon |
 

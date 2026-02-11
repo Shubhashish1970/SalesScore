@@ -45,39 +45,42 @@ export function OverdueMoney({ data }: Props) {
   const penalizedBuckets = buckets.filter((b) => (penalties[b.key] ?? b.penaltyPct) > 0);
 
   return (
-    <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6 relative">
+    <section className="min-h-[80dvh] flex flex-col px-5 pt-6 pb-6 relative">
       {osScore != null && (
         <div
-          className="absolute top-6 right-5 rounded-lg px-2.5 py-1.5 flex items-center justify-center text-base font-bold tabular-nums bg-amber-500 text-slate-900 min-w-[4.5rem]"
+          className="absolute top-5 right-5 rounded-lg px-2.5 py-1.5 flex items-center justify-center text-base font-bold tabular-nums bg-amber-500 text-slate-900 min-w-[4.5rem]"
           aria-label={`OS score: ${Math.round(osScore)} out of ${overdueWeight}`}
         >
           {Math.round(osScore)}/{overdueWeight}
         </div>
       )}
       <h2 className="text-lg font-semibold text-slate-800 mb-0.5 pr-20">Outstanding money</h2>
-      <p className="text-[#2f41a7] text-xs mt-0 mb-4 pr-20">
+      <p className="text-[#2f41a7] text-xs mt-0 mb-3 pr-20">
         Total money owed by customers. Late (overdue) amounts hurt your score.
       </p>
-      {totalOverdueAmount > 0 && totalOverdueStr != null && (
-        <div className="mb-4">
-          <p className="text-3xl font-bold text-slate-900 tabular-nums">{totalOverdueStr}</p>
-          <p className="text-slate-500 text-sm">overdue</p>
-        </div>
-      )}
       {totalOutstandingStr != null && (
-        <div className="mb-6">
-          <p className="text-xl font-semibold text-slate-700 tabular-nums">{totalOutstandingStr}</p>
-          <p className="text-slate-500 text-sm">total outstanding</p>
+        <div className="flex items-baseline gap-4 mb-3 flex-wrap">
+          <div className="flex flex-col min-w-[6rem]">
+            <p className="text-2xl font-bold text-slate-900 tabular-nums">
+              {totalOverdueAmount > 0 && totalOverdueStr ? totalOverdueStr : formatAmount(0)}
+            </p>
+            <p className="text-slate-500 text-xs">Overdue</p>
+          </div>
+          <span className="text-slate-400 text-lg font-medium self-center">/</span>
+          <div className="flex flex-col min-w-[6rem]">
+            <p className="text-2xl font-bold text-slate-700 tabular-nums">{totalOutstandingStr}</p>
+            <p className="text-slate-500 text-xs">Outstanding</p>
+          </div>
         </div>
       )}
       {penalties && (
-        <p className="text-xs text-slate-500 mb-2">
+        <p className="text-xs text-slate-500 mb-1.5">
           OD weightage = penalty % applied to money in that bucket (higher = worse for score).
         </p>
       )}
-      <div className="space-y-2 mb-2">
+      <div className="space-y-1.5 mb-3">
         {noPenaltyBuckets.length > 0 && (
-        <div className="rounded-lg border-2 border-emerald-400 bg-emerald-50/30 p-2 space-y-1.5">
+        <div className="rounded-lg border-2 border-emerald-400 bg-emerald-50/30 p-1.5 space-y-1">
           <p className="text-[10px] text-emerald-800 font-medium px-0.5 -mt-0.5">No penalty (on time / 1–110 days)</p>
           {noPenaltyBuckets.map(({ key, label }) => {
             const pct = total ? (overdue[key] / total) * 100 : 0;
@@ -89,7 +92,7 @@ export function OverdueMoney({ data }: Props) {
             return (
               <div key={key} className="flex items-center gap-2">
                 <div className="w-28 text-slate-600 text-xs shrink-0">{label}</div>
-                <div className="flex-1 min-w-0 h-5 bg-slate-200 rounded overflow-hidden relative flex items-center justify-end pr-2">
+                <div className="flex-1 min-w-0 h-4 bg-slate-200 rounded overflow-hidden relative flex items-center justify-end pr-2">
                   <div
                     className="absolute inset-y-0 left-0 rounded bg-slate-400"
                     style={{ width: `${barWidth}%` }}
@@ -115,7 +118,7 @@ export function OverdueMoney({ data }: Props) {
         </div>
         )}
         {penalizedBuckets.length > 0 && (
-        <div className="rounded-lg border-2 border-dashed border-amber-400 bg-amber-50/20 p-2 space-y-1.5 animate-overdue-dashed-glow">
+        <div className="rounded-lg border-2 border-dashed border-amber-400 bg-amber-50/20 p-1.5 space-y-1 animate-overdue-dashed-glow">
           <p className="text-[10px] text-amber-800 font-medium px-0.5 -mt-0.5">Penalized (111+ days)</p>
           {penalizedBuckets.map(({ key, label }) => {
             const pct = total ? (overdue[key] / total) * 100 : 0;
@@ -129,7 +132,7 @@ export function OverdueMoney({ data }: Props) {
             return (
               <div key={key} className="flex items-center gap-2">
                 <div className="w-28 text-slate-600 text-xs shrink-0">{label}</div>
-                <div className="flex-1 min-w-0 h-5 bg-slate-200 rounded overflow-hidden relative flex items-center justify-end pr-2">
+                <div className="flex-1 min-w-0 h-4 bg-slate-200 rounded overflow-hidden relative flex items-center justify-end pr-2">
                   <div
                     className={`absolute inset-y-0 left-0 rounded animate-overdue-penalized origin-left ${showRed ? "bg-red-600 animate-overdue-bar-attention ring-1 ring-red-400/50" : "bg-slate-400"}`}
                     style={{ width: `${barWidth}%` }}
@@ -156,7 +159,7 @@ export function OverdueMoney({ data }: Props) {
         )}
       </div>
       {data.overdueComment?.trim() ? (
-        <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 flex items-start gap-2">
+        <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 flex items-start gap-2 mt-1 shrink-0">
           <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
           <p className="text-amber-900 text-sm flex-1">{data.overdueComment.trim()}</p>
         </div>

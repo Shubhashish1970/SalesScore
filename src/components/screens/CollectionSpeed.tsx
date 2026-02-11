@@ -43,7 +43,7 @@ export function CollectionSpeed({ data }: Props) {
   return (
     <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6 relative">
       <div
-        className={`absolute top-6 right-5 rounded-lg px-2.5 py-1.5 flex items-center justify-center text-base font-bold tabular-nums min-w-[4.5rem] ${badgeColor}`}
+        className={`absolute top-6 right-5 z-10 rounded-lg px-2.5 py-1.5 flex items-center justify-center text-base font-bold tabular-nums min-w-[4.5rem] ${badgeColor}`}
         aria-label={`DSO score: ${dsoScoreRounded} out of ${dsoWeight}`}
       >
         {dsoScoreRounded}/{dsoWeight}

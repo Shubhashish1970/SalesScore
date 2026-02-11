@@ -1,10 +1,23 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  safelist: [
+    "bg-emerald-500",
+    "bg-lime-600",
+    "bg-amber-500",
+    "bg-red-500",
+    "bg-slate-500",
+    "bg-emerald-500 text-white",
+    "bg-lime-600 text-white",
+    "bg-amber-500 text-slate-900",
+    "bg-red-500 text-white",
+    "bg-slate-500 text-white",
+  ],
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/types/**/*.{js,ts}",
   ],
   theme: {
     extend: {
