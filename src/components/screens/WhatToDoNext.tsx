@@ -2,6 +2,7 @@
 
 import type { ScorecardData } from "@/types/scorecard";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
+import { CommentaryLoading } from "@/components/CommentaryLoading";
 
 /**
  * Screen 6: Recommended actions from JSON — what to do, why, expected impact (H/M/L).
@@ -46,6 +47,10 @@ export function WhatToDoNext({ data }: Props) {
             </li>
           ))}
         </ul>
+      ) : data.commentaryLoading ? (
+        <div className="rounded-xl border border-slate-200 bg-white p-6 flex items-center justify-center min-h-[6rem]">
+          <CommentaryLoading />
+        </div>
       ) : null}
       <p className="mt-8 text-slate-500 text-sm">You’ve reached the end. Revisit this list regularly.</p>
     </section>

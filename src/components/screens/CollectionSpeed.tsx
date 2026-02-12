@@ -3,6 +3,7 @@
 import type { ScorecardData, DsoBandDefinition } from "@/types/scorecard";
 import { getAppConfig } from "@/lib/app-config";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
+import { CommentaryLoading } from "@/components/CommentaryLoading";
 
 /**
  * Screen 3: DSO in plain language. Band shown visually; labels under each segment; impact explained.
@@ -79,6 +80,10 @@ export function CollectionSpeed({ data }: Props) {
         <div className="rounded-xl bg-slate-100 p-4 flex items-start gap-2">
           <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
           <p className="text-slate-700 text-sm flex-1">{data.dsoComment.trim()}</p>
+        </div>
+      ) : data.commentaryLoading ? (
+        <div className="rounded-xl bg-slate-100 p-4 flex items-center gap-2 min-h-[3rem]">
+          <CommentaryLoading />
         </div>
       ) : null}
     </section>

@@ -3,6 +3,7 @@
 import type { ScorecardData } from "@/types/scorecard";
 import { getAppConfig } from "@/lib/app-config";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
+import { CommentaryLoading } from "@/components/CommentaryLoading";
 import { formatInr } from "@/lib/format-inr";
 
 /**
@@ -161,6 +162,10 @@ export function OverdueMoney({ data }: Props) {
         <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 flex items-start gap-2 mt-1 shrink-0">
           <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
           <p className="text-amber-900 text-sm flex-1">{data.overdueComment.trim()}</p>
+        </div>
+      ) : data.commentaryLoading ? (
+        <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 flex items-center gap-2 mt-1 shrink-0 min-h-[3rem]">
+          <CommentaryLoading />
         </div>
       ) : null}
     </section>

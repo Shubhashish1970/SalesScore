@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import type { ScorecardData } from "@/types/scorecard";
 import { getAppConfig } from "@/lib/app-config";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
+import { CommentaryLoading } from "@/components/CommentaryLoading";
 import { formatInr } from "@/lib/format-inr";
 
 /**
@@ -112,6 +113,10 @@ export function ProductMix({ data }: Props) {
         <div className={`rounded-xl p-4 flex items-start gap-2 ${helped ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800"}`}>
           <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
           <p className="text-sm font-medium flex-1">{data.productMixComment.trim()}</p>
+        </div>
+      ) : data.commentaryLoading ? (
+        <div className={`rounded-xl p-4 flex items-center gap-2 min-h-[3rem] ${helped ? "bg-emerald-50" : "bg-amber-50"}`}>
+          <CommentaryLoading />
         </div>
       ) : null}
     </section>

@@ -169,3 +169,12 @@ body {
 .gemini-pulse-core {
   animation: gemini-pulse-core 1.6s ease-in-out infinite;
 }
+
+/* Commentary loading: three dots pulse in sequence */
+@keyframes commentary-dot {
+  0%, 100% { opacity: 0.35; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+.animate-commentary-dot {
+  animation: commentary-dot 0.6s ease-in-out infinite;
+}

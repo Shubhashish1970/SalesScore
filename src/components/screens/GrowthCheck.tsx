@@ -3,6 +3,7 @@
 import type { ScorecardData } from "@/types/scorecard";
 import { getAppConfig } from "@/lib/app-config";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
+import { CommentaryLoading } from "@/components/CommentaryLoading";
 import { formatInr } from "@/lib/format-inr";
 
 /**
@@ -92,6 +93,10 @@ export function GrowthCheck({ data }: Props) {
         >
           <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
           <p className="font-medium flex-1">{data.growthComment.trim()}</p>
+        </div>
+      ) : data.commentaryLoading ? (
+        <div className={`rounded-xl p-4 flex items-center gap-2 min-h-[3rem] ${achieved ? "bg-emerald-50" : "bg-amber-50"}`}>
+          <CommentaryLoading />
         </div>
       ) : null}
     </section>

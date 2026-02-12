@@ -86,6 +86,8 @@ function HomeContent() {
     setCurrentIndex(0);
 
     const runCommentary = (scorecard: ScorecardData) => {
+      setData((prev) => ({ ...prev, commentaryLoading: true }));
+
       const commentaryUrl = process.env.NEXT_PUBLIC_GEMINI_COMMENTARY_URL ?? "/api/gemini/commentary";
 
       const post = (payload: unknown) =>
@@ -104,13 +106,13 @@ function HomeContent() {
       };
 
       const config = getAppConfig();
-      post({ scorecard, config, fields: ["achievementMessage"] })
+      const p1 = post({ scorecard, config, fields: ["achievementMessage"] })
         .then((raw) => {
           if (cancelled) return;
           const commentary = unwrap(raw);
           if (commentary?.achievementMessage) {
             const merged = mergeCommentaryIntoScorecard(scorecard, commentary);
-            setData({ ...merged, commentaryFromGemini: true });
+            setData((prev) => ({ ...merged, commentaryFromGemini: true, commentaryLoading: prev.commentaryLoading }));
           }
         })
         .catch(() => {
@@ -119,20 +121,24 @@ function HomeContent() {
               if (cancelled) return;
               const commentary = unwrap(raw);
               const merged = mergeCommentaryIntoScorecard(scorecard, commentary);
-              setData({ ...merged, commentaryFromGemini: true });
+              setData((prev) => ({ ...merged, commentaryFromGemini: true, commentaryLoading: prev.commentaryLoading }));
             })
             .catch((err) => {
               if (!cancelled) console.warn("[Scorecard] Commentary failed:", (err as Error)?.message);
             });
         });
 
-      post({ scorecard, config, fields: ["growthComment", "dsoComment", "overdueComment", "productMixComment", "recommendedActions"] })
+      const p2 = post({ scorecard, config, fields: ["growthComment", "dsoComment", "overdueComment", "productMixComment", "recommendedActions"] })
         .then((raw) => {
           if (cancelled) return;
           const commentary = unwrap(raw);
           setData((prev) => ({ ...mergeCommentaryIntoScorecard(prev, commentary), commentaryFromGemini: true }));
         })
         .catch(() => {});
+
+      Promise.allSettled([p1, p2]).then(() => {
+        if (!cancelled) setData((prev) => ({ ...prev, commentaryLoading: false }));
+      });
     };
 
     if (isDemoMode) {
