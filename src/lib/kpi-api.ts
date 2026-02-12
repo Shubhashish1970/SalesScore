@@ -87,6 +87,7 @@ function transformApiResponse(raw: unknown): ScorecardData {
       categoryD: Number(productMix.categoryD ?? 0),
       categoryE: Number(productMix.categoryE ?? 0),
       nrvFactor: Number(productMix.nrvFactor ?? 0),
+      productMixScore: Number(productMix.productMixScore ?? 0),
       categoryANrv: Number(productMix.categoryANrv ?? 0) || undefined,
       categoryBNrv: Number(productMix.categoryBNrv ?? 0) || undefined,
       categoryCNrv: Number(productMix.categoryCNrv ?? 0) || undefined,

@@ -60,6 +60,7 @@ The KPI Data API and scorecard API return a `ScorecardData` object. **Configurat
   "categoryC": 22,
   "categoryD": 8,
   "categoryE": 4,
+  "productMixScore": 42,
   "nrvFactor": 1.22,
   "categoryANrv": 7220000,
   "categoryBNrv": 5320000,
@@ -70,7 +71,8 @@ The KPI Data API and scorecard API return a `ScorecardData` object. **Configurat
 ```
 
 - **categoryA**–**categoryE**: Share (percentage) of sales in each category.
-- **nrvFactor**: Product mix score (backend-computed).
+- **productMixScore** (required): Product mix score (0–34) for the badge. Backend-computed; no derivation or fallback.
+- **nrvFactor**: Factor from API (unchanged).
 - **category*Nrv** (optional): NRV per category in rupees; shown inside bars when present.
 
 **Bar colors (Screen 5):** A/B green, C/D grey, E red.

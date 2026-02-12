@@ -23,7 +23,10 @@ const SMALL_BAR_PCT = 18;
 export function ProductMix({ data }: Props) {
   const { productMix, growth } = data;
   const { productMixCategories: categories, productMixHelpThreshold: helpThreshold, kpiWeights, productMixBadgeGreenRatio, productMixBadgeAmberRatio } = getAppConfig();
-  const helped = productMix.nrvFactor >= helpThreshold;
+  const weight = kpiWeights.productMix;
+  const productMixScore = productMix.productMixScore;
+  const ratio = weight > 0 ? productMixScore / weight : 0;
+  const helped = ratio >= helpThreshold;
   const totalNrvStr = growth.CY_NRV > 0 ? formatInr(growth.CY_NRV) : null;
   const [mounted, setMounted] = useState(false);
   const [mountedAB, setMountedAB] = useState(false);
@@ -36,9 +39,7 @@ export function ProductMix({ data }: Props) {
     };
   }, []);
 
-  const score = Math.round(productMix.nrvFactor);
-  const weight = kpiWeights.productMix;
-  const ratio = weight > 0 ? productMix.nrvFactor / weight : 0;
+  const score = Math.round(productMixScore);
   const badgeColor =
     ratio > productMixBadgeGreenRatio
       ? "bg-emerald-500 text-white"
