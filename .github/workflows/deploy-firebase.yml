@@ -40,17 +40,33 @@ jobs:
         with:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
 
-      - name: Create functions .env
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}
+
+      - name: Deploy KPI proxy (Cloud Function via gcloud)
         env:
+          PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}
           KPI_UPSTREAM: ${{ secrets.KPI_DATA_API_URL }}
         run: |
-          echo "KPI_API_UPSTREAM_URL=$KPI_UPSTREAM" > functions/.env
+          gcloud functions deploy kpiProxy \
+            --gen2 \
+            --runtime=nodejs20 \
+            --region=us-central1 \
+            --source=./functions \
+            --entry-point=kpiProxy \
+            --trigger-http \
+            --allow-unauthenticated \
+            --set-env-vars "KPI_API_UPSTREAM_URL=$KPI_UPSTREAM" \
+            --project="$PROJECT_ID" \
+            --quiet
+          echo "KPI proxy: https://us-central1-${PROJECT_ID}.cloudfunctions.net/kpiProxy"
 
-      - name: Deploy Firebase (Hosting + Functions)
+      - name: Deploy Firebase Hosting
         env:
           CI: true
           PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}
         run: |
           npm install -g firebase-tools
-          cd functions && npm ci && cd ..
-          firebase deploy --only hosting,functions --project "$PROJECT_ID"
+          firebase deploy --only hosting --project "$PROJECT_ID"
