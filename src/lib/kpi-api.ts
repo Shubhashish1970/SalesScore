@@ -8,6 +8,7 @@
  */
 
 import type { ScorecardData, Role, OverdueBucketKey } from "@/types/scorecard";
+import { getAppConfig } from "@/lib/app-config";
 
 const KPI_API_URL = process.env.NEXT_PUBLIC_KPI_DATA_API_URL?.trim() || "";
 
@@ -57,6 +58,12 @@ function transformApiResponse(raw: unknown): ScorecardData {
   }
 
   const productMix = (obj.productMix as Record<string, unknown>) ?? {};
+  const productMixWeight = getAppConfig().kpiWeights.productMix || 34;
+  const apiProductMixScore = productMix.productMixScore;
+  const hasProductMixScore = apiProductMixScore != null && apiProductMixScore !== "";
+  const productMixScore = hasProductMixScore
+    ? Number(apiProductMixScore)
+    : Number(productMix.nrvFactor ?? 0) * productMixWeight;
 
   return {
     mobile: String(obj.mobile ?? ""),
@@ -87,7 +94,7 @@ function transformApiResponse(raw: unknown): ScorecardData {
       categoryD: Number(productMix.categoryD ?? 0),
       categoryE: Number(productMix.categoryE ?? 0),
       nrvFactor: Number(productMix.nrvFactor ?? 0),
-      productMixScore: Number(productMix.productMixScore ?? 0),
+      productMixScore,
       categoryANrv: Number(productMix.categoryANrv ?? 0) || undefined,
       categoryBNrv: Number(productMix.categoryBNrv ?? 0) || undefined,
       categoryCNrv: Number(productMix.categoryCNrv ?? 0) || undefined,
