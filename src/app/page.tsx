@@ -208,8 +208,14 @@ function HomeContent() {
 
   if (loading) {
     return (
-      <main className="h-dvh max-h-dvh flex items-center justify-center bg-white">
-        <div className="text-slate-500">Loading your scorecard…</div>
+      <main className="h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
+        <header className="shrink-0 border-b border-slate-200 px-3 py-2">
+          <span className="text-slate-400 text-sm">Scorecard</span>
+        </header>
+        <div className="flex-1 flex flex-col items-center justify-center gap-4">
+          <div className="w-12 h-12 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" aria-hidden />
+          <p className="text-slate-500 text-sm">Loading your scorecard…</p>
+        </div>
       </main>
     );
   }

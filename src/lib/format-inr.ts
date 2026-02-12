@@ -1,7 +1,8 @@
 /**
- * Format INR (Indian Rupees) for display. API figures are in INR.
- * Intelligently chooses Lacs (L) or Crores (Cr) based on magnitude.
- * 1 Lac = 1,00,000 INR | 1 Crore = 1,00,00,000 INR
+ * Format INR (Indian Rupees) for display. Use on ALL screens that show monetary amounts.
+ * API figures are in INR. Intelligently chooses K / L / Cr by magnitude.
+ * All non-zero values get a unit (K, L, or Cr) for consistency.
+ * 1 K = 1,000 INR | 1 L = 1,00,000 INR | 1 Cr = 1,00,00,000 INR
  */
 export function formatInr(rupees: number): string {
   if (!Number.isFinite(rupees) || rupees < 0) return "0";

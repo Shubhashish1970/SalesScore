@@ -6,7 +6,7 @@
     "rewrites": [
       {
         "source": "/api/scorecard",
-        "function": { "functionId": "kpiProxy", "region": "us-central1" }
+        "function": { "functionId": "kpiProxy", "region": "asia-south1" }
       }
     ]
   }

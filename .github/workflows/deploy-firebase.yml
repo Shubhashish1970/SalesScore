@@ -53,7 +53,7 @@ jobs:
           gcloud functions deploy kpiProxy \
             --gen2 \
             --runtime=nodejs20 \
-            --region=us-central1 \
+            --region=asia-south1 \
             --source=./functions \
             --entry-point=kpiProxy \
             --trigger-http \
@@ -61,7 +61,7 @@ jobs:
             --set-env-vars "KPI_API_UPSTREAM_URL=$KPI_UPSTREAM" \
             --project="$PROJECT_ID" \
             --quiet
-          echo "KPI proxy: https://us-central1-${PROJECT_ID}.cloudfunctions.net/kpiProxy"
+          echo "KPI proxy: https://asia-south1-${PROJECT_ID}.cloudfunctions.net/kpiProxy"
 
       - name: Deploy Firebase Hosting
         env:
