@@ -49,7 +49,9 @@ Use this guide to enable GitHub Actions → Firebase Hosting deploy. You only ne
 4. **Value:** Paste the **entire** contents of the JSON key file (from Step 2). One line or pretty-printed both work.
 5. Click **Add secret**.
 
-The workflow uses only **`FIREBASE_SERVICE_ACCOUNT_JSON`** for authentication. You do not need `FIREBASE_TOKEN` (deprecated; tokens expire). Optional: **`FIREBASE_PROJECT_ID`** (default `salesscore-c34f3`).
+The workflow uses **`FIREBASE_SERVICE_ACCOUNT_JSON`** for authentication. You do not need `FIREBASE_TOKEN` (deprecated; tokens expire). Optional: **`FIREBASE_PROJECT_ID`** (default `salesscore-c34f3`).
+
+**KPI Data API (optional):** Add secret **`KPI_DATA_API_URL`** with value `https://kw-sales-score-api-366769154420.asia-south1.run.app/api/scorecard` so `?mobile=` and `?role=` links fetch live scorecard data. If unset, those links fall back to sample data.
 
 ### Step 5: Deploy
 
@@ -69,6 +71,7 @@ The workflow no longer uses `FIREBASE_TOKEN` (from `firebase login:ci`) because 
 - [ ] Firebase project exists (e.g. salesscore-c34f3).
 - [ ] Service account key JSON created (Firebase Console or GCP Console).
 - [ ] GitHub secret `FIREBASE_SERVICE_ACCOUNT_JSON` set to full JSON contents (Option A).
+- [ ] GitHub secret `KPI_DATA_API_URL` set (optional; for live scorecard API).
 - [ ] Push to `main` or manually run **Deploy to Firebase Hosting** workflow.
 
 ---
