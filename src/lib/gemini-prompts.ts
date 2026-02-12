@@ -85,7 +85,7 @@ Your job is ONLY to generate short, human-readable commentary and recommended ac
 
 ## Collection Speed – DSO (Screen 3)
 - dsoDays: days to collect. Bands: ${dsoStr}.
-- dsoComment: One short sentence. Say if DSO is helping, limiting, or blocking; suggest moving toward <50 if relevant.
+- dsoComment: One short sentence. Say if DSO is helping, limiting, or blocking; suggest moving toward <50 if relevant. When stating DSO days, use whole numbers only (e.g. 66 days, not 66.24).
 
 ## Overdue (Screen 4)
 - Buckets: ${penaltyStr}.

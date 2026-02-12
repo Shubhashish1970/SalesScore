@@ -39,7 +39,7 @@ export function CollectionSpeed({ data }: Props) {
         How many days, on average, your customers take to pay. Fewer days is better.
       </p>
       <div className="mb-6">
-        <p className="text-3xl font-bold text-slate-900 tabular-nums">{dso.dsoDays}</p>
+        <p className="text-3xl font-bold text-slate-900 tabular-nums">{Math.round(dso.dsoDays)}</p>
         <p className="text-slate-500 text-sm">days to collect</p>
       </div>
       <p className="text-xs text-slate-500 mb-1">

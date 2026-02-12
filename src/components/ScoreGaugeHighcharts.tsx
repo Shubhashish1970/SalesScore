@@ -22,6 +22,8 @@ export function ScoreGaugeHighcharts({
   redEnd,
   amberEnd,
 }: ScoreGaugeHighchartsProps) {
+  const maxR = Math.round(maxScore);
+  const scoreR = Math.round(score);
   const options: Highcharts.Options = {
     accessibility: { enabled: false },
     chart: {
@@ -44,8 +46,8 @@ export function ScoreGaugeHighcharts({
     },
     yAxis: {
       min: 0,
-      max: maxScore,
-      tickPositions: [0, Math.round(maxScore * 0.25), Math.round(maxScore * 0.5), Math.round(maxScore * 0.75), maxScore],
+      max: maxR,
+      tickPositions: [0, Math.round(maxR * 0.25), Math.round(maxR * 0.5), Math.round(maxR * 0.75), maxR],
       tickPosition: "outside",
       tickColor: "#94a3b8",
       tickLength: 12,
@@ -59,7 +61,7 @@ export function ScoreGaugeHighcharts({
       plotBands: [
         { from: 0, to: redEnd, color: "#dc2626", thickness: 20, borderRadius: "50%" },
         { from: redEnd, to: amberEnd, color: "#d97706", thickness: 20, borderRadius: "50%" },
-        { from: amberEnd, to: maxScore, color: "#16a34a", thickness: 20, borderRadius: "50%" },
+        { from: amberEnd, to: maxR, color: "#16a34a", thickness: 20, borderRadius: "50%" },
       ],
     },
     series: [
@@ -68,9 +70,8 @@ export function ScoreGaugeHighcharts({
         name: "Score",
         data: [score],
         dataLabels: {
-          formatter: function (this: Highcharts.Point) {
-            const y = Number(this.y);
-            return "<span style=\"font-size:16px;font-weight:bold\">" + Math.round(y) + "</span> / " + maxScore;
+          formatter: function () {
+            return "<span style=\"font-size:16px;font-weight:bold\">" + scoreR + "</span> / " + maxR;
           },
           borderWidth: 0,
           y: 24,
@@ -86,7 +87,7 @@ export function ScoreGaugeHighcharts({
           backgroundColor: "gray",
           radius: 6,
         },
-        tooltip: { valueSuffix: " / " + maxScore },
+        tooltip: { valueSuffix: " / " + maxR },
       },
     ],
     credits: { enabled: false },
