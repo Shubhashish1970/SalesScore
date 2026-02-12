@@ -170,11 +170,20 @@ body {
   animation: gemini-pulse-core 1.6s ease-in-out infinite;
 }
 
-/* Commentary loading: three dots pulse in sequence */
-@keyframes commentary-dot {
-  0%, 100% { opacity: 0.35; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.1); }
+/* Commentary loading: skeleton shimmer */
+@keyframes commentary-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
-.animate-commentary-dot {
-  animation: commentary-dot 0.6s ease-in-out infinite;
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #e2e8f0 0%,
+    #e2e8f0 35%,
+    #cbd5e1 50%,
+    #e2e8f0 65%,
+    #e2e8f0 100%
+  );
+  background-size: 200% 100%;
+  animation: commentary-shimmer 1.8s ease-in-out infinite;
 }

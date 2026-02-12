@@ -1,15 +1,15 @@
 "use client";
 
 /**
- * Simple loading indicator for Gemini commentary boxes.
- * Three dots that pulse in sequence — minimal and intuitive.
+ * Skeleton / shimmer loading indicator for Gemini commentary boxes.
+ * Mimics text lines with a sweeping shimmer — sets expectation for incoming content.
  */
 export function CommentaryLoading() {
   return (
-    <div className="flex items-center gap-1.5 py-1" aria-label="Loading insights">
-      <span className="w-2 h-2 rounded-full bg-slate-400 animate-commentary-dot" style={{ animationDelay: "0ms" }} />
-      <span className="w-2 h-2 rounded-full bg-slate-400 animate-commentary-dot" style={{ animationDelay: "150ms" }} />
-      <span className="w-2 h-2 rounded-full bg-slate-400 animate-commentary-dot" style={{ animationDelay: "300ms" }} />
+    <div className="flex flex-col gap-2 flex-1 min-w-0" aria-label="Loading insights">
+      <div className="h-3.5 rounded skeleton-shimmer" style={{ width: "92%" }} />
+      <div className="h-3.5 rounded skeleton-shimmer" style={{ width: "78%" }} />
+      <div className="h-3.5 rounded skeleton-shimmer" style={{ width: "55%" }} />
     </div>
   );
 }
