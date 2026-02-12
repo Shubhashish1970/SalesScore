@@ -9,5 +9,5 @@ export function formatInr(rupees: number): string {
   if (rupees >= 1e7) return `${(rupees / 1e7).toFixed(2)} Cr`;
   if (rupees >= 1e5) return `${(rupees / 1e5).toFixed(2)} L`;
   if (rupees >= 1e3) return `${(rupees / 1e3).toFixed(1)} K`;
-  return String(Math.round(rupees));
+  return `${(rupees / 1e3).toFixed(1)} K`;
 }
