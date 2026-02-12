@@ -3,19 +3,14 @@
 import type { ScorecardData } from "@/types/scorecard";
 import { getAppConfig } from "@/lib/app-config";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
+import { formatInr } from "@/lib/format-inr";
 
 /**
  * Screen 4: Overdue buckets; outstanding on bar; red for penalized; OS score roundel; OD weightage.
- * Buckets and thresholds from App Config.
+ * Buckets and thresholds from App Config. All amounts from API are in INR.
  */
 interface Props {
   data: ScorecardData;
-}
-
-function formatAmount(n: number): string {
-  if (n >= 100) return `${(n / 100).toFixed(1)} Cr`;
-  if (n >= 1) return `${n.toFixed(1)} L`;
-  return `${(n * 100).toFixed(0)} K`;
 }
 
 /** Bar width % below which the amount is shown beside the bar instead of inside it (matches Product Mix behavior). */
@@ -33,8 +28,8 @@ export function OverdueMoney({ data }: Props) {
     : 0;
   const onTimeAmount = amounts ? (amounts.notDue ?? 0) : 0;
   const totalOverdueAmount = totalOutstanding - onTimeAmount;
-  const totalOutstandingStr = totalOutstanding > 0 ? formatAmount(totalOutstanding) : null;
-  const totalOverdueStr = totalOverdueAmount > 0 ? formatAmount(totalOverdueAmount) : null;
+  const totalOutstandingStr = totalOutstanding > 0 ? formatInr(totalOutstanding) : null;
+  const totalOverdueStr = totalOverdueAmount > 0 ? formatInr(totalOverdueAmount) : null;
   const overdueWeight = kpiWeights.overdue;
   const noPenaltyBuckets = buckets.filter((b) => (penalties[b.key] ?? b.penaltyPct) === 0);
   const penalizedBuckets = buckets.filter((b) => (penalties[b.key] ?? b.penaltyPct) > 0);
@@ -66,7 +61,7 @@ export function OverdueMoney({ data }: Props) {
         <div className="flex items-baseline gap-4 mb-3 flex-wrap">
           <div className="flex flex-col min-w-[6rem]">
             <p className="text-2xl font-bold text-slate-900 tabular-nums">
-              {totalOverdueAmount > 0 && totalOverdueStr ? totalOverdueStr : formatAmount(0)}
+              {totalOverdueAmount > 0 && totalOverdueStr ? totalOverdueStr : formatInr(0)}
             </p>
             <p className="text-slate-500 text-xs">Overdue</p>
           </div>
@@ -89,7 +84,7 @@ export function OverdueMoney({ data }: Props) {
           {noPenaltyBuckets.map(({ key, label }) => {
             const pct = total ? (overdue[key] / total) * 100 : 0;
             const barWidth = Math.max(pct, 3);
-            const amountStr = amounts ? formatAmount(amounts[key]) : null;
+            const amountStr = amounts ? formatInr(amounts[key]) : null;
             const penaltyPct = penalties ? penalties[key] : null;
             const showAmountInBar = amountStr && pct >= SMALL_BAR_PCT;
             const showAmountBeside = amountStr && pct < SMALL_BAR_PCT;
@@ -129,7 +124,7 @@ export function OverdueMoney({ data }: Props) {
             const barWidth = Math.max(pct, 3);
             const hasMoney = overdue[key] > 0;
             const showRed = hasMoney;
-            const amountStr = amounts ? formatAmount(amounts[key]) : null;
+            const amountStr = amounts ? formatInr(amounts[key]) : null;
             const penaltyPct = penalties ? penalties[key] : null;
             const showAmountInBar = amountStr && pct >= SMALL_BAR_PCT;
             const showAmountBeside = amountStr && pct < SMALL_BAR_PCT;

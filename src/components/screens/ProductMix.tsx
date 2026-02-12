@@ -4,22 +4,17 @@ import { useState, useEffect } from "react";
 import type { ScorecardData } from "@/types/scorecard";
 import { getAppConfig } from "@/lib/app-config";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
+import { formatInr } from "@/lib/format-inr";
 
 /**
  * Screen 5: Category distribution. Higher category = higher score impact; helped vs diluted.
- * Categories and thresholds from App Config.
+ * Categories and thresholds from App Config. NRV values from API are in INR.
  */
 interface Props {
   data: ScorecardData;
 }
 
 const NRV_KEY_MAP = { categoryA: "categoryANrv", categoryB: "categoryBNrv", categoryC: "categoryCNrv", categoryD: "categoryDNrv", categoryE: "categoryENrv" } as const;
-
-function formatNrv(rupees: number): string {
-  if (rupees >= 1e7) return `${(rupees / 1e7).toFixed(2)} Cr`;
-  if (rupees >= 1e5) return `${(rupees / 1e5).toFixed(2)} L`;
-  return `${(rupees / 1e3).toFixed(1)} K`;
-}
 
 /** Bar width % below which the NRV amount is shown beside the bar instead of inside it. */
 const SMALL_BAR_PCT = 18;
@@ -28,7 +23,7 @@ export function ProductMix({ data }: Props) {
   const { productMix, growth } = data;
   const { productMixCategories: categories, productMixHelpThreshold: helpThreshold, kpiWeights, productMixBadgeGreenRatio, productMixBadgeAmberRatio } = getAppConfig();
   const helped = productMix.nrvFactor >= helpThreshold;
-  const totalNrvStr = growth.CY_NRV > 0 ? formatNrv(growth.CY_NRV) : null;
+  const totalNrvStr = growth.CY_NRV > 0 ? formatInr(growth.CY_NRV) : null;
   const [mounted, setMounted] = useState(false);
   const [mountedAB, setMountedAB] = useState(false);
   useEffect(() => {
@@ -74,7 +69,7 @@ export function ProductMix({ data }: Props) {
           const pct = productMix[key] ?? 0;
           const nrvKey = NRV_KEY_MAP[key];
           const nrvValue = productMix[nrvKey] ?? 0;
-          const nrvStr = nrvValue > 0 ? formatNrv(nrvValue) : null;
+          const nrvStr = nrvValue > 0 ? formatInr(nrvValue) : null;
           const isCatE = key === "categoryE";
           const isCatAorB = key === "categoryA" || key === "categoryB";
           const barClass = [

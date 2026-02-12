@@ -3,21 +3,15 @@
 import type { ScorecardData } from "@/types/scorecard";
 import { getAppConfig } from "@/lib/app-config";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
+import { formatInr } from "@/lib/format-inr";
 
 /**
  * Screen 2: Gatekeeper — growth achieved or not.
  * Shows Growth % (from JSON) in big font with arrow.
- * Bands from App Config (growthBandThresholds).
+ * Bands from App Config (growthBandThresholds). CY_NRV, LY_NRV from API are in INR.
  */
 interface Props {
   data: ScorecardData;
-}
-
-function formatMoney(n: number): string {
-  if (n >= 1_00_00_000) return `${(n / 1_00_00_000).toFixed(1)} Cr`;
-  if (n >= 1_00_000) return `${(n / 1_00_000).toFixed(1)} L`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)} K`;
-  return String(n);
 }
 
 type GrowthBand = "green" | "amber" | "red";
@@ -76,11 +70,11 @@ export function GrowthCheck({ data }: Props) {
       <div className="space-y-3 mb-4">
         <div className="flex justify-between items-center py-2 border-b border-slate-200">
           <span className="text-slate-600">This year</span>
-          <span className="font-semibold text-slate-900">{formatMoney(growth.CY_NRV)}</span>
+          <span className="font-semibold text-slate-900">{formatInr(growth.CY_NRV)}</span>
         </div>
         <div className="flex justify-between items-center py-2 border-b border-slate-200">
           <span className="text-slate-600">Last year</span>
-          <span className="font-medium text-slate-700">{formatMoney(growth.LY_NRV)}</span>
+          <span className="font-medium text-slate-700">{formatInr(growth.LY_NRV)}</span>
         </div>
       </div>
       <div className={`flex items-center gap-3 mb-6 ${animationClass}`}>
