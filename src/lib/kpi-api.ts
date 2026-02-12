@@ -111,7 +111,10 @@ export async function fetchScorecard(
   if (!KPI_API_URL) {
     throw new Error("KPI Data API URL not configured.");
   }
-  const url = new URL(KPI_API_URL);
+  const base = KPI_API_URL.startsWith("/") && typeof window !== "undefined"
+    ? window.location.origin
+    : undefined;
+  const url = base ? new URL(KPI_API_URL, base) : new URL(KPI_API_URL);
   url.searchParams.set("mobile", mobile);
   url.searchParams.set("role", role);
 

@@ -51,7 +51,7 @@ Use this guide to enable GitHub Actions → Firebase Hosting deploy. You only ne
 
 The workflow uses **`FIREBASE_SERVICE_ACCOUNT_JSON`** for authentication. You do not need `FIREBASE_TOKEN` (deprecated; tokens expire). Optional: **`FIREBASE_PROJECT_ID`** (default `salesscore-c34f3`).
 
-**KPI Data API (optional):** Add secret **`KPI_DATA_API_URL`** with value `https://kw-sales-score-api-366769154420.asia-south1.run.app/api/scorecard` so `?mobile=` and `?role=` links fetch live scorecard data. If unset, those links fall back to sample data.
+**KPI Data API (optional):** Add secret **`KPI_DATA_API_URL`** with value `https://kw-sales-score-api-366769154420.asia-south1.run.app/api/scorecard`. The app uses a same-origin proxy (`/api/scorecard`) to avoid CORS; a Cloud Function forwards requests to the upstream API. If unset, `?mobile=` links fall back to sample data. **Note:** Cloud Functions require the Blaze (pay-as-you-go) plan.
 
 ### Step 5: Deploy
 

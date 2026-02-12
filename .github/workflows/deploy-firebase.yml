@@ -1,8 +1,10 @@
-# Deploy Sales Scorecard to Firebase Hosting on push to main.
+# Deploy Sales Scorecard to Firebase Hosting and Functions on push to main.
 #
 # Required: FIREBASE_SERVICE_ACCOUNT_JSON = full contents of your Firebase/GCP service account
 #   key JSON (Firebase Console → Project Settings → Service accounts → Generate new private key).
 # Optional: FIREBASE_PROJECT_ID (default salesscore-c34f3).
+# KPI_DATA_API_URL: upstream KPI API (e.g. https://...run.app/api/scorecard). When set, client uses
+#   same-origin proxy /api/scorecard to avoid CORS; function proxies to upstream.
 
 name: Deploy to Firebase Hosting
 
@@ -30,7 +32,7 @@ jobs:
       - name: Build
         env:
           NEXT_PUBLIC_GEMINI_COMMENTARY_URL: https://us-central1-${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}.cloudfunctions.net/gemini-commentary
-          NEXT_PUBLIC_KPI_DATA_API_URL: ${{ secrets.KPI_DATA_API_URL || '' }}
+          NEXT_PUBLIC_KPI_DATA_API_URL: ${{ secrets.KPI_DATA_API_URL && 'https://salesscore-c34f3.web.app/api/scorecard' || '' }}
         run: npm run build
 
       - name: Authenticate to GCP (Firebase)
@@ -38,10 +40,17 @@ jobs:
         with:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
 
-      - name: Deploy to Firebase Hosting
+      - name: Create functions .env
+        env:
+          KPI_UPSTREAM: ${{ secrets.KPI_DATA_API_URL }}
+        run: |
+          echo "KPI_API_UPSTREAM_URL=$KPI_UPSTREAM" > functions/.env
+
+      - name: Deploy Firebase (Hosting + Functions)
         env:
           CI: true
           PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}
         run: |
           npm install -g firebase-tools
-          firebase deploy --only hosting --project "$PROJECT_ID"
+          cd functions && npm ci && cd ..
+          firebase deploy --only hosting,functions --project "$PROJECT_ID"
