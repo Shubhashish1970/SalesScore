@@ -6,6 +6,7 @@ import { getAppConfig } from "@/lib/app-config";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 import { CommentaryLoading } from "@/components/CommentaryLoading";
 import { formatInr } from "@/lib/format-inr";
+import { getCommentaryBoxStyle, badgeColorToVariant } from "@/lib/commentary-style";
 
 /**
  * Screen 5: Category distribution. Higher category = higher score impact; helped vs diluted.
@@ -46,6 +47,7 @@ export function ProductMix({ data }: Props) {
       : ratio >= productMixBadgeAmberRatio
         ? "bg-amber-500 text-slate-900"
         : "bg-red-500 text-white";
+  const commentaryStyle = getCommentaryBoxStyle(badgeColorToVariant(badgeColor));
 
   return (
     <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6 relative">
@@ -111,12 +113,12 @@ export function ProductMix({ data }: Props) {
         })}
       </div>
       {data.productMixComment?.trim() ? (
-        <div className={`rounded-xl p-4 flex items-start gap-2 ${helped ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800"}`}>
+        <div className={`rounded-xl p-4 flex items-start gap-2 border ${commentaryStyle}`}>
           <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
           <p className="text-sm font-medium flex-1">{data.productMixComment.trim()}</p>
         </div>
       ) : data.commentaryLoading ? (
-        <div className={`rounded-xl p-4 flex items-center gap-2 min-h-[3rem] ${helped ? "bg-emerald-50" : "bg-amber-50"}`}>
+        <div className={`rounded-xl p-4 flex items-center gap-2 border min-h-[3rem] ${commentaryStyle}`}>
           <CommentaryLoading />
         </div>
       ) : null}

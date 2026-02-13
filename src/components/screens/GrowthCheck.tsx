@@ -5,6 +5,7 @@ import { getAppConfig } from "@/lib/app-config";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 import { CommentaryLoading } from "@/components/CommentaryLoading";
 import { formatInr } from "@/lib/format-inr";
+import { getCommentaryBoxStyle, growthBandToVariant } from "@/lib/commentary-style";
 
 /**
  * Screen 2: Gatekeeper — growth achieved or not.
@@ -58,6 +59,7 @@ export function GrowthCheck({ data }: Props) {
   const band = getGrowthBand(pct, thresholds);
   const direction: "up" | "down" | "flat" = pct > 0 ? "up" : pct < 0 ? "down" : "flat";
   const colors = bandColors[band];
+  const commentaryStyle = getCommentaryBoxStyle(growthBandToVariant(band));
 
   const isFlatOrRed = band === "red" || direction === "flat";
   const animationClass = isFlatOrRed ? "animate-growth-pct-attention" : "animate-growth-pct";
@@ -86,16 +88,12 @@ export function GrowthCheck({ data }: Props) {
         <GrowthArrow band={band} direction={direction} />
       </div>
       {data.growthComment?.trim() ? (
-        <div
-          className={`rounded-xl p-4 flex items-start gap-2 ${
-            achieved ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800"
-          }`}
-        >
+        <div className={`rounded-xl p-4 flex items-start gap-2 border ${commentaryStyle}`}>
           <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
           <p className="font-medium flex-1">{data.growthComment.trim()}</p>
         </div>
       ) : data.commentaryLoading ? (
-        <div className={`rounded-xl p-4 flex items-center gap-2 min-h-[3rem] ${achieved ? "bg-emerald-50" : "bg-amber-50"}`}>
+        <div className={`rounded-xl p-4 flex items-center gap-2 border min-h-[3rem] ${commentaryStyle}`}>
           <CommentaryLoading />
         </div>
       ) : null}

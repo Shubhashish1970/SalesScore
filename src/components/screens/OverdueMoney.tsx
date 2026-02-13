@@ -5,6 +5,7 @@ import { getAppConfig } from "@/lib/app-config";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 import { CommentaryLoading } from "@/components/CommentaryLoading";
 import { formatInr } from "@/lib/format-inr";
+import { getCommentaryBoxStyle, badgeColorToVariant } from "@/lib/commentary-style";
 
 /**
  * Screen 4: Overdue buckets; outstanding on bar; red for penalized; OS score roundel; OD weightage.
@@ -43,6 +44,7 @@ export function OverdueMoney({ data }: Props) {
           ? "bg-amber-500 text-slate-900"
           : "bg-red-500 text-white"
       : "bg-amber-500 text-slate-900";
+  const commentaryStyle = getCommentaryBoxStyle(badgeColorToVariant(badgeColor));
 
   return (
     <section className="min-h-[80dvh] flex flex-col px-5 pt-6 pb-6 relative">
@@ -159,12 +161,12 @@ export function OverdueMoney({ data }: Props) {
         )}
       </div>
       {data.overdueComment?.trim() ? (
-        <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 flex items-start gap-2 mt-1 shrink-0">
+        <div className={`rounded-xl p-3 flex items-start gap-2 mt-1 shrink-0 border ${commentaryStyle}`}>
           <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
-          <p className="text-amber-900 text-sm flex-1">{data.overdueComment.trim()}</p>
+          <p className="text-sm flex-1">{data.overdueComment.trim()}</p>
         </div>
       ) : data.commentaryLoading ? (
-        <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 flex items-center gap-2 mt-1 shrink-0 min-h-[3rem]">
+        <div className={`rounded-xl p-3 flex items-center gap-2 mt-1 shrink-0 border min-h-[3rem] ${commentaryStyle}`}>
           <CommentaryLoading />
         </div>
       ) : null}

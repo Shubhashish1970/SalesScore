@@ -1,8 +1,10 @@
 "use client";
 
 import type { ScorecardData } from "@/types/scorecard";
+import { getAppConfig } from "@/lib/app-config";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 import { CommentaryLoading } from "@/components/CommentaryLoading";
+import { getCommentaryBoxStyle, scoreBandToVariant } from "@/lib/commentary-style";
 
 /**
  * Screen 6: Recommended actions from JSON — what to do, why, expected impact (H/M/L).
@@ -27,6 +29,10 @@ function impactBadge(impact: string) {
 
 export function WhatToDoNext({ data }: Props) {
   const actions = Array.isArray(data.recommendedActions) ? data.recommendedActions.slice(0, 5) : [];
+  const { scoreBandThresholds } = getAppConfig();
+  const commentaryStyle = getCommentaryBoxStyle(
+    scoreBandToVariant(data.finalScore, scoreBandThresholds.redEnd, scoreBandThresholds.amberEnd)
+  );
 
   return (
     <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6 relative">
@@ -48,7 +54,7 @@ export function WhatToDoNext({ data }: Props) {
           ))}
         </ul>
       ) : data.commentaryLoading ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-6 flex items-center justify-center min-h-[6rem]">
+        <div className={`rounded-xl border p-6 flex items-center justify-center min-h-[6rem] ${commentaryStyle}`}>
           <CommentaryLoading />
         </div>
       ) : null}

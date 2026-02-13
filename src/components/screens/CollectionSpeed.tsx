@@ -2,6 +2,7 @@
 
 import type { ScorecardData, DsoBandDefinition } from "@/types/scorecard";
 import { getAppConfig } from "@/lib/app-config";
+import { getCommentaryBoxStyle, roundelColorToVariant } from "@/lib/commentary-style";
 import { GeminiCommentaryBadge } from "@/components/GeminiCommentaryBadge";
 import { CommentaryLoading } from "@/components/CommentaryLoading";
 
@@ -24,6 +25,7 @@ export function CollectionSpeed({ data }: Props) {
   const { dsoBands: bands, kpiWeights } = getAppConfig();
   const activeBandConfig = bands.find((b: DsoBandDefinition) => b.id === dso.dsoBand);
   const badgeColor = activeBandConfig?.roundelColor ?? "bg-slate-500 text-white";
+  const commentaryStyle = getCommentaryBoxStyle(roundelColorToVariant(badgeColor));
   const dsoScoreRounded = Math.round(dso.dsoScore);
   const dsoWeight = kpiWeights.dso;
 
@@ -77,12 +79,12 @@ export function CollectionSpeed({ data }: Props) {
         ))}
       </div>
       {data.dsoComment?.trim() ? (
-        <div className="rounded-xl bg-slate-100 p-4 flex items-start gap-2">
+        <div className={`rounded-xl p-4 flex items-start gap-2 border ${commentaryStyle}`}>
           <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
-          <p className="text-slate-700 text-sm flex-1">{data.dsoComment.trim()}</p>
+          <p className="text-sm flex-1">{data.dsoComment.trim()}</p>
         </div>
       ) : data.commentaryLoading ? (
-        <div className="rounded-xl bg-slate-100 p-4 flex items-center gap-2 min-h-[3rem]">
+        <div className={`rounded-xl p-4 flex items-center gap-2 border min-h-[3rem] ${commentaryStyle}`}>
           <CommentaryLoading />
         </div>
       ) : null}
