@@ -1,6 +1,8 @@
 "use client";
 
+import { useRef, useState } from "react";
 import Image from "next/image";
+import html2canvas from "html2canvas";
 import type { Role } from "@/types/scorecard";
 import type { LeaderboardEntry } from "@/types/leaderboard";
 
@@ -51,6 +53,18 @@ function Medal({ rank }: { rank: number }) {
   );
 }
 
+function ShareIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+    </svg>
+  );
+}
+
 export function LeaderboardScreen({
   entries,
   role,
@@ -60,9 +74,60 @@ export function LeaderboardScreen({
 }: Props) {
   const title = getTitle(role);
   const dateStr = formatDate();
+  const shareRef = useRef<HTMLDivElement>(null);
+  const [sharing, setSharing] = useState(false);
+
+  const handleShare = async () => {
+    if (!shareRef.current || entries.length === 0 || sharing) return;
+    setSharing(true);
+    try {
+      const canvas = await html2canvas(shareRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+      });
+      const blob = await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
+      if (!blob) throw new Error("Failed to create image");
+      const file = new File([blob], `leaderboard-${dateStr}.png`, { type: "image/png" });
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          title: `${title} - ${dateStr}`,
+          text: `Check out the ${title}`,
+          files: [file],
+        });
+      } else if (navigator.share) {
+        await navigator.share({
+          title: `${title} - ${dateStr}`,
+          text: `Check out the ${title}. ${window.location.href}`,
+          url: window.location.href,
+        });
+      } else if (navigator.clipboard?.write) {
+        await navigator.clipboard.writeText(window.location.href);
+        alert("Link copied to clipboard!");
+      } else {
+        alert("Sharing not supported. URL: " + window.location.href);
+      }
+    } catch (err) {
+      if ((err as Error)?.name !== "AbortError") {
+        try {
+          await navigator.clipboard?.writeText(window.location.href);
+          alert("Link copied to clipboard!");
+        } catch {
+          alert("Could not share. URL: " + window.location.href);
+        }
+      }
+    } finally {
+      setSharing(false);
+    }
+  };
 
   return (
     <section className="min-h-[80dvh] flex flex-col px-4 pt-4 pb-6 overflow-hidden">
+      <div
+        ref={shareRef}
+        className="flex flex-col flex-1 min-h-0"
+      >
       <div
         className="rounded-xl px-4 py-3 mb-4 shadow-lg flex items-start gap-3"
         style={{ background: `linear-gradient(135deg, ${BRAND.primary} 0%, ${BRAND.secondary} 100%)` }}
@@ -74,14 +139,28 @@ export function LeaderboardScreen({
             width={44}
             height={44}
             className="object-contain"
+            unoptimized
           />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
             <h2 className="text-lg font-bold text-white">{title}</h2>
-            <span className="text-white/90 text-xs font-medium tabular-nums shrink-0" aria-label={`Date: ${dateStr}`}>
-              {dateStr}
-            </span>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-white/90 text-xs font-medium tabular-nums" aria-label={`Date: ${dateStr}`}>
+                {dateStr}
+              </span>
+              {!loading && !error && entries.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  disabled={sharing}
+                  className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors disabled:opacity-50"
+                  aria-label="Share leaderboard"
+                >
+                  <ShareIcon className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </div>
           <p className="text-white/85 text-[10px] mt-1">
             Rank by total score. DSO, OS, and Product Mix contribute to the total.
@@ -159,6 +238,7 @@ export function LeaderboardScreen({
           </table>
         </div>
       )}
+      </div>
     </section>
   );
 }
