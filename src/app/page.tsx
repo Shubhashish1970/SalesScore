@@ -20,6 +20,7 @@ import { AdminSettingsScreen } from "@/components/admin/AdminSettingsScreen";
 import { LeaderboardScreen } from "@/components/screens/LeaderboardScreen";
 import { fetchLeaderboard } from "@/lib/leaderboard-api";
 import type { LeaderboardEntry } from "@/types/leaderboard";
+import { ReactIcon } from "@/components/ReactIcon";
 
 const SCREENS = [
   ScoreOverview,
@@ -182,7 +183,7 @@ function HomeContent() {
   }, [leaderboardOpen, data.role]);
 
   const Screen = SCREENS[currentIndex];
-  const showLeaderboardIcon = (data.role === "TM" || data.role === "RM" || data.role === "ZM") && currentIndex === 1;
+  const showLeaderboardIcon = (data.role === "TM" || data.role === "RM" || data.role === "ZM") && currentIndex === 0;
 
   if (fetchError) {
     const noLink = !mobileFromUrl;
@@ -213,9 +214,14 @@ function HomeContent() {
   return (
     <main className="h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white shadow-sm overflow-hidden">
       <header className="shrink-0 bg-white border-b border-slate-200 px-3 py-2 flex items-center justify-between">
-        <span className="text-slate-700 text-sm font-medium" aria-label="Welcome">
-          Welcome, {data.name}
-        </span>
+        <div className="flex items-center gap-2">
+          {currentIndex === 0 && (
+            <ReactIcon className="w-5 h-5 text-slate-400" />
+          )}
+          <span className="text-slate-700 text-sm font-medium" aria-label="Welcome">
+            Welcome, {data.name}
+          </span>
+        </div>
         {showLeaderboardIcon && (
           <button
             type="button"
@@ -253,9 +259,9 @@ function HomeContent() {
               type="button"
               onClick={() => setLeaderboardOpen(false)}
               className="text-amber-700 text-sm font-medium py-1 px-3"
-              aria-label="Back to Growth"
+              aria-label="Back"
             >
-              ← Back to Growth
+              ← Back
             </button>
             <span />
           </>
