@@ -102,7 +102,7 @@ export function LeaderboardScreen({
           text: `Check out the ${title}. ${window.location.href}`,
           url: window.location.href,
         });
-      } else if (navigator.clipboard?.write) {
+      } else if (navigator.clipboard) {
         await navigator.clipboard.writeText(window.location.href);
         alert("Link copied to clipboard!");
       } else {
