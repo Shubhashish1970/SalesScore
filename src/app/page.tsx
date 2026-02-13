@@ -218,7 +218,7 @@ function HomeContent() {
             Welcome, {data.name}
           </span>
         </div>
-        {showLeaderboardIcon && (
+        {showLeaderboardIcon && !leaderboardOpen && (
           <button
             type="button"
             onClick={() => setLeaderboardOpen(true)}
