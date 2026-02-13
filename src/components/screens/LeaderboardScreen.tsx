@@ -18,7 +18,7 @@ function getTitle(role: Role): string {
 }
 
 function formatScore(n: number): string {
-  return String(Math.round(n));
+  return Number(n).toFixed(1);
 }
 
 function Medal({ rank }: { rank: number }) {
@@ -63,16 +63,16 @@ export function LeaderboardScreen({
         </div>
       ) : (
         <div className="flex-1 min-h-0 overflow-hidden">
-          <table className="w-full text-[10px] leading-tight">
+          <table className="w-full text-[9px] leading-tight">
             <thead>
               <tr className="bg-slate-100 text-slate-600 text-left">
                 <th className="px-1.5 py-1 font-medium w-6">#</th>
                 <th className="px-1.5 py-1 font-medium">Name</th>
                 <th className="px-1.5 py-1 font-medium min-w-[3rem]">Territory</th>
-                <th className="px-1.5 py-1 font-medium text-right tabular-nums w-8">DSO</th>
-                <th className="px-1.5 py-1 font-medium text-right tabular-nums w-8">OS</th>
-                <th className="px-1.5 py-1 font-medium text-right tabular-nums w-8">Mix</th>
-                <th className="px-1.5 py-1 font-medium text-right tabular-nums w-10">Total</th>
+                <th className="px-1 py-1 font-medium text-right tabular-nums w-9">DSO</th>
+                <th className="px-1 py-1 font-medium text-right tabular-nums w-9">OS</th>
+                <th className="px-1 py-1 font-medium text-right tabular-nums w-9">Mix</th>
+                <th className="px-1 py-1 font-medium text-right tabular-nums w-11">Total</th>
               </tr>
             </thead>
             <tbody>

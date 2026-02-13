@@ -63,15 +63,15 @@ export function OverdueMoney({ data }: Props) {
       {totalOutstandingStr != null && (
         <div className="flex items-baseline gap-4 mb-5 flex-wrap">
           <div className="flex flex-col min-w-[6rem]">
-            <p className="text-2xl font-bold text-slate-900 tabular-nums">
-              {totalOverdueAmount > 0 && totalOverdueStr ? totalOverdueStr : formatInr(0)}
-            </p>
-            <p className="text-slate-500 text-xs">Overdue</p>
+            <p className="text-2xl font-bold text-slate-900 tabular-nums">{totalOutstandingStr}</p>
+            <p className="text-slate-500 text-xs">Outstanding</p>
           </div>
           <span className="text-slate-400 text-lg font-medium self-center">/</span>
           <div className="flex flex-col min-w-[6rem]">
-            <p className="text-2xl font-bold text-slate-700 tabular-nums">{totalOutstandingStr}</p>
-            <p className="text-slate-500 text-xs">Outstanding</p>
+            <p className="text-2xl font-bold text-amber-600 tabular-nums">
+              {totalOverdueAmount > 0 && totalOverdueStr ? totalOverdueStr : formatInr(0)}
+            </p>
+            <p className="text-amber-600/80 text-xs font-medium">Overdue</p>
           </div>
         </div>
       )}

@@ -105,7 +105,7 @@ export function ProductMix({ data }: Props) {
                     {nrvStr}
                   </span>
                 )}
-                <span className="relative z-10 text-[10px] font-normal text-slate-700 tabular-nums ml-auto mr-2">{pct}%</span>
+                <span className="relative z-10 text-[10px] font-normal text-slate-700 tabular-nums ml-auto mr-2">{Number(pct).toFixed(2)}%</span>
               </div>
               <span className="text-[10px] text-slate-500 w-6 shrink-0 tabular-nums">{weight}</span>
             </div>
