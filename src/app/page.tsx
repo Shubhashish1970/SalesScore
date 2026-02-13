@@ -153,34 +153,30 @@ function HomeContent() {
         setFetchError(true);
         setLoading(false);
       });
+
+    if (role === "TM" || role === "RM" || role === "ZM") {
+      setLeaderboardLoading(true);
+      setLeaderboardError(null);
+      fetchLeaderboard(role)
+        .then((entries) => {
+          if (!cancelled) {
+            setLeaderboardEntries(entries);
+            setLeaderboardError(null);
+          }
+        })
+        .catch((err) => {
+          if (!cancelled) {
+            setLeaderboardEntries([]);
+            setLeaderboardError((err as Error)?.message ?? "Failed to load leaderboard");
+          }
+        })
+        .finally(() => {
+          if (!cancelled) setLeaderboardLoading(false);
+        });
+    }
+
     return () => { cancelled = true; };
   }, [mobileFromUrl, roleFromUrl, setCurrentIndex, retryKey]);
-
-  useEffect(() => {
-    if (!leaderboardOpen || !data.role) return;
-    const role = data.role;
-    if (role === "BU") return;
-    let cancelled = false;
-    setLeaderboardLoading(true);
-    setLeaderboardError(null);
-    fetchLeaderboard(role)
-      .then((entries) => {
-        if (!cancelled) {
-          setLeaderboardEntries(entries);
-          setLeaderboardError(null);
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setLeaderboardEntries([]);
-          setLeaderboardError((err as Error)?.message ?? "Failed to load leaderboard");
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setLeaderboardLoading(false);
-      });
-    return () => { cancelled = true; };
-  }, [leaderboardOpen, data.role]);
 
   const Screen = SCREENS[currentIndex];
   const showLeaderboardIcon = (data.role === "TM" || data.role === "RM" || data.role === "ZM") && currentIndex === 0;
