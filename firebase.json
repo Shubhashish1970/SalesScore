@@ -7,6 +7,10 @@
       {
         "source": "/api/scorecard",
         "function": { "functionId": "kpiProxy", "region": "asia-south1" }
+      },
+      {
+        "source": "/api/leaderboard",
+        "function": { "functionId": "leaderboardProxy", "region": "asia-south1" }
       }
     ]
   }

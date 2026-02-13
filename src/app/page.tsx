@@ -17,6 +17,9 @@ import { useSearchParams } from "next/navigation";
 import { fetchScorecard, isKpiApiConfigured } from "@/lib/kpi-api";
 import { getAppConfig, loadConfigFromStorage } from "@/lib/app-config";
 import { AdminSettingsScreen } from "@/components/admin/AdminSettingsScreen";
+import { LeaderboardModal } from "@/components/LeaderboardModal";
+import { fetchLeaderboard } from "@/lib/leaderboard-api";
+import type { LeaderboardEntry } from "@/types/leaderboard";
 
 const SCREENS = [
   ScoreOverview,
@@ -41,6 +44,10 @@ function HomeContent() {
   const [fetchError, setFetchError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
+  const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>([]);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false);
+  const [leaderboardError, setLeaderboardError] = useState<string | null>(null);
   const { currentIndex, setCurrentIndex, goNext, goPrev, onTouchStart, onTouchEnd } = useSwipe(0);
 
   const isAdminMode = mobileFromUrl === ADMIN_MOBILE;
@@ -148,7 +155,34 @@ function HomeContent() {
     return () => { cancelled = true; };
   }, [mobileFromUrl, roleFromUrl, setCurrentIndex, retryKey]);
 
+  useEffect(() => {
+    if (!leaderboardOpen || !data.role) return;
+    const role = data.role;
+    if (role === "BU") return;
+    let cancelled = false;
+    setLeaderboardLoading(true);
+    setLeaderboardError(null);
+    fetchLeaderboard(role)
+      .then((entries) => {
+        if (!cancelled) {
+          setLeaderboardEntries(entries);
+          setLeaderboardError(null);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setLeaderboardEntries([]);
+          setLeaderboardError((err as Error)?.message ?? "Failed to load leaderboard");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLeaderboardLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [leaderboardOpen, data.role]);
+
   const Screen = SCREENS[currentIndex];
+  const showLeaderboardIcon = (data.role === "TM" || data.role === "RM" || data.role === "ZM") && currentIndex === 1;
 
   if (fetchError) {
     const noLink = !mobileFromUrl;
@@ -182,7 +216,27 @@ function HomeContent() {
         <span className="text-slate-700 text-sm font-medium" aria-label="Welcome">
           Welcome, {data.name}
         </span>
+        {showLeaderboardIcon && (
+          <button
+            type="button"
+            onClick={() => setLeaderboardOpen(true)}
+            className="p-2 -m-2 rounded-full hover:bg-amber-50 text-amber-600 transition-colors"
+            aria-label="View leaderboard"
+          >
+            <span className="text-xl" aria-hidden>🏆</span>
+          </button>
+        )}
       </header>
+
+      <LeaderboardModal
+        isOpen={leaderboardOpen}
+        onClose={() => setLeaderboardOpen(false)}
+        entries={leaderboardEntries}
+        role={data.role}
+        loading={leaderboardLoading}
+        error={leaderboardError}
+        currentUserName={data.name}
+      />
 
       <div
         className="swipe-container flex-1 min-h-0 overflow-auto"

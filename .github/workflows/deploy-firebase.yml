@@ -63,6 +63,24 @@ jobs:
             --quiet
           echo "KPI proxy: https://asia-south1-${PROJECT_ID}.cloudfunctions.net/kpiProxy"
 
+      - name: Deploy Leaderboard proxy (Cloud Function via gcloud)
+        env:
+          PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}
+          KPI_UPSTREAM: ${{ secrets.KPI_DATA_API_URL }}
+        run: |
+          gcloud functions deploy leaderboardProxy \
+            --gen2 \
+            --runtime=nodejs20 \
+            --region=asia-south1 \
+            --source=./functions \
+            --entry-point=leaderboardProxy \
+            --trigger-http \
+            --allow-unauthenticated \
+            --set-env-vars "KPI_API_UPSTREAM_URL=$KPI_UPSTREAM" \
+            --project="$PROJECT_ID" \
+            --quiet
+          echo "Leaderboard proxy: https://asia-south1-${PROJECT_ID}.cloudfunctions.net/leaderboardProxy"
+
       - name: Deploy Firebase Hosting
         env:
           CI: true
