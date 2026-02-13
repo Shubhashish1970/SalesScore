@@ -12,9 +12,9 @@ interface Props {
 }
 
 function getTitle(role: Role): string {
-  if (role === "ZM") return "Top 5 ZMs";
-  if (role === "RM") return "Top 10 RMs";
-  return "Top 10 TMs";
+  if (role === "ZM") return "ZM Leaderboard (Top 5)";
+  if (role === "RM") return "RM Leaderboard (Top 10)";
+  return "TM Leaderboard (Top 10)";
 }
 
 function formatScore(n: number): string {
@@ -67,8 +67,8 @@ export function LeaderboardScreen({
             <thead>
               <tr className="bg-slate-100 text-slate-600 text-left">
                 <th className="px-1 py-1 font-medium w-6">#</th>
-                <th className="px-1 py-1 font-medium">Name</th>
-                <th className="px-1 py-1 font-medium w-16 max-w-16">Territory</th>
+                <th className="pl-1 pr-0.5 py-1 font-medium">Name</th>
+                <th className="pl-0.5 pr-1 py-1 font-medium w-16 max-w-16">Territory</th>
                 <th className="px-1 py-1 font-medium text-right tabular-nums w-9">DSO</th>
                 <th className="px-1 py-1 font-medium text-right tabular-nums w-9">OS</th>
                 <th className="px-1 py-1 font-medium text-right tabular-nums w-9">Mix</th>
@@ -86,13 +86,13 @@ export function LeaderboardScreen({
                     className={`border-b border-slate-100 ${isCurrentUser ? "bg-amber-50" : "bg-white"} ${i < 3 ? "font-medium" : ""}`}
                   >
                     <td className="px-1.5 py-0.5"><Medal rank={entry.rank} /></td>
-                    <td className="px-1 py-0.5">
+                    <td className="pl-1 pr-0.5 py-0.5">
                       <span className={isCurrentUser ? "text-amber-800" : "text-slate-800"}>
                         {entry.name}
                         {isCurrentUser && <span className="ml-0.5 text-amber-600">(you)</span>}
                       </span>
                     </td>
-                    <td className="px-1 py-0.5 text-slate-600 truncate max-w-16 w-16">{entry.territory || "—"}</td>
+                    <td className="pl-0.5 pr-1 py-0.5 text-slate-600 truncate max-w-16 w-16">{entry.territory || "—"}</td>
                     <td className="px-1.5 py-0.5 text-right tabular-nums text-slate-700">{formatScore(entry.dsoScore)}</td>
                     <td className="px-1.5 py-0.5 text-right tabular-nums text-slate-700">{formatScore(entry.osScore)}</td>
                     <td className="px-1.5 py-0.5 text-right tabular-nums text-slate-700">{formatScore(entry.productMixScore)}</td>
