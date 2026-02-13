@@ -26,12 +26,12 @@ Scores are per person (TM, RM, ZM, BU). The app is opened from a **WhatsApp bot 
 - **URL format (production):** `https://your-app.web.app?u={token}`  
   Use **`u`** (user token), not the raw mobile. When building the CTA link, the backend should **encrypt the mobile** (e.g. AES with a server-side secret) or issue an **opaque token** that maps to the user, and put that value in `u`. The app passes `u` to the API; the API decrypts or looks up the token and returns that person’s scorecard. **Mobile never appears in the URL.**
 - **API contract:** `GET /api/scorecard?u={token}` → request has the encrypted/token value; backend decrypts or resolves token to user, then returns one `ScorecardData` object. Response JSON includes `mobile` (and all score fields) for display only; the client does not decrypt.
-- **Demo tokens:** For testing without a backend, use `?u=d_tm`, `?u=d_rm`, `?u=d_zm`, or `?u=d_bu` to load the corresponding sample scorecard. No mobile in the URL.
+- **API only:** The app works only via the KPI API. Use `?mobile=...&role=TM|RM|ZM|BU`.
 - **Local/demo only:** Plain `?mobile=9876510001` is still supported for local testing; in production use only `?u=`.
 - **No param:** With no `u` or `mobile`, the app shows the role dropdown (demo mode).
 
 - **Types:** `src/types/scorecard.ts`
-- **Sample data:** `src/data/sampleScorecard.ts`
+- **API:** `https://kw-sales-score-api-366769154420.asia-south1.run.app` (via proxy)
 - **JSON schema:** See `docs/SCORECARD_JSON.md` for full API contract and all configuration blocks.
 - Replace with API response in production; shape must match `ScorecardData`.
 

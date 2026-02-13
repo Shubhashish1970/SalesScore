@@ -87,16 +87,18 @@ export function GrowthCheck({ data }: Props) {
         </span>
         <GrowthArrow band={band} direction={direction} />
       </div>
-      {data.growthComment?.trim() ? (
-        <div className={`rounded-xl p-4 flex items-start gap-2 border ${commentaryStyle}`}>
-          <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
-          <p className="font-medium flex-1">{data.growthComment.trim()}</p>
-        </div>
-      ) : data.commentaryLoading ? (
-        <div className={`rounded-xl p-4 flex items-center gap-2 border min-h-[3rem] ${commentaryStyle}`}>
-          <CommentaryLoading />
-        </div>
-      ) : null}
+      <div className="mt-auto pt-8">
+        {data.growthComment?.trim() ? (
+          <div className={`rounded-xl p-4 flex items-start gap-2 border ${commentaryStyle}`}>
+            <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
+            <p className="font-medium flex-1">{data.growthComment.trim()}</p>
+          </div>
+        ) : data.commentaryLoading ? (
+          <div className={`rounded-xl p-4 flex items-center gap-2 border min-h-[3rem] ${commentaryStyle}`}>
+            <CommentaryLoading />
+          </div>
+        ) : null}
+      </div>
     </section>
   );
 }

@@ -99,6 +99,6 @@ Populated by the Gemini API (not by the scorecard API):
 
 All types live in `src/types/scorecard.ts`. **Config** (bands, thresholds, weights) is in `src/lib/app-config.ts` and is editable via the Admin Settings screen at `?mobile=1234567890`.
 
-## Sample data
+## API
 
-See `src/data/sampleScorecard.ts` for complete examples. Config is not part of the JSON.
+The app fetches scorecard data only from the KPI API (`https://kw-sales-score-api-366769154420.asia-south1.run.app` via same-origin proxy). No sample or fallback data.

@@ -1,31 +1,33 @@
 "use client";
 
 /**
- * Humorous break screen when scorecard/KPI fetch fails.
- * No sample fallback — friendly message and retry option.
+ * Break screen when scorecard/KPI fetch fails or no valid link.
  */
 interface Props {
   onRetry?: () => void;
+  /** Optional custom message when no mobile in URL (e.g. "Open via link with ?mobile=...&role=TM". */
+  message?: string;
 }
 
-export function BreakScreen({ onRetry }: Props) {
+export function BreakScreen({ onRetry, message }: Props) {
   return (
     <section className="min-h-[80dvh] flex flex-col items-center justify-center px-6 py-12 text-center">
       <h2 className="text-2xl font-bold text-slate-800 mb-3">
-        We lost this page
+        {message ? "Link required" : "We lost this page"}
       </h2>
       <p className="text-slate-600 text-base leading-relaxed max-w-sm mb-8">
-        We searched high and low but couldn&apos;t find what you&apos;re looking for. 
-        Let&apos;s find a better place for you to go.
+        {message ?? "We searched high and low but couldn't find what you're looking for. Let's find a better place for you to go."}
       </p>
-      <button
-        type="button"
-        onClick={onRetry ?? (() => window.location.reload())}
-        className="px-6 py-3 rounded-lg bg-amber-600 text-white font-medium text-base hover:bg-amber-700 transition-colors"
-        aria-label="Try again"
-      >
-        Try again
-      </button>
+      {!message && (
+        <button
+          type="button"
+          onClick={onRetry ?? (() => window.location.reload())}
+          className="px-6 py-3 rounded-lg bg-amber-600 text-white font-medium text-base hover:bg-amber-700 transition-colors"
+          aria-label="Try again"
+        >
+          Try again
+        </button>
+      )}
       {/* Whimsical illustration: head-in-hole style */}
       <div className="mt-12 select-none" aria-hidden>
         <svg

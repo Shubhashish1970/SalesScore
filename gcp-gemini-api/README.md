@@ -37,7 +37,7 @@ The main app’s Firebase build sets `NEXT_PUBLIC_GEMINI_COMMENTARY_URL` to this
 cd gcp-gemini-api
 npm install
 # Run via Cloud Functions Framework or invoke with a test body:
-# curl -X POST -H "Content-Type: application/json" -d @../src/data/sampleScorecard.json https://us-central1-salesscore-c34f3.cloudfunctions.net/gemini-commentary
+# curl -X POST -H "Content-Type: application/json" -d '{"scorecard":{...},"config":{...}}' https://us-central1-salesscore-c34f3.cloudfunctions.net/gemini-commentary
 ```
 
 ## Env (on GCP)

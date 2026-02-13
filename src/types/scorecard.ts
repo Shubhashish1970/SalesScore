@@ -188,3 +188,27 @@ export interface ScorecardData {
   /** True while Gemini commentary is being fetched; used to show loading state in commentary boxes. */
   commentaryLoading?: boolean;
 }
+
+/** Minimal placeholder for initial state before API load. Never displayed to user. */
+export const EMPTY_SCORECARD: ScorecardData = {
+  mobile: "",
+  name: "",
+  role: "TM",
+  entityName: "",
+  growth: { CY_NRV: 0, LY_NRV: 0, growthPercent: 0, growthFactor: 0 },
+  dso: { dsoDays: 0, dsoScore: 0, dsoBand: "50-110", dsoFactor: 1 },
+  overdue: { notDue: 0, d1_110: 0, d111_180: 0, d181_270: 0, d271_365: 0, gt365: 0 },
+  productMix: {
+    categoryA: 0,
+    categoryB: 0,
+    categoryC: 0,
+    categoryD: 0,
+    categoryE: 0,
+    nrvFactor: 0,
+    productMixScore: 0,
+  },
+  finalScore: 0,
+  maxScore: 120,
+  achievementMessage: "",
+  recommendedActions: [],
+};

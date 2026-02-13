@@ -54,18 +54,18 @@ export function ScoreOverview({ data }: Props) {
           amberEnd={amberEnd}
         />
       </div>
-      {achievementLine ? (
-        <div
-          className={`rounded-xl p-4 flex items-start gap-2 border ${bandStyle}`}
-        >
-          <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
-          <p className="font-medium flex-1 text-base leading-relaxed">{achievementLine}</p>
-        </div>
-      ) : data.commentaryLoading ? (
-        <div className={`rounded-xl p-4 flex items-center gap-2 border ${bandStyle} min-h-[3rem]`}>
-          <CommentaryLoading />
-        </div>
-      ) : null}
+      <div className="mt-auto pt-8">
+        {achievementLine ? (
+          <div className={`rounded-xl p-4 flex items-start gap-2 border ${bandStyle}`}>
+            <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
+            <p className="font-medium flex-1 text-base leading-relaxed">{achievementLine}</p>
+          </div>
+        ) : data.commentaryLoading ? (
+          <div className={`rounded-xl p-4 flex items-center gap-2 border ${bandStyle} min-h-[3rem]`}>
+            <CommentaryLoading />
+          </div>
+        ) : null}
+      </div>
     </section>
   );
 }

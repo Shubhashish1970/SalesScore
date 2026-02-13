@@ -78,16 +78,18 @@ export function CollectionSpeed({ data }: Props) {
           </div>
         ))}
       </div>
-      {data.dsoComment?.trim() ? (
-        <div className={`rounded-xl p-4 flex items-start gap-2 border ${commentaryStyle}`}>
-          <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
-          <p className="text-sm flex-1">{data.dsoComment.trim()}</p>
-        </div>
-      ) : data.commentaryLoading ? (
-        <div className={`rounded-xl p-4 flex items-center gap-2 border min-h-[3rem] ${commentaryStyle}`}>
-          <CommentaryLoading />
-        </div>
-      ) : null}
+      <div className="mt-auto pt-8">
+        {data.dsoComment?.trim() ? (
+          <div className={`rounded-xl p-4 flex items-start gap-2 border ${commentaryStyle}`}>
+            <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
+            <p className="text-sm flex-1">{data.dsoComment.trim()}</p>
+          </div>
+        ) : data.commentaryLoading ? (
+          <div className={`rounded-xl p-4 flex items-center gap-2 border min-h-[3rem] ${commentaryStyle}`}>
+            <CommentaryLoading />
+          </div>
+        ) : null}
+      </div>
     </section>
   );
 }

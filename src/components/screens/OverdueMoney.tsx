@@ -61,7 +61,7 @@ export function OverdueMoney({ data }: Props) {
         Total money owed by customers. Late (overdue) amounts hurt your score.
       </p>
       {totalOutstandingStr != null && (
-        <div className="flex items-baseline gap-4 mb-3 flex-wrap">
+        <div className="flex items-baseline gap-4 mb-5 flex-wrap">
           <div className="flex flex-col min-w-[6rem]">
             <p className="text-2xl font-bold text-slate-900 tabular-nums">
               {totalOverdueAmount > 0 && totalOverdueStr ? totalOverdueStr : formatInr(0)}
@@ -76,13 +76,13 @@ export function OverdueMoney({ data }: Props) {
         </div>
       )}
       {penalties && (
-        <p className="text-xs text-slate-500 mb-1.5">
+        <p className="text-xs text-slate-500 mb-4">
           OD weightage = penalty % applied to money in that bucket (higher = worse for score).
         </p>
       )}
-      <div className="space-y-1.5 mb-3">
+      <div className="space-y-5 mb-5">
         {noPenaltyBuckets.length > 0 && (
-        <div className="rounded-lg border-2 border-emerald-400 bg-emerald-50/30 p-1.5 space-y-1">
+        <div className="rounded-lg border-2 border-emerald-400 bg-emerald-50/30 p-3 space-y-1">
           <p className="text-[10px] text-emerald-800 font-medium px-0.5 -mt-0.5">No penalty (on time / 1–110 days)</p>
           {noPenaltyBuckets.map(({ key, label }) => {
             const pct = total ? (overdue[key] / total) * 100 : 0;
@@ -120,7 +120,7 @@ export function OverdueMoney({ data }: Props) {
         </div>
         )}
         {penalizedBuckets.length > 0 && (
-        <div className="rounded-lg border-2 border-dashed border-amber-400 bg-amber-50/20 p-1.5 space-y-1 animate-overdue-dashed-glow">
+        <div className="rounded-lg border-2 border-dashed border-amber-400 bg-amber-50/20 p-3 space-y-1 animate-overdue-dashed-glow">
           <p className="text-[10px] text-amber-800 font-medium px-0.5 -mt-0.5">Penalized (111+ days)</p>
           {penalizedBuckets.map(({ key, label }) => {
             const pct = total ? (overdue[key] / total) * 100 : 0;
@@ -160,16 +160,18 @@ export function OverdueMoney({ data }: Props) {
         </div>
         )}
       </div>
-      {data.overdueComment?.trim() ? (
-        <div className={`rounded-xl p-3 flex items-start gap-2 mt-1 shrink-0 border ${commentaryStyle}`}>
-          <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
-          <p className="text-sm flex-1">{data.overdueComment.trim()}</p>
-        </div>
-      ) : data.commentaryLoading ? (
-        <div className={`rounded-xl p-3 flex items-center gap-2 mt-1 shrink-0 border min-h-[3rem] ${commentaryStyle}`}>
-          <CommentaryLoading />
-        </div>
-      ) : null}
+      <div className="mt-auto pt-8">
+        {data.overdueComment?.trim() ? (
+          <div className={`rounded-xl p-3 flex items-start gap-2 shrink-0 border ${commentaryStyle}`}>
+            <GeminiCommentaryBadge show={Boolean(data.commentaryFromGemini)} className="mt-0.5" />
+            <p className="text-sm flex-1">{data.overdueComment.trim()}</p>
+          </div>
+        ) : data.commentaryLoading ? (
+          <div className={`rounded-xl p-3 flex items-center gap-2 shrink-0 border min-h-[3rem] ${commentaryStyle}`}>
+            <CommentaryLoading />
+          </div>
+        ) : null}
+      </div>
     </section>
   );
 }

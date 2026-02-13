@@ -1,16 +1,8 @@
 "use client";
 
 import { useSwipe } from "@/hooks/useSwipe";
-import {
-  defaultScorecard,
-  scorecardByMobile,
-  scorecardByToken,
-  sampleTM,
-  sampleRM,
-  sampleZM,
-  sampleBU,
-} from "@/data/sampleScorecard";
 import type { ScorecardData } from "@/types/scorecard";
+import { EMPTY_SCORECARD } from "@/types/scorecard";
 import type { GeminiCommentaryOutput } from "@/gemini";
 import { mergeCommentaryIntoScorecard } from "@/gemini";
 import { BreakScreen } from "@/components/screens/BreakScreen";
@@ -35,35 +27,23 @@ const SCREENS = [
   WhatToDoNext,
 ] as const;
 
-const ROLE_DATA: Record<string, ScorecardData> = {
-  TM: sampleTM,
-  RM: sampleRM,
-  ZM: sampleZM,
-  BU: sampleBU,
-};
-
 const ADMIN_MOBILE = process.env.NEXT_PUBLIC_ADMIN_MOBILE ?? "1234567890";
 
 /**
- * Entry: WhatsApp CTA uses ?u=<token> (encrypted mobile or opaque token). Mobile never in URL.
- * Backend: when building the CTA link, encrypt mobile (or issue token) and set ?u= that value.
- * API: GET /api/scorecard?u={token} decrypts/resolves to user, returns ScorecardData.
- * Demo: ?u=d_tm|d_rm|d_zm|d_bu or ?mobile= (plain, local only). No param = role dropdown.
+ * Entry: App works only via KPI API. Use ?mobile=...&role=TM|RM|ZM|BU.
+ * API: https://kw-sales-score-api-366769154420.asia-south1.run.app (via same-origin proxy).
  */
 function HomeContent() {
   const searchParams = useSearchParams();
-  const userToken = searchParams.get("u");
   const mobileFromUrl = searchParams.get("mobile");
   const roleFromUrl = searchParams.get("role");
-  const [data, setData] = useState<ScorecardData>(defaultScorecard);
+  const [data, setData] = useState<ScorecardData>(EMPTY_SCORECARD);
   const [fetchError, setFetchError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
   const { currentIndex, setCurrentIndex, goNext, goPrev, onTouchStart, onTouchEnd } = useSwipe(0);
 
   const isAdminMode = mobileFromUrl === ADMIN_MOBILE;
-  const isPersonalLink = Boolean(userToken || mobileFromUrl);
-  const isDemoMode = !isPersonalLink && !isAdminMode;
 
   if (isAdminMode) {
     return (
@@ -141,73 +121,43 @@ function HomeContent() {
       });
     };
 
-    if (isDemoMode) {
-      setData(defaultScorecard);
-      setFetchError(false);
+    if (!mobileFromUrl || !isKpiApiConfigured()) {
+      setFetchError(true);
       setLoading(false);
-      return;
+      return () => { cancelled = true; };
     }
 
-    if (userToken) {
-      const scorecard = scorecardByToken[userToken];
-      if (scorecard) {
+    const role = (roleFromUrl === "TM" || roleFromUrl === "RM" || roleFromUrl === "ZM" || roleFromUrl === "BU"
+      ? roleFromUrl
+      : "TM") as ScorecardData["role"];
+
+    setLoading(true);
+    fetchScorecard(mobileFromUrl, role)
+      .then((scorecard) => {
+        if (cancelled) return;
         setData(scorecard);
         setFetchError(false);
         setLoading(false);
         runCommentary(scorecard);
-      } else {
+      })
+      .catch(() => {
+        if (cancelled) return;
         setFetchError(true);
         setLoading(false);
-      }
-      return () => { cancelled = true; };
-    }
-
-    if (mobileFromUrl) {
-      const role = (roleFromUrl === "TM" || roleFromUrl === "RM" || roleFromUrl === "ZM" || roleFromUrl === "BU"
-        ? roleFromUrl
-        : "TM") as ScorecardData["role"];
-
-      if (isKpiApiConfigured()) {
-        setLoading(true);
-        fetchScorecard(mobileFromUrl, role)
-          .then((scorecard) => {
-            if (cancelled) return;
-            setData(scorecard);
-            setFetchError(false);
-            setLoading(false);
-            runCommentary(scorecard);
-          })
-          .catch(() => {
-            if (cancelled) return;
-            setFetchError(true);
-            setLoading(false);
-          });
-      } else {
-        const scorecard = scorecardByMobile[mobileFromUrl];
-        if (scorecard) {
-          setData(scorecard);
-          setFetchError(false);
-          runCommentary(scorecard);
-        } else {
-          setFetchError(true);
-        }
-        setLoading(false);
-      }
-      return () => { cancelled = true; };
-    }
-
-    setData(defaultScorecard);
-    setFetchError(false);
-    setLoading(false);
+      });
     return () => { cancelled = true; };
-  }, [userToken, mobileFromUrl, roleFromUrl, isDemoMode, setCurrentIndex, retryKey]);
+  }, [mobileFromUrl, roleFromUrl, setCurrentIndex, retryKey]);
 
   const Screen = SCREENS[currentIndex];
 
   if (fetchError) {
+    const noLink = !mobileFromUrl;
     return (
       <main className="h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
-        <BreakScreen onRetry={retryLoad} />
+        <BreakScreen
+          onRetry={noLink ? undefined : retryLoad}
+          message={noLink ? "Open this app via your personalized link (e.g. ?mobile=...&role=TM)." : undefined}
+        />
       </main>
     );
   }
@@ -229,29 +179,9 @@ function HomeContent() {
   return (
     <main className="h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white shadow-sm overflow-hidden">
       <header className="shrink-0 bg-white border-b border-slate-200 px-3 py-2 flex items-center justify-between">
-        {isDemoMode ? (
-          <>
-            <span className="text-slate-500 text-sm">Scorecard</span>
-            <select
-              className="text-sm border border-slate-300 rounded px-2 py-1 text-slate-700"
-              value={data.role}
-              onChange={(e) => {
-                const next = ROLE_DATA[e.target.value];
-                if (next) setData(next);
-              }}
-              aria-label="Select role"
-            >
-              <option value="TM">TM</option>
-              <option value="RM">RM</option>
-              <option value="ZM">ZM</option>
-              <option value="BU">BU</option>
-            </select>
-          </>
-        ) : (
-          <span className="text-slate-700 text-sm font-medium" aria-label="Welcome">
-            Welcome, {data.name}
-          </span>
-        )}
+        <span className="text-slate-700 text-sm font-medium" aria-label="Welcome">
+          Welcome, {data.name}
+        </span>
       </header>
 
       <div
