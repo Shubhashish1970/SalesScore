@@ -21,12 +21,20 @@ function formatScore(n: number): string {
   return Number(n).toFixed(1);
 }
 
+function formatDate(): string {
+  const d = new Date();
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = d.toLocaleString("en", { month: "short" });
+  const year = String(d.getFullYear()).slice(-2);
+  return `${day}-${month}-${year}`;
+}
+
 function Medal({ rank }: { rank: number }) {
   if (rank === 1) return <span className="text-base" aria-hidden>🥇</span>;
   if (rank === 2) return <span className="text-base" aria-hidden>🥈</span>;
   if (rank === 3) return <span className="text-base" aria-hidden>🥉</span>;
   return (
-    <span className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600 tabular-nums">
+    <span className="w-6 h-6 rounded-lg bg-violet-200 flex items-center justify-center text-[10px] font-bold text-violet-800 tabular-nums">
       {rank}
     </span>
   );
@@ -40,17 +48,25 @@ export function LeaderboardScreen({
   currentUserName,
 }: Props) {
   const title = getTitle(role);
+  const dateStr = formatDate();
 
   return (
-    <section className="min-h-[80dvh] flex flex-col px-5 pt-6 pb-4 overflow-hidden">
-      <h2 className="text-base font-semibold text-slate-800 mb-0.5 pr-10">{title}</h2>
-      <p className="text-[#2f41a7] text-[10px] mt-0 mb-3 pr-12">
-        Rank by total score. DSO, OS, and Product Mix contribute to the total.
-      </p>
+    <section className="min-h-[80dvh] flex flex-col px-4 pt-4 pb-6 overflow-hidden">
+      <div className="rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 px-4 py-3 mb-4 shadow-lg">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold text-white">{title}</h2>
+          <span className="text-violet-200 text-xs font-medium tabular-nums" aria-label={`Date: ${dateStr}`}>
+            {dateStr}
+          </span>
+        </div>
+        <p className="text-violet-200/90 text-[10px] mt-1">
+          Rank by total score. DSO, OS, and Product Mix contribute to the total.
+        </p>
+      </div>
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12 gap-3">
-          <div className="w-10 h-10 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" aria-hidden />
+          <div className="w-10 h-10 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" aria-hidden />
           <p className="text-slate-500 text-[10px]">Loading leaderboard…</p>
         </div>
       ) : error ? (
@@ -62,17 +78,17 @@ export function LeaderboardScreen({
           <p className="text-slate-500 text-[10px]">No leaderboard data yet.</p>
         </div>
       ) : (
-        <div className="flex-1 min-h-0 overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-y-auto rounded-xl border border-violet-200 bg-white shadow-sm">
           <table className="w-full table-fixed text-[9px] leading-tight">
-            <thead>
-              <tr className="bg-slate-100 text-slate-600 text-left">
-                <th className="px-1 py-1 font-medium w-6">#</th>
-                <th className="pl-1 pr-0.5 py-1 font-medium">Name</th>
-                <th className="pl-0.5 pr-1 py-1 font-medium w-16 max-w-16">Territory</th>
-                <th className="px-1 py-1 font-medium text-right tabular-nums w-9">DSO</th>
-                <th className="px-1 py-1 font-medium text-right tabular-nums w-9">OS</th>
-                <th className="px-1 py-1 font-medium text-right tabular-nums w-9">Mix</th>
-                <th className="px-1 py-1 font-medium text-right tabular-nums w-11">Total</th>
+            <thead className="sticky top-0 z-10 bg-gradient-to-r from-violet-100 to-purple-100">
+              <tr className="text-violet-800 text-left">
+                <th className="px-2 py-2 font-semibold w-10">#</th>
+                <th className="pl-2 pr-1 py-2 font-semibold">Name</th>
+                <th className="pl-1 pr-2 py-2 font-semibold w-16">Territory</th>
+                <th className="px-2 py-2 font-semibold text-right tabular-nums w-10">DSO</th>
+                <th className="px-2 py-2 font-semibold text-right tabular-nums w-10">OS</th>
+                <th className="px-2 py-2 font-semibold text-right tabular-nums w-10">Mix</th>
+                <th className="px-2 py-2 font-semibold text-right tabular-nums w-12">Total</th>
               </tr>
             </thead>
             <tbody>
@@ -83,20 +99,26 @@ export function LeaderboardScreen({
                 return (
                   <tr
                     key={entry.rank}
-                    className={`border-b border-slate-100 ${isCurrentUser ? "bg-amber-50" : "bg-white"} ${i < 3 ? "font-medium" : ""}`}
+                    className={`border-b border-violet-100/60 ${
+                      isCurrentUser
+                        ? "bg-amber-100/80"
+                        : i % 2 === 0
+                          ? "bg-white"
+                          : "bg-violet-50/40"
+                    } ${i < 3 ? "font-medium" : ""}`}
                   >
-                    <td className="px-1.5 py-0.5"><Medal rank={entry.rank} /></td>
-                    <td className="pl-1 pr-0.5 py-0.5">
-                      <span className={isCurrentUser ? "text-amber-800" : "text-slate-800"}>
+                    <td className="px-2 py-1.5"><Medal rank={entry.rank} /></td>
+                    <td className="pl-2 pr-1 py-1.5">
+                      <span className={isCurrentUser ? "text-amber-900 font-semibold" : "text-slate-800"}>
                         {entry.name}
-                        {isCurrentUser && <span className="ml-0.5 text-amber-600">(you)</span>}
+                        {isCurrentUser && <span className="ml-0.5 text-amber-700 text-[8px]">(you)</span>}
                       </span>
                     </td>
-                    <td className="pl-0.5 pr-1 py-0.5 text-slate-600 truncate max-w-16 w-16">{entry.territory || "—"}</td>
-                    <td className="px-1.5 py-0.5 text-right tabular-nums text-slate-700">{formatScore(entry.dsoScore)}</td>
-                    <td className="px-1.5 py-0.5 text-right tabular-nums text-slate-700">{formatScore(entry.osScore)}</td>
-                    <td className="px-1.5 py-0.5 text-right tabular-nums text-slate-700">{formatScore(entry.productMixScore)}</td>
-                    <td className="px-1.5 py-0.5 text-right tabular-nums font-semibold text-slate-900">{formatScore(entry.totalScore)}</td>
+                    <td className="pl-1 pr-2 py-1.5 text-slate-600 truncate max-w-16">{entry.territory || "—"}</td>
+                    <td className="px-2 py-1.5 text-right tabular-nums text-slate-700">{formatScore(entry.dsoScore)}</td>
+                    <td className="px-2 py-1.5 text-right tabular-nums text-slate-700">{formatScore(entry.osScore)}</td>
+                    <td className="px-2 py-1.5 text-right tabular-nums text-slate-700">{formatScore(entry.productMixScore)}</td>
+                    <td className="px-2 py-1.5 text-right tabular-nums font-bold text-violet-800">{formatScore(entry.totalScore)}</td>
                   </tr>
                 );
               })}
