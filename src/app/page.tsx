@@ -17,7 +17,7 @@ import { useSearchParams } from "next/navigation";
 import { fetchScorecard, isKpiApiConfigured } from "@/lib/kpi-api";
 import { getAppConfig, loadConfigFromStorage } from "@/lib/app-config";
 import { AdminSettingsScreen } from "@/components/admin/AdminSettingsScreen";
-import { LeaderboardModal } from "@/components/LeaderboardModal";
+import { LeaderboardScreen } from "@/components/screens/LeaderboardScreen";
 import { fetchLeaderboard } from "@/lib/leaderboard-api";
 import type { LeaderboardEntry } from "@/types/leaderboard";
 
@@ -228,43 +228,59 @@ function HomeContent() {
         )}
       </header>
 
-      <LeaderboardModal
-        isOpen={leaderboardOpen}
-        onClose={() => setLeaderboardOpen(false)}
-        entries={leaderboardEntries}
-        role={data.role}
-        loading={leaderboardLoading}
-        error={leaderboardError}
-        currentUserName={data.name}
-      />
-
       <div
-        className="swipe-container flex-1 min-h-0 overflow-auto"
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
+        className={`swipe-container flex-1 min-h-0 ${leaderboardOpen ? "overflow-hidden" : "overflow-auto"}`}
+        onTouchStart={leaderboardOpen ? undefined : onTouchStart}
+        onTouchEnd={leaderboardOpen ? undefined : onTouchEnd}
       >
-        <Screen data={data} />
+        {leaderboardOpen ? (
+          <LeaderboardScreen
+            entries={leaderboardEntries}
+            role={data.role}
+            loading={leaderboardLoading}
+            error={leaderboardError}
+            currentUserName={data.name}
+          />
+        ) : (
+          <Screen data={data} />
+        )}
       </div>
 
       <footer className="shrink-0 bg-white border-t border-slate-200 px-4 py-3 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={goPrev}
-          disabled={currentIndex === 0}
-          className="text-amber-700 text-sm font-medium py-1 px-3 disabled:opacity-40 disabled:cursor-default"
-          aria-label="Previous"
-        >
-          ← Previous
-        </button>
-        <button
-          type="button"
-          onClick={goNext}
-          disabled={currentIndex === SCREENS.length - 1}
-          className="text-amber-700 text-sm font-medium py-1 px-3 disabled:opacity-40 disabled:cursor-default"
-          aria-label="Next"
-        >
-          Next →
-        </button>
+        {leaderboardOpen ? (
+          <>
+            <button
+              type="button"
+              onClick={() => setLeaderboardOpen(false)}
+              className="text-amber-700 text-sm font-medium py-1 px-3"
+              aria-label="Back to Growth"
+            >
+              ← Back to Growth
+            </button>
+            <span />
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={goPrev}
+              disabled={currentIndex === 0}
+              className="text-amber-700 text-sm font-medium py-1 px-3 disabled:opacity-40 disabled:cursor-default"
+              aria-label="Previous"
+            >
+              ← Previous
+            </button>
+            <button
+              type="button"
+              onClick={goNext}
+              disabled={currentIndex === SCREENS.length - 1}
+              className="text-amber-700 text-sm font-medium py-1 px-3 disabled:opacity-40 disabled:cursor-default"
+              aria-label="Next"
+            >
+              Next →
+            </button>
+          </>
+        )}
       </footer>
     </main>
   );
