@@ -1,7 +1,15 @@
 "use client";
 
+import Image from "next/image";
 import type { Role } from "@/types/scorecard";
 import type { LeaderboardEntry } from "@/types/leaderboard";
+
+/** Brand colors: NACL Blue #034EA2, Support Blue #0071b9, Sun Yellow #ffab00 */
+const BRAND = {
+  primary: "#034EA2",
+  secondary: "#0071b9",
+  accent: "#ffab00",
+} as const;
 
 interface Props {
   entries: LeaderboardEntry[];
@@ -34,7 +42,10 @@ function Medal({ rank }: { rank: number }) {
   if (rank === 2) return <span className="text-base" aria-hidden>🥈</span>;
   if (rank === 3) return <span className="text-base" aria-hidden>🥉</span>;
   return (
-    <span className="w-6 h-6 rounded-lg bg-violet-200 flex items-center justify-center text-[10px] font-bold text-violet-800 tabular-nums">
+    <span
+      className="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold text-white tabular-nums"
+      style={{ backgroundColor: BRAND.secondary }}
+    >
       {rank}
     </span>
   );
@@ -52,21 +63,39 @@ export function LeaderboardScreen({
 
   return (
     <section className="min-h-[80dvh] flex flex-col px-4 pt-4 pb-6 overflow-hidden">
-      <div className="rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 px-4 py-3 mb-4 shadow-lg">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white">{title}</h2>
-          <span className="text-violet-200 text-xs font-medium tabular-nums" aria-label={`Date: ${dateStr}`}>
-            {dateStr}
-          </span>
+      <div
+        className="rounded-xl px-4 py-3 mb-4 shadow-lg flex items-start gap-3"
+        style={{ background: `linear-gradient(135deg, ${BRAND.primary} 0%, ${BRAND.secondary} 100%)` }}
+      >
+        <div className="shrink-0 mt-0.5 rounded-lg bg-white/95 p-1.5">
+          <Image
+            src="/nagarjuna-nacl-logo.png"
+            alt="Nagarjuna NACL"
+            width={44}
+            height={44}
+            className="object-contain"
+          />
         </div>
-        <p className="text-violet-200/90 text-[10px] mt-1">
-          Rank by total score. DSO, OS, and Product Mix contribute to the total.
-        </p>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-lg font-bold text-white">{title}</h2>
+            <span className="text-white/90 text-xs font-medium tabular-nums shrink-0" aria-label={`Date: ${dateStr}`}>
+              {dateStr}
+            </span>
+          </div>
+          <p className="text-white/85 text-[10px] mt-1">
+            Rank by total score. DSO, OS, and Product Mix contribute to the total.
+          </p>
+        </div>
       </div>
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12 gap-3">
-          <div className="w-10 h-10 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" aria-hidden />
+          <div
+            className="w-10 h-10 border-2 border-t-transparent rounded-full animate-spin"
+            style={{ borderColor: BRAND.primary, borderTopColor: "transparent" }}
+            aria-hidden
+          />
           <p className="text-slate-500 text-[10px]">Loading leaderboard…</p>
         </div>
       ) : error ? (
@@ -78,10 +107,13 @@ export function LeaderboardScreen({
           <p className="text-slate-500 text-[10px]">No leaderboard data yet.</p>
         </div>
       ) : (
-        <div className="flex-1 min-h-0 overflow-y-auto rounded-xl border border-violet-200 bg-white shadow-sm">
+        <div
+          className="flex-1 min-h-0 overflow-y-auto rounded-xl border bg-white shadow-sm"
+          style={{ borderColor: `${BRAND.primary}30` }}
+        >
           <table className="w-full table-fixed text-[9px] leading-tight">
-            <thead className="sticky top-0 z-10 bg-gradient-to-r from-violet-100 to-purple-100">
-              <tr className="text-violet-800 text-left">
+            <thead className="sticky top-0 z-10 text-left" style={{ backgroundColor: `${BRAND.primary}15` }}>
+              <tr style={{ color: BRAND.primary }}>
                 <th className="px-2 py-2 font-semibold w-10">#</th>
                 <th className="pl-2 pr-1 py-2 font-semibold">Name</th>
                 <th className="pl-1 pr-2 py-2 font-semibold w-16">Territory</th>
@@ -99,26 +131,27 @@ export function LeaderboardScreen({
                 return (
                   <tr
                     key={entry.rank}
-                    className={`border-b border-violet-100/60 ${
-                      isCurrentUser
-                        ? "bg-amber-100/80"
-                        : i % 2 === 0
-                          ? "bg-white"
-                          : "bg-violet-50/40"
-                    } ${i < 3 ? "font-medium" : ""}`}
+                    className={`border-b ${i < 3 ? "font-medium" : ""}`}
+                    style={{
+                      borderBottomColor: `${BRAND.primary}20`,
+                      backgroundColor: isCurrentUser ? `${BRAND.accent}25` : i % 2 === 0 ? "#fff" : `${BRAND.primary}08`,
+                    }}
                   >
                     <td className="px-2 py-1.5"><Medal rank={entry.rank} /></td>
                     <td className="pl-2 pr-1 py-1.5">
-                      <span className={isCurrentUser ? "text-amber-900 font-semibold" : "text-slate-800"}>
+                      <span
+                        className={isCurrentUser ? "font-semibold" : "text-slate-800"}
+                        style={isCurrentUser ? { color: BRAND.primary } : {}}
+                      >
                         {entry.name}
-                        {isCurrentUser && <span className="ml-0.5 text-amber-700 text-[8px]">(you)</span>}
+                        {isCurrentUser && <span className="ml-0.5 text-[8px]" style={{ color: BRAND.primary }}>(you)</span>}
                       </span>
                     </td>
                     <td className="pl-1 pr-2 py-1.5 text-slate-600 truncate max-w-16">{entry.territory || "—"}</td>
                     <td className="px-2 py-1.5 text-right tabular-nums text-slate-700">{formatScore(entry.dsoScore)}</td>
                     <td className="px-2 py-1.5 text-right tabular-nums text-slate-700">{formatScore(entry.osScore)}</td>
                     <td className="px-2 py-1.5 text-right tabular-nums text-slate-700">{formatScore(entry.productMixScore)}</td>
-                    <td className="px-2 py-1.5 text-right tabular-nums font-bold text-violet-800">{formatScore(entry.totalScore)}</td>
+                    <td className="px-2 py-1.5 text-right tabular-nums font-bold" style={{ color: BRAND.primary }}>{formatScore(entry.totalScore)}</td>
                   </tr>
                 );
               })}
