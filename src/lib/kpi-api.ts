@@ -17,6 +17,10 @@ const ROLE_MAP: Record<string, Role> = {
   "Regional Manager": "RM",
   "Zonal Manager": "ZM",
   "BU Head": "BU",
+  TM: "TM",
+  RM: "RM",
+  ZM: "ZM",
+  BU: "BU",
 };
 
 const VALID_DSO_BANDS = ["<50", "50-110", "110-170", ">170"] as const;
@@ -59,7 +63,7 @@ function transformApiResponse(raw: unknown): ScorecardData {
 
   const productMix = (obj.productMix as Record<string, unknown>) ?? {};
   const productMixWeight = getAppConfig().kpiWeights.productMix || 34;
-  const apiProductMixScore = productMix.productMixScore;
+  const apiProductMixScore = obj.productMixScore ?? productMix.productMixScore;
   const hasProductMixScore = apiProductMixScore != null && apiProductMixScore !== "";
   const productMixScore = hasProductMixScore
     ? Number(apiProductMixScore)

@@ -71,7 +71,7 @@ The KPI Data API and scorecard API return a `ScorecardData` object. **Configurat
 ```
 
 - **categoryA**–**categoryE**: Share (percentage) of sales in each category.
-- **productMixScore** (preferred): Product mix score (0–34) for the badge. When not sent, computed as `nrvFactor × Product Mix KPI Weight` (34).
+- **productMixScore** (preferred): Product mix score (0–34) for the badge. API may send at scorecard level or inside productMix. When absent, computed as `nrvFactor × Product Mix KPI Weight` (34).
 - **nrvFactor**: Factor from API. Used to compute productMixScore when productMixScore is absent.
 - **category*Nrv** (optional): NRV per category in rupees; shown inside bars when present.
 
