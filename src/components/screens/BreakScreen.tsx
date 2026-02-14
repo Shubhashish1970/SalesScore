@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+
 /**
  * Break screen when scorecard/KPI fetch fails or no valid link.
  */
@@ -9,14 +11,35 @@ interface Props {
   message?: string;
 }
 
+const FETCH_ERROR_MESSAGES = [
+  "We searched high and low but couldn't find what you're looking for. The scorecard elves must be on a coffee break!",
+  "Oops! Our data gremlins ran off with your scorecard. Give it another shot?",
+  "Something went sideways — our servers are doing the cha-cha. Try again in a moment!",
+  "We lost this page in the Bermuda Triangle of the internet. Fancy a retry?",
+  "The scorecard took a wrong turn at Albuquerque. Let's try that again!",
+];
+
+const NO_LINK_TITLES = [
+  "Psst! Your magic link is hiding",
+  "We need your backstage pass",
+  "Link required — and we mean the digital kind!",
+];
+
+function pickRandom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
 export function BreakScreen({ onRetry, message }: Props) {
+  const humorousTitle = useMemo(() => (message ? pickRandom(NO_LINK_TITLES) : null), [message]);
+  const humorousBody = useMemo(() => (!message ? pickRandom(FETCH_ERROR_MESSAGES) : null), [message]);
+
   return (
     <section className="min-h-[80dvh] flex flex-col items-center justify-center px-6 py-12 text-center">
       <h2 className="text-2xl font-bold text-slate-800 mb-3">
-        {message ? "Link required" : "We lost this page"}
+        {message ? (humorousTitle ?? "Link required") : "We lost this page"}
       </h2>
       <p className="text-slate-600 text-base leading-relaxed max-w-sm mb-8">
-        {message ?? "We searched high and low but couldn't find what you're looking for. Let's find a better place for you to go."}
+        {message ?? (humorousBody ?? "We searched high and low but couldn't find what you're looking for. Let's find a better place for you to go.")}
       </p>
       {!message && (
         <button
