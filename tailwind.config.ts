@@ -21,6 +21,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-montserrat)", "system-ui", "sans-serif"],
+      },
       // Mobile-first: min widths for breakpoints; 360px is baseline
       screens: {
         xs: "360px",

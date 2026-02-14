@@ -1,5 +1,12 @@
 import type { Metadata, Viewport } from "next";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-montserrat",
+});
 
 const faviconSvg =
   "data:image/svg+xml," +
@@ -26,8 +33,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased bg-slate-50 text-slate-900 min-h-screen">
+    <html lang="en" className={montserrat.variable}>
+      <body className={`${montserrat.className} antialiased bg-slate-50 text-slate-900 min-h-screen`}>
         {children}
       </body>
     </html>
