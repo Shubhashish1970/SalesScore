@@ -171,7 +171,7 @@ export function LeaderboardScreen({
         <div
           className="relative flex flex-col items-center justify-center min-h-[140px] px-4 py-3 pb-2 bg-cover bg-center"
           style={{
-            backgroundImage: "url(/hall-of-fame-banner.png)",
+            backgroundImage: "url(/hall-of-fame-banner.png?v=2)",
           }}
         >
           {/* Gradient overlay for text legibility */}
