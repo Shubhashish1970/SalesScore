@@ -43,8 +43,16 @@ export function ScoreOverview({ data, isInLeaderboard }: Props) {
   const amberEnd = scoreBandThresholds.amberEnd;
   const achievementLine = data.achievementMessage?.trim();
   const bandStyle = getBandStyle(data.finalScore, redEnd, amberEnd);
+  const storageKey = `hall-of-fame-congrats-seen-${data.mobile ?? "unknown"}`;
   const [showCongrats, setShowCongrats] = useState(false);
-  const [congratsDismissed, setCongratsDismissed] = useState(false);
+  const [congratsDismissed, setCongratsDismissed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return localStorage.getItem(storageKey) === "1";
+    } catch {
+      return false;
+    }
+  });
 
   useEffect(() => {
     if (isInLeaderboard && !congratsDismissed) {
@@ -52,15 +60,22 @@ export function ScoreOverview({ data, isInLeaderboard }: Props) {
     }
   }, [isInLeaderboard, congratsDismissed]);
 
+  const dismissCongrats = () => {
+    setShowCongrats(false);
+    setCongratsDismissed(true);
+    try {
+      localStorage.setItem(storageKey, "1");
+    } catch {
+      /* ignore */
+    }
+  };
+
   return (
     <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6 relative">
       {showCongrats && isInLeaderboard && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-congrats-enter"
-          onClick={() => {
-            setShowCongrats(false);
-            setCongratsDismissed(true);
-          }}
+          onClick={dismissCongrats}
         >
           <div
             className="bg-white rounded-2xl p-6 max-w-sm shadow-xl text-center"
@@ -73,10 +88,7 @@ export function ScoreOverview({ data, isInLeaderboard }: Props) {
             </p>
             <button
               type="button"
-              onClick={() => {
-                setShowCongrats(false);
-                setCongratsDismissed(true);
-              }}
+              onClick={dismissCongrats}
               className="w-full py-3 rounded-xl font-medium text-white"
               style={{ backgroundColor: "#034EA2" }}
             >
