@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import Image from "next/image";
 import html2canvas from "html2canvas";
 import confetti from "canvas-confetti";
 import type { Role } from "@/types/scorecard";
@@ -181,10 +182,22 @@ export function LeaderboardScreen({
               background: `linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 25%, rgba(3,78,162,0.25) 50%, rgba(0,113,185,0.45) 100%)`,
             }}
           />
-          <div className="absolute top-3 left-4 z-10">
-            <span className="text-white text-xs font-medium tabular-nums drop-shadow-md">{dateStr}</span>
+          {/* Welcome + Logo at top (like reference) */}
+          <div className="absolute top-3 left-4 z-10 flex items-center gap-2">
+            <Image
+              src="/nagarjuna-nacl-logo.png"
+              alt="Nagarjuna NACL"
+              width={28}
+              height={28}
+              className="object-contain"
+              unoptimized
+            />
+            <span className="text-white text-sm font-medium drop-shadow-md">
+              Welcome, {currentUserName || "User"}
+            </span>
           </div>
           <div className="absolute top-3 right-4 z-10 flex items-center gap-2">
+            <span className="text-white/90 text-xs tabular-nums drop-shadow-md">{dateStr}</span>
             {!loading && !error && entries.length > 0 && (
               <button
                 type="button"
@@ -201,17 +214,25 @@ export function LeaderboardScreen({
               </button>
             )}
           </div>
-          {/* Hall of Fame pill on whitespace (left), bridging into content */}
-          <div className="relative z-10 flex flex-col items-start -mb-6 mt-10 ml-1">
-            <div className="bg-white/95 rounded-full px-4 py-2 shadow-lg flex items-center gap-2 border border-slate-200/50">
+          {/* Hall of Fame + Logo + Trophy pill at bottom-left corner */}
+          <div className="absolute bottom-2 left-4 z-10 flex flex-col items-start">
+            <div className="bg-white/95 rounded-full px-3 py-1.5 shadow-lg flex items-center gap-2 border border-slate-200/50">
+              <Image
+                src="/nagarjuna-nacl-logo.png"
+                alt="Nagarjuna NACL"
+                width={24}
+                height={24}
+                className="object-contain"
+                unoptimized
+              />
               <span style={{ color: BRAND.accent }}>
-                <TrophyIcon className="w-[1.2rem] h-[1.2rem]" />
+                <TrophyIcon className="w-[1rem] h-[1rem]" />
               </span>
-              <h2 className="text-base font-bold" style={{ color: BRAND.primary }}>
+              <h2 className="text-sm font-bold" style={{ color: BRAND.primary }}>
                 Hall of Fame
               </h2>
             </div>
-            <p className="text-slate-700 text-[10px] mt-2 drop-shadow-sm">
+            <p className="text-white text-[9px] mt-1 drop-shadow-md">
               Rank by total score. DSO, OS, and Product Mix contribute to the total.
             </p>
           </div>
@@ -238,10 +259,10 @@ export function LeaderboardScreen({
         </div>
       ) : (
         <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
-          <div className="px-3 py-1 grid grid-cols-[auto_minmax(0,130px)_auto_auto_auto_auto] gap-x-2 gap-y-0 text-[9px] font-semibold text-slate-500 border-b border-slate-200 bg-slate-50/80 shrink-0">
+          <div className="px-3 py-1 grid grid-cols-[auto_minmax(0,1fr)_auto_auto_auto_auto] gap-x-1 gap-y-0 text-[9px] font-semibold text-slate-500 border-b border-slate-200 bg-slate-50/80 shrink-0">
             <span className="w-5" />
             <span>{getRoleLabel(role)}</span>
-            <span className="text-right tabular-nums w-8 ml-3">DSO</span>
+            <span className="text-right tabular-nums w-8 ml-5">DSO</span>
             <span className="text-right tabular-nums w-8">OS</span>
             <span className="text-right tabular-nums w-8">Mix</span>
             <span className="text-right tabular-nums w-10 font-bold" style={{ color: BRAND.primary }}>Total</span>
@@ -254,19 +275,19 @@ export function LeaderboardScreen({
               return (
                 <div
                   key={entry.rank}
-                  className={`grid grid-cols-[auto_minmax(0,130px)_auto_auto_auto_auto] gap-x-2 px-3 py-1.5 items-center border-b border-slate-100 ${
+                  className={`grid grid-cols-[auto_minmax(0,1fr)_auto_auto_auto_auto] gap-x-1 px-3 py-1.5 items-center border-b border-slate-100 ${
                     isCurrentUser ? "bg-amber-50/80" : i % 2 === 0 ? "bg-white" : "bg-slate-50/50"
                   } flex-1 min-h-0`}
                 >
                   <Medal rank={entry.rank} />
                   <div className="min-w-0 overflow-hidden">
-                    <p className={`text-[9px] truncate leading-tight ${isCurrentUser ? "font-medium" : ""}`} style={isCurrentUser ? { color: BRAND.primary } : { color: "#334155" }}>
+                    <p className={`text-[9px] leading-tight break-words ${isCurrentUser ? "font-medium" : ""}`} style={isCurrentUser ? { color: BRAND.primary } : { color: "#334155" }}>
                       {entry.name}
                       {isCurrentUser && <span className="ml-0.5 text-[8px]" style={{ color: BRAND.primary }}>(you)</span>}
                     </p>
-                    <p className="text-slate-500 text-[8px] truncate leading-tight">{entry.territory || "—"}</p>
+                    <p className="text-slate-500 text-[8px] leading-tight break-words">{entry.territory || "—"}</p>
                   </div>
-                  <span className="text-slate-700 tabular-nums w-8 text-right text-[9px] ml-3">{formatScore(entry.dsoScore)}</span>
+                  <span className="text-slate-700 tabular-nums w-8 text-right text-[9px] ml-5">{formatScore(entry.dsoScore)}</span>
                   <span className="text-slate-700 tabular-nums w-8 text-right text-[9px]">{formatScore(entry.osScore)}</span>
                   <span className="text-slate-700 tabular-nums w-8 text-right text-[9px]">{formatScore(entry.productMixScore)}</span>
                   <span className="font-bold tabular-nums w-10 text-right text-[9px]" style={{ color: BRAND.primary }}>{formatScore(entry.totalScore)}</span>
