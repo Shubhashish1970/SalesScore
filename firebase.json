@@ -3,6 +3,7 @@
     "site": "salesscore-c34f3",
     "public": "out",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "cleanUrls": true,
     "rewrites": [
       {
         "source": "/api/scorecard",
@@ -15,6 +16,10 @@
       {
         "source": "/api/admin/request-link",
         "function": { "functionId": "requestAdminLink", "region": "asia-south1" }
+      },
+      {
+        "source": "/admin/request",
+        "destination": "/admin/request.html"
       }
     ]
   }
