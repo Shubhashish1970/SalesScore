@@ -175,25 +175,18 @@ export function LeaderboardScreen({
             backgroundPosition: "right top",
           }}
         >
-          {/* White top to match header, then gradient */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background: `linear-gradient(180deg, #ffffff 0%, #ffffff 40px, transparent 80px), linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 30%, rgba(3,78,162,0.2) 60%, rgba(0,113,185,0.4) 100%)`,
-            }}
-          />
           <div className="absolute top-3 right-4 z-10 flex items-center gap-2">
-            <span className="text-slate-600 text-xs font-medium tabular-nums">{dateStr}</span>
+            <span className="text-white/90 text-xs font-medium tabular-nums drop-shadow-md">{dateStr}</span>
             {!loading && !error && entries.length > 0 && (
               <button
                 type="button"
                 onClick={handleShareClick}
                 disabled={sharePreparing}
-                className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors disabled:opacity-50"
+                className="p-1.5 rounded-lg bg-white/30 hover:bg-white/40 text-white transition-colors disabled:opacity-50 drop-shadow-md"
                 aria-label="Share"
               >
                 {sharePreparing ? (
-                  <span className="w-4 h-4 block border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" aria-hidden />
+                  <span className="w-4 h-4 block border-2 border-white/60 border-t-white rounded-full animate-spin" aria-hidden />
                 ) : (
                   <ShareIcon className="w-4 h-4" />
                 )}
