@@ -75,11 +75,13 @@ export function LeaderboardScreen({
   const title = getTitle(role);
   const dateStr = formatDate();
   const shareRef = useRef<HTMLDivElement>(null);
-  const [sharing, setSharing] = useState(false);
+  const [sharePreparing, setSharePreparing] = useState(false);
+  const [capturedFile, setCapturedFile] = useState<File | null>(null);
 
-  const handleShare = async () => {
-    if (!shareRef.current || entries.length === 0 || sharing) return;
-    setSharing(true);
+  const handleShareClick = async () => {
+    if (!shareRef.current || entries.length === 0 || sharePreparing) return;
+    setSharePreparing(true);
+    setCapturedFile(null);
     try {
       const isMobile = typeof navigator !== "undefined" && (navigator.maxTouchPoints > 0 || "ontouchstart" in window) && window.innerWidth < 1024;
       const canvas = await html2canvas(shareRef.current, {
@@ -92,29 +94,39 @@ export function LeaderboardScreen({
       if (!blob) throw new Error("Failed to create image");
       const file = new File([blob], `leaderboard-${dateStr}.png`, { type: "image/png" });
       const canShareFiles = navigator.canShare?.({ files: [file] });
-      if (navigator.share && canShareFiles) {
-        await navigator.share({
-          title: `${title} - ${dateStr}`,
-          text: `Check out the ${title}`,
-          files: [file],
-        });
+      if ("share" in navigator && canShareFiles) {
+        setCapturedFile(file);
       } else if ("share" in navigator) {
-        throw new Error("File sharing not supported");
+        alert("File sharing is not supported in this browser.");
       } else {
-        alert("Sharing is not supported in this browser. Please use a modern mobile browser.");
+        alert("Sharing is not supported. Please use a modern mobile browser.");
       }
     } catch (err) {
-      if ((err as Error)?.name !== "AbortError") {
-        const msg = (err as Error)?.message ?? "";
-        if (msg.includes("user gesture") || msg.includes("gesture")) {
-          alert("Please tap Share again to share the screenshot.");
-        } else {
-          alert("Could not share screenshot. Please try again or use a different browser.");
-        }
-      }
+      alert("Could not prepare screenshot. Please try again.");
     } finally {
-      setSharing(false);
+      setSharePreparing(false);
     }
+  };
+
+  const handleShareNow = async () => {
+    if (!capturedFile || !("share" in navigator)) return;
+    try {
+      await navigator.share({
+        title: `${title} - ${dateStr}`,
+        text: `Check out the ${title}`,
+        files: [capturedFile],
+      });
+      setCapturedFile(null);
+    } catch (err) {
+      if ((err as Error)?.name !== "AbortError") {
+        alert("Could not share. Please try again.");
+      }
+      setCapturedFile(null);
+    }
+  };
+
+  const handleCancelShare = () => {
+    setCapturedFile(null);
   };
 
   return (
@@ -147,12 +159,16 @@ export function LeaderboardScreen({
               {!loading && !error && entries.length > 0 && (
                 <button
                   type="button"
-                  onClick={handleShare}
-                  disabled={sharing}
+                  onClick={handleShareClick}
+                  disabled={sharePreparing}
                   className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors disabled:opacity-50"
                   aria-label="Share leaderboard"
                 >
-                  <ShareIcon className="w-4 h-4" />
+                  {sharePreparing ? (
+                    <span className="w-4 h-4 block border-2 border-white/60 border-t-white rounded-full animate-spin" aria-hidden />
+                  ) : (
+                    <ShareIcon className="w-4 h-4" />
+                  )}
                 </button>
               )}
             </div>
@@ -234,6 +250,34 @@ export function LeaderboardScreen({
         </div>
       )}
       </div>
+
+      {capturedFile && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40" onClick={handleCancelShare}>
+          <div
+            className="w-full max-w-lg rounded-t-2xl bg-white px-6 py-5 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-slate-700 text-sm font-medium mb-4">Screenshot ready!</p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={handleCancelShare}
+                className="flex-1 py-3 rounded-xl border border-slate-300 text-slate-700 text-sm font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleShareNow}
+                className="flex-1 py-3 rounded-xl text-white text-sm font-medium"
+                style={{ backgroundColor: BRAND.primary }}
+              >
+                Share
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
