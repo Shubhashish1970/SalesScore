@@ -180,6 +180,14 @@ function HomeContent() {
 
   const Screen = SCREENS[currentIndex];
   const showLeaderboardIcon = (data.role === "TM" || data.role === "RM" || data.role === "ZM") && currentIndex === 0;
+  const cu = (data.name ?? "").toLowerCase().trim();
+  const isInLeaderboard =
+    leaderboardEntries.length > 0 &&
+    Boolean(cu) &&
+    leaderboardEntries.some((e) => {
+      const en = e.name.toLowerCase().trim();
+      return en.includes(cu) || cu.includes(en);
+    });
 
   if (fetchError) {
     const noLink = !mobileFromUrl;
@@ -243,6 +251,8 @@ function HomeContent() {
             error={leaderboardError}
             currentUserName={data.name}
           />
+        ) : currentIndex === 0 ? (
+          <ScoreOverview data={data} isInLeaderboard={isInLeaderboard} />
         ) : (
           <Screen data={data} />
         )}

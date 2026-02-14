@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import html2canvas from "html2canvas";
+import confetti from "canvas-confetti";
 import type { Role } from "@/types/scorecard";
 import type { LeaderboardEntry } from "@/types/leaderboard";
 
@@ -21,10 +22,10 @@ interface Props {
   currentUserName?: string;
 }
 
-function getTitle(role: Role): string {
-  if (role === "ZM") return "ZM Leaderboard (Top 5)";
-  if (role === "RM") return "RM Leaderboard (Top 10)";
-  return "TM Leaderboard (Top 10)";
+function getSubtitle(role: Role): string {
+  if (role === "ZM") return "Top 5";
+  if (role === "RM") return "Top 10";
+  return "Top 10";
 }
 
 function formatScore(n: number): string {
@@ -65,6 +66,14 @@ function ShareIcon({ className }: { className?: string }) {
   );
 }
 
+function TrophyIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H8v2h8v-2h-3v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z" />
+    </svg>
+  );
+}
+
 export function LeaderboardScreen({
   entries,
   role,
@@ -72,11 +81,38 @@ export function LeaderboardScreen({
   error,
   currentUserName,
 }: Props) {
-  const title = getTitle(role);
+  const subtitle = getSubtitle(role);
   const dateStr = formatDate();
   const shareRef = useRef<HTMLDivElement>(null);
   const [sharePreparing, setSharePreparing] = useState(false);
   const [capturedFile, setCapturedFile] = useState<File | null>(null);
+  const [celebrated, setCelebrated] = useState(false);
+
+  useEffect(() => {
+    if (!loading && !error && entries.length > 0 && !celebrated) {
+      setCelebrated(true);
+      const duration = 2e3;
+      const end = Date.now() + duration;
+      const frame = () => {
+        confetti({
+          particleCount: 3,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: ["#034EA2", "#0071b9", "#ffab00"],
+        });
+        confetti({
+          particleCount: 3,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: ["#034EA2", "#0071b9", "#ffab00"],
+        });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      };
+      frame();
+    }
+  }, [loading, error, entries.length, celebrated]);
 
   const handleShareClick = async () => {
     if (!shareRef.current || entries.length === 0 || sharePreparing) return;
@@ -92,7 +128,7 @@ export function LeaderboardScreen({
       });
       const blob = await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
       if (!blob) throw new Error("Failed to create image");
-      const file = new File([blob], `leaderboard-${dateStr}.png`, { type: "image/png" });
+      const file = new File([blob], `hall-of-fame-${dateStr}.png`, { type: "image/png" });
       const canShareFiles = navigator.canShare?.({ files: [file] });
       if ("share" in navigator && canShareFiles) {
         setCapturedFile(file);
@@ -112,8 +148,8 @@ export function LeaderboardScreen({
     if (!capturedFile || !("share" in navigator)) return;
     try {
       await navigator.share({
-        title: `${title} - ${dateStr}`,
-        text: `Check out the ${title}`,
+        title: `Hall of Fame - ${dateStr}`,
+        text: "Check out the Hall of Fame",
         files: [capturedFile],
       });
       setCapturedFile(null);
@@ -151,7 +187,12 @@ export function LeaderboardScreen({
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <h2 className="text-lg font-bold text-white">{title}</h2>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl animate-trophy-glow" style={{ color: BRAND.accent }} aria-hidden>
+                <TrophyIcon className="w-7 h-7" />
+              </span>
+              <h2 className="text-lg font-bold text-white">Hall of Fame ({subtitle})</h2>
+            </div>
             <div className="flex items-center gap-2 shrink-0">
               <span className="text-white/90 text-xs font-medium tabular-nums" aria-label={`Date: ${dateStr}`}>
                 {dateStr}

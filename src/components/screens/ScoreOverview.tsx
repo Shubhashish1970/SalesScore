@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import type { ScorecardData } from "@/types/scorecard";
 import { getAppConfig } from "@/lib/app-config";
@@ -17,6 +18,7 @@ const ScoreGaugeHighcharts = dynamic(
  */
 interface Props {
   data: ScorecardData;
+  isInLeaderboard?: boolean;
 }
 
 function getRoleLabel(role: ScorecardData["role"]) {
@@ -35,15 +37,54 @@ function getBandStyle(score: number, redEnd: number, amberEnd: number) {
   return "bg-red-50 text-red-800 border-red-200";
 }
 
-export function ScoreOverview({ data }: Props) {
+export function ScoreOverview({ data, isInLeaderboard }: Props) {
   const { scoreBandThresholds } = getAppConfig();
   const redEnd = scoreBandThresholds.redEnd;
   const amberEnd = scoreBandThresholds.amberEnd;
   const achievementLine = data.achievementMessage?.trim();
   const bandStyle = getBandStyle(data.finalScore, redEnd, amberEnd);
+  const [showCongrats, setShowCongrats] = useState(false);
+  const [congratsDismissed, setCongratsDismissed] = useState(false);
+
+  useEffect(() => {
+    if (isInLeaderboard && !congratsDismissed) {
+      setShowCongrats(true);
+    }
+  }, [isInLeaderboard, congratsDismissed]);
 
   return (
-    <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6">
+    <section className="min-h-[80dvh] flex flex-col px-5 pt-8 pb-6 relative">
+      {showCongrats && isInLeaderboard && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-congrats-enter"
+          onClick={() => {
+            setShowCongrats(false);
+            setCongratsDismissed(true);
+          }}
+        >
+          <div
+            className="bg-white rounded-2xl p-6 max-w-sm shadow-xl text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="text-5xl block mb-3" aria-hidden>🏆</span>
+            <h3 className="text-xl font-bold text-slate-800 mb-2">Congratulations!</h3>
+            <p className="text-slate-600 text-sm mb-4">
+              You&apos;re in the Hall of Fame! Tap the trophy icon to see your ranking.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setShowCongrats(false);
+                setCongratsDismissed(true);
+              }}
+              className="w-full py-3 rounded-xl font-medium text-white"
+              style={{ backgroundColor: "#034EA2" }}
+            >
+              Awesome!
+            </button>
+          </div>
+        </div>
+      )}
       <p className="text-slate-500 text-sm mb-1">{getRoleLabel(data.role)}</p>
       <h1 className="text-xl font-semibold text-slate-800 mb-2">{data.entityName}</h1>
       <div className="my-2">
