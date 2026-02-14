@@ -249,7 +249,7 @@ export function LeaderboardScreen({
           <div className="px-3 py-1 grid grid-cols-[auto_minmax(0,130px)_auto_auto_auto_auto] gap-x-2 gap-y-0 text-[9px] font-semibold text-slate-500 border-b border-slate-200 bg-slate-50/80 shrink-0">
             <span className="w-5" />
             <span>{getRoleLabel(role)}</span>
-            <span className="text-right tabular-nums w-8">DSO</span>
+            <span className="text-right tabular-nums w-8 ml-3">DSO</span>
             <span className="text-right tabular-nums w-8">OS</span>
             <span className="text-right tabular-nums w-8">Mix</span>
             <span className="text-right tabular-nums w-10 font-bold" style={{ color: BRAND.primary }}>Total</span>
@@ -274,7 +274,7 @@ export function LeaderboardScreen({
                     </p>
                     <p className="text-slate-500 text-[8px] truncate leading-tight">{entry.territory || "—"}</p>
                   </div>
-                  <span className="text-slate-700 tabular-nums w-8 text-right text-[9px]">{formatScore(entry.dsoScore)}</span>
+                  <span className="text-slate-700 tabular-nums w-8 text-right text-[9px] ml-3">{formatScore(entry.dsoScore)}</span>
                   <span className="text-slate-700 tabular-nums w-8 text-right text-[9px]">{formatScore(entry.osScore)}</span>
                   <span className="text-slate-700 tabular-nums w-8 text-right text-[9px]">{formatScore(entry.productMixScore)}</span>
                   <span className="font-bold tabular-nums w-10 text-right text-[9px]" style={{ color: BRAND.primary }}>{formatScore(entry.totalScore)}</span>
