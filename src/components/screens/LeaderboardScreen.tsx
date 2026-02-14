@@ -81,8 +81,9 @@ export function LeaderboardScreen({
     if (!shareRef.current || entries.length === 0 || sharing) return;
     setSharing(true);
     try {
+      const isMobile = typeof navigator !== "undefined" && (navigator.maxTouchPoints > 0 || "ontouchstart" in window) && window.innerWidth < 1024;
       const canvas = await html2canvas(shareRef.current, {
-        scale: 2,
+        scale: isMobile ? 1.5 : 2,
         useCORS: true,
         backgroundColor: "#ffffff",
         logging: false,
@@ -97,24 +98,17 @@ export function LeaderboardScreen({
           files: [file],
         });
       } else if (navigator.share) {
-        await navigator.share({
-          title: `${title} - ${dateStr}`,
-          text: `Check out the ${title}. ${window.location.href}`,
-          url: window.location.href,
-        });
-      } else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(window.location.href);
-        alert("Link copied to clipboard!");
+        throw new Error("File sharing not supported");
       } else {
-        alert("Sharing not supported. URL: " + window.location.href);
+        alert("Sharing is not supported in this browser. Please use a modern mobile browser.");
       }
     } catch (err) {
       if ((err as Error)?.name !== "AbortError") {
-        try {
-          await navigator.clipboard?.writeText(window.location.href);
-          alert("Link copied to clipboard!");
-        } catch {
-          alert("Could not share. URL: " + window.location.href);
+        const msg = (err as Error)?.message ?? "";
+        if (msg.includes("user gesture") || msg.includes("gesture")) {
+          alert("Please tap Share again to share the screenshot.");
+        } else {
+          alert("Could not share screenshot. Please try again or use a different browser.");
         }
       }
     } finally {
