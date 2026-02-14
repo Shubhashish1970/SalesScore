@@ -1,8 +1,7 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import html2canvas from "html2canvas";
 import confetti from "canvas-confetti";
 import type { Role } from "@/types/scorecard";
 import type { LeaderboardEntry } from "@/types/leaderboard";
@@ -54,18 +53,6 @@ function Medal({ rank }: { rank: number }) {
   );
 }
 
-function ShareIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <circle cx="18" cy="5" r="3" />
-      <circle cx="6" cy="12" r="3" />
-      <circle cx="18" cy="19" r="3" />
-      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-    </svg>
-  );
-}
-
 function TrophyIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -82,9 +69,6 @@ export function LeaderboardScreen({
   currentUserName,
 }: Props) {
   const dateStr = formatDate();
-  const shareRef = useRef<HTMLDivElement>(null);
-  const [sharePreparing, setSharePreparing] = useState(false);
-  const [capturedFile, setCapturedFile] = useState<File | null>(null);
   const [celebrated, setCelebrated] = useState(false);
 
   useEffect(() => {
@@ -113,82 +97,9 @@ export function LeaderboardScreen({
     }
   }, [loading, error, entries.length, celebrated]);
 
-  const handleShareClick = async () => {
-    if (!shareRef.current || entries.length === 0 || sharePreparing) return;
-    setSharePreparing(true);
-    setCapturedFile(null);
-    try {
-      const isMobile = typeof navigator !== "undefined" && (navigator.maxTouchPoints > 0 || "ontouchstart" in window) && window.innerWidth < 1024;
-      const canvas = await html2canvas(shareRef.current, {
-        scale: isMobile ? 1.5 : 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-        imageTimeout: 15000,
-      });
-      // Use toDataURL + fetch instead of toBlob for iOS Safari (toBlob can throw SecurityError)
-      const dataUrl = canvas.toDataURL("image/png");
-      const blob = await (await fetch(dataUrl)).blob();
-      if (!blob) throw new Error("Failed to create image");
-      const file = new File([blob], `hall-of-fame-${dateStr}.png`, {
-        type: "image/png",
-        lastModified: Date.now(),
-      });
-      if ("share" in navigator) {
-        // On mobile: call share immediately to preserve user gesture (required for iOS)
-        if (isMobile) {
-          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-          if (isIOS) {
-            await navigator.share({ files: [file] });
-          } else {
-            await navigator.share({
-              title: `Hall of Fame - ${dateStr}`,
-              text: "Check out the Hall of Fame",
-              files: [file],
-            });
-          }
-        } else {
-          setCapturedFile(file);
-        }
-      } else {
-        alert("Sharing is not supported. Please use a modern mobile browser.");
-      }
-    } catch (err) {
-      if ((err as Error)?.name !== "AbortError") {
-        alert("Could not prepare or share screenshot. Please try again.");
-      }
-    } finally {
-      setSharePreparing(false);
-    }
-  };
-
-  const handleShareNow = async () => {
-    if (!capturedFile || !("share" in navigator)) return;
-    try {
-      await navigator.share({
-        title: `Hall of Fame - ${dateStr}`,
-        text: "Check out the Hall of Fame",
-        files: [capturedFile],
-      });
-      setCapturedFile(null);
-    } catch (err) {
-      if ((err as Error)?.name !== "AbortError") {
-        alert("Could not share. Please try again.");
-      }
-      setCapturedFile(null);
-    }
-  };
-
-  const handleCancelShare = () => {
-    setCapturedFile(null);
-  };
-
   return (
     <section className="min-h-[80dvh] flex flex-col bg-white overflow-hidden">
-      <div
-        ref={shareRef}
-        className="flex flex-col flex-1 min-h-0"
-      >
+      <div className="flex flex-col flex-1 min-h-0">
       <div className="relative overflow-hidden">
         <div
           className="relative flex flex-col min-h-[160px] px-4 py-3 pb-2 bg-cover"
@@ -283,56 +194,13 @@ export function LeaderboardScreen({
         </div>
       )}
       </div>
-      {/* Date + Share pill below scorecard - RHS, thinner */}
+      {/* Date pill below scorecard - RHS */}
       <div className="flex items-center justify-end px-4 py-2 border-t border-slate-200 bg-slate-50/50 shrink-0">
         <div className="flex items-center gap-1.5 px-2 py-1 rounded-md" style={{ backgroundColor: BRAND.primary }}>
           <span className="text-white text-[10px] font-medium tabular-nums">{dateStr}</span>
-          {!loading && !error && entries.length > 0 && (
-            <button
-              type="button"
-              onClick={handleShareClick}
-              disabled={sharePreparing}
-                className="p-0.5 rounded text-white hover:bg-white/20 transition-colors disabled:opacity-50"
-                aria-label="Share"
-              >
-                {sharePreparing ? (
-                  <span className="w-3 h-3 block border-2 border-white/60 border-t-white rounded-full animate-spin" aria-hidden />
-                ) : (
-                  <ShareIcon className="w-3 h-3" />
-              )}
-            </button>
-          )}
         </div>
       </div>
       </div>
-
-      {capturedFile && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40" onClick={handleCancelShare}>
-          <div
-            className="w-full max-w-lg rounded-t-2xl bg-white px-6 py-5 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <p className="text-slate-700 text-sm font-medium mb-4">NACL Hall of Fame Screen Share ready</p>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={handleCancelShare}
-                className="flex-1 py-3 rounded-xl border border-slate-300 text-slate-700 text-sm font-medium"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleShareNow}
-                className="flex-1 py-3 rounded-xl text-white text-sm font-medium"
-                style={{ backgroundColor: BRAND.primary }}
-              >
-                Share
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 }

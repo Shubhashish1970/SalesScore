@@ -145,11 +145,13 @@ function HomeContent() {
     fetchScorecard(mobileFromUrl, role)
       .then((scorecard) => {
         if (cancelled) return;
-        const isInvalidUser =
-          !scorecard.name?.trim() &&
-          !scorecard.entityName?.trim() &&
-          scorecard.finalScore === 0 &&
-          scorecard.mobile === String(mobileFromUrl);
+        const isEmptyOrPlaceholder = (s: string | undefined) => {
+          const t = (s ?? "").trim().toLowerCase();
+          return !t || t === "n/a" || t === "na" || t === "-" || t === "null" || t === "undefined" || t === "unknown";
+        };
+        const noName = isEmptyOrPlaceholder(scorecard.name) || scorecard.name?.trim() === String(mobileFromUrl);
+        const noEntity = isEmptyOrPlaceholder(scorecard.entityName);
+        const isInvalidUser = noName && noEntity;
         if (isInvalidUser) {
           setFetchError(true);
           setInvalidUser(true);
