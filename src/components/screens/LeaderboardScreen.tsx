@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import Image from "next/image";
 import html2canvas from "html2canvas";
 import confetti from "canvas-confetti";
 import type { Role } from "@/types/scorecard";
@@ -182,22 +181,8 @@ export function LeaderboardScreen({
               background: `linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 25%, rgba(3,78,162,0.25) 50%, rgba(0,113,185,0.45) 100%)`,
             }}
           />
-          {/* Logo + Welcome on whitespace (top-left) */}
-          <div className="absolute top-3 left-4 z-10 flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <Image
-                src="/nagarjuna-nacl-logo.png"
-                alt="Nagarjuna NACL"
-                width={32}
-                height={32}
-                className="object-contain"
-                unoptimized
-              />
-              <span className="text-sm font-semibold" style={{ color: BRAND.primary }}>
-                Welcome, {currentUserName || "User"}
-              </span>
-            </div>
-            <span className="text-slate-600 text-xs tabular-nums">{dateStr}</span>
+          <div className="absolute top-3 left-4 z-10">
+            <span className="text-white text-xs font-medium tabular-nums drop-shadow-md">{dateStr}</span>
           </div>
           <div className="absolute top-3 right-4 z-10 flex items-center gap-2">
             {!loading && !error && entries.length > 0 && (
