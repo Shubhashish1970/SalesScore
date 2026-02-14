@@ -175,24 +175,10 @@ export function LeaderboardScreen({
             backgroundPosition: "right top",
           }}
         >
-          <div className="absolute top-10 right-4 z-10 flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ backgroundColor: BRAND.primary }}>
-            <span className="text-white text-xs font-medium tabular-nums">{dateStr}</span>
-            {!loading && !error && entries.length > 0 && (
-              <button
-                type="button"
-                onClick={handleShareClick}
-                disabled={sharePreparing}
-                className="p-1 rounded text-white hover:bg-white/20 transition-colors disabled:opacity-50"
-                aria-label="Share"
-              >
-                {sharePreparing ? (
-                  <span className="w-4 h-4 block border-2 border-white/60 border-t-white rounded-full animate-spin" aria-hidden />
-                ) : (
-                  <ShareIcon className="w-4 h-4" />
-                )}
-              </button>
-            )}
-          </div>
+          {/* Subtitle at top of banner on white space - NACL blue */}
+          <p className="absolute top-3 left-4 z-10 text-[10px] font-medium max-w-[200px]" style={{ color: BRAND.primary }}>
+            Ranked by Total Score of DSO, OS &amp; Product Mix
+          </p>
           {/* Hall of Fame + Logo + Trophy pill at bottom-left corner */}
           <div className="absolute bottom-2 left-4 z-10 flex flex-col items-start">
             <div className="bg-white/95 rounded-full px-3 py-1.5 shadow-lg flex items-center gap-2 border border-slate-200/50">
@@ -211,9 +197,6 @@ export function LeaderboardScreen({
                 Hall of Fame
               </h2>
             </div>
-            <p className="text-white text-[9px] mt-1 drop-shadow-md">
-              Rank by total score. DSO, OS, and Product Mix contribute to the total.
-            </p>
           </div>
         </div>
       </div>
@@ -276,6 +259,27 @@ export function LeaderboardScreen({
           </div>
         </div>
       )}
+      </div>
+      {/* Date + Share pill below scorecard */}
+      <div className="flex items-center justify-start px-4 py-3 border-t border-slate-200 bg-slate-50/50 shrink-0">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ backgroundColor: BRAND.primary }}>
+          <span className="text-white text-xs font-medium tabular-nums">{dateStr}</span>
+          {!loading && !error && entries.length > 0 && (
+            <button
+              type="button"
+              onClick={handleShareClick}
+              disabled={sharePreparing}
+              className="p-1 rounded text-white hover:bg-white/20 transition-colors disabled:opacity-50"
+              aria-label="Share"
+            >
+              {sharePreparing ? (
+                <span className="w-4 h-4 block border-2 border-white/60 border-t-white rounded-full animate-spin" aria-hidden />
+              ) : (
+                <ShareIcon className="w-4 h-4" />
+              )}
+            </button>
+          )}
+        </div>
       </div>
       </div>
 
