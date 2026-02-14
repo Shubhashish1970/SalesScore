@@ -36,3 +36,10 @@ This prints a URL like `https://salesscore-c34f3.web.app/?token=<jwt>`.
 
 - The app decodes the JWT and checks `email === "shubhashish@nacl.murugappa.com"`.
 - The link expires after 24 hours.
+
+## Troubleshooting "Failed to send email" (500)
+
+1. **RESEND_API_KEY** – Add it in GitHub Secrets (Settings → Secrets → Actions). Redeploy after adding.
+2. **Email must match exactly** – Use `shubhashish@nacl.murugappa.com` (not `.cor` or other typos).
+3. **Resend account** – Create an account at [resend.com](https://resend.com), add an API key, and use it as `RESEND_API_KEY`.
+4. **Check logs** – In GCP Console → Cloud Functions → requestAdminLink → Logs, look for `[requestAdminLink]` errors.

@@ -115,9 +115,14 @@ exports.requestAdminLink = onRequest(
     }
     let email = "";
     try {
-      const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
+      let body = req.body;
+      if (!body && req.rawBody) {
+        body = JSON.parse(req.rawBody.toString());
+      }
+      body = typeof body === "string" ? JSON.parse(body) : body || {};
       email = String(body.email || "").trim().toLowerCase();
-    } catch {
+    } catch (e) {
+      console.error("[requestAdminLink] body parse error:", e?.message);
       res.status(400).json({ error: "Invalid JSON body" });
       return;
     }
@@ -152,14 +157,14 @@ exports.requestAdminLink = onRequest(
         `,
       });
       if (error) {
-        console.error("[requestAdminLink] Resend error:", error);
-        res.status(500).json({ error: "Failed to send email" });
+        console.error("[requestAdminLink] Resend error:", JSON.stringify(error));
+        res.status(500).json({ error: "Failed to send email. Check RESEND_API_KEY and Resend dashboard." });
         return;
       }
       res.status(200).json({ ok: true, message: "Admin link sent to your email." });
     } catch (err) {
-      console.error("[requestAdminLink] error:", err?.message);
-      res.status(500).json({ error: "Failed to send email" });
+      console.error("[requestAdminLink] error:", err?.message, err?.stack);
+      res.status(500).json({ error: "Failed to send email. Check RESEND_API_KEY and Resend dashboard." });
     }
   }
 );
