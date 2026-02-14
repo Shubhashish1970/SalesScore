@@ -169,35 +169,23 @@ export function LeaderboardScreen({
       >
       <div className="relative overflow-hidden">
         <div
-          className="relative flex flex-col min-h-[140px] px-4 py-3 pb-2 bg-cover"
+          className="relative flex flex-col min-h-[160px] px-4 py-3 pb-2 bg-cover"
           style={{
-            backgroundImage: "url(/hall-of-fame-banner.png?v=8)",
-            backgroundPosition: "left center",
+            backgroundImage: "url(/hall-of-fame-banner.png?v=9)",
+            backgroundPosition: "right top",
           }}
         >
-          {/* Gradient: lighter on left (whitespace), stronger on right (photo) */}
+          {/* Gradient: lighter on left, stronger on right */}
           <div
             className="absolute inset-0"
             style={{
-              background: `linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 25%, rgba(3,78,162,0.25) 50%, rgba(0,113,185,0.45) 100%)`,
+              background: `linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 30%, rgba(3,78,162,0.2) 60%, rgba(0,113,185,0.4) 100%)`,
             }}
           />
-          {/* Welcome + Logo at top (like reference) */}
-          <div className="absolute top-3 left-4 z-10 flex items-center gap-2">
-            <Image
-              src="/nagarjuna-nacl-logo.png"
-              alt="Nagarjuna NACL"
-              width={28}
-              height={28}
-              className="object-contain"
-              unoptimized
-            />
-            <span className="text-white text-sm font-medium drop-shadow-md">
-              Welcome, {currentUserName || "User"}
-            </span>
+          <div className="absolute top-3 left-4 z-10">
+            <span className="text-white text-xs font-medium tabular-nums drop-shadow-md">{dateStr}</span>
           </div>
           <div className="absolute top-3 right-4 z-10 flex items-center gap-2">
-            <span className="text-white/90 text-xs tabular-nums drop-shadow-md">{dateStr}</span>
             {!loading && !error && entries.length > 0 && (
               <button
                 type="button"
