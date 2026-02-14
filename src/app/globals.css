@@ -188,19 +188,23 @@ body {
   animation: commentary-shimmer 1.8s ease-in-out infinite;
 }
 
-/* Hall of Fame: trophy icon attention-grabbing animation */
+/* Trophy icon: snappy sparkle — quick pop, long pause (no draggy feel) */
 @keyframes trophy-glow {
   0%, 100% {
     transform: scale(1);
-    filter: drop-shadow(0 0 4px rgba(255, 171, 0, 0.6));
+    filter: drop-shadow(0 0 2px rgba(255, 171, 0, 0.4));
   }
-  50% {
-    transform: scale(1.15);
-    filter: drop-shadow(0 0 12px rgba(255, 171, 0, 0.9));
+  10% {
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 8px rgba(255, 171, 0, 0.7));
+  }
+  22% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px rgba(255, 171, 0, 0.4));
   }
 }
 .animate-trophy-glow {
-  animation: trophy-glow 1.5s ease-in-out infinite;
+  animation: trophy-glow 2.8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
 }
 
 /* Congratulations overlay entrance */

@@ -169,27 +169,28 @@ export function LeaderboardScreen({
       >
       <div className="relative overflow-hidden">
         <div
-          className="relative flex flex-col items-center justify-center px-4 py-3 pb-2"
-          style={{ background: `linear-gradient(180deg, ${BRAND.primary} 0%, ${BRAND.secondary} 100%)` }}
+          className="relative flex flex-col items-center justify-center min-h-[140px] px-4 py-3 pb-2 bg-cover bg-center"
+          style={{
+            backgroundImage: "url(/hall-of-fame-banner.png)",
+          }}
         >
-          <div className="absolute top-3 left-4">
-            <Image
-              src="/nagarjuna-nacl-logo.png"
-              alt="Nagarjuna NACL"
-              width={36}
-              height={36}
-              className="object-contain opacity-90"
-              unoptimized
-            />
+          {/* Gradient overlay for text legibility */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(180deg, rgba(3,78,162,0.35) 0%, rgba(0,113,185,0.5) 50%, rgba(0,0,0,0.4) 100%)`,
+            }}
+          />
+          <div className="absolute top-3 left-4 z-10">
+            <span className="text-white text-xs font-medium tabular-nums drop-shadow-md">{dateStr}</span>
           </div>
-          <div className="absolute top-3 right-4 flex items-center gap-2">
-            <span className="text-white/90 text-xs font-medium tabular-nums">{dateStr}</span>
+          <div className="absolute top-3 right-4 z-10 flex items-center gap-2">
             {!loading && !error && entries.length > 0 && (
               <button
                 type="button"
                 onClick={handleShareClick}
                 disabled={sharePreparing}
-                className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors disabled:opacity-50"
+                className="p-1.5 rounded-lg bg-white/30 hover:bg-white/40 text-white transition-colors disabled:opacity-50 drop-shadow-md"
                 aria-label="Share"
               >
                 {sharePreparing ? (
@@ -200,18 +201,32 @@ export function LeaderboardScreen({
               </button>
             )}
           </div>
-          <h2 className="text-lg font-bold text-white mt-1 flex items-center gap-1.5">
-            <span className="animate-trophy-glow" style={{ color: BRAND.accent }}>
-              <TrophyIcon className="w-5 h-5" />
-            </span>
-            Hall of Fame
-          </h2>
-          <p className="text-white/90 text-[10px] mt-0.5 text-center px-4">
-            Rank by total score. DSO, OS, and Product Mix contribute to the total.
-          </p>
+          {/* Logo on white pill bridging into content */}
+          <div className="relative z-10 flex flex-col items-center -mb-6">
+            <div className="bg-white rounded-full px-4 py-2 shadow-lg flex items-center gap-2">
+              <Image
+                src="/nagarjuna-nacl-logo.png"
+                alt="Nagarjuna NACL"
+                width={40}
+                height={40}
+                className="object-contain"
+                unoptimized
+              />
+              <h2 className="text-base font-bold flex items-center gap-1.5" style={{ color: BRAND.primary }}>
+                <span className="animate-trophy-glow" style={{ color: BRAND.accent }}>
+                  <TrophyIcon className="w-4 h-4" />
+                </span>
+                Hall of Fame
+              </h2>
+            </div>
+            <p className="text-white text-[10px] mt-2 text-center px-4 drop-shadow-md">
+              Rank by total score. DSO, OS, and Product Mix contribute to the total.
+            </p>
+          </div>
         </div>
       </div>
 
+      <div className="pt-6 flex-1 min-h-0 flex flex-col">
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12 gap-3">
           <div
@@ -269,6 +284,7 @@ export function LeaderboardScreen({
           </div>
         </div>
       )}
+      </div>
       </div>
 
       {capturedFile && (
