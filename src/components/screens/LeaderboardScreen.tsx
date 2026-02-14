@@ -175,14 +175,14 @@ export function LeaderboardScreen({
             backgroundPosition: "right top",
           }}
         >
-          <div className="absolute top-3 right-4 z-10 flex items-center gap-2">
-            <span className="text-white/90 text-xs font-medium tabular-nums drop-shadow-md">{dateStr}</span>
+          <div className="absolute top-10 right-4 z-10 flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ backgroundColor: BRAND.primary }}>
+            <span className="text-white text-xs font-medium tabular-nums">{dateStr}</span>
             {!loading && !error && entries.length > 0 && (
               <button
                 type="button"
                 onClick={handleShareClick}
                 disabled={sharePreparing}
-                className="p-1.5 rounded-lg bg-white/30 hover:bg-white/40 text-white transition-colors disabled:opacity-50 drop-shadow-md"
+                className="p-1 rounded text-white hover:bg-white/20 transition-colors disabled:opacity-50"
                 aria-label="Share"
               >
                 {sharePreparing ? (
