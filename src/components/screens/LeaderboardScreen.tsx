@@ -171,7 +171,7 @@ export function LeaderboardScreen({
         <div
           className="relative flex flex-col min-h-[160px] px-4 py-3 pb-2 bg-cover"
           style={{
-            backgroundImage: "url(/hall-of-fame-banner.png?v=9)",
+            backgroundImage: "url(/hall-of-fame-banner.png?v=10)",
             backgroundPosition: "right top",
           }}
         >
