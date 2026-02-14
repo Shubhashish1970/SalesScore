@@ -91,13 +91,14 @@ export function LeaderboardScreen({
       const blob = await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
       if (!blob) throw new Error("Failed to create image");
       const file = new File([blob], `leaderboard-${dateStr}.png`, { type: "image/png" });
-      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+      const canShareFiles = navigator.canShare?.({ files: [file] });
+      if (navigator.share && canShareFiles) {
         await navigator.share({
           title: `${title} - ${dateStr}`,
           text: `Check out the ${title}`,
           files: [file],
         });
-      } else if (navigator.share) {
+      } else if ("share" in navigator) {
         throw new Error("File sharing not supported");
       } else {
         alert("Sharing is not supported in this browser. Please use a modern mobile browser.");
