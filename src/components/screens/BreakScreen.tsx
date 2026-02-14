@@ -3,12 +3,14 @@
 import { useMemo } from "react";
 
 /**
- * Break screen when scorecard/KPI fetch fails or no valid link.
+ * Break screen when scorecard/KPI fetch fails, no valid link, or invalid user (wrong mobile).
  */
 interface Props {
   onRetry?: () => void;
   /** Optional custom message when no mobile in URL (e.g. "Open via link with ?mobile=...&role=TM". */
   message?: string;
+  /** "invalidUser" = wrong mobile / no data; show humorous messages + Retry. */
+  variant?: "noLink" | "fetchError" | "invalidUser";
 }
 
 const FETCH_ERROR_MESSAGES = [
@@ -25,18 +27,36 @@ const NO_LINK_TITLES = [
   "Link required — and we mean the digital kind!",
 ];
 
+const INVALID_USER_MESSAGES = [
+  "This number doesn't ring a bell! Double-check your link or try again.",
+  "We couldn't find this mobile in our records. The scorecard elves are scratching their heads!",
+  "Oops! Wrong number — our database drew a blank. Give it another shot?",
+  "This link led us to a dead end. Maybe the gremlins mixed up the digits?",
+  "Hmm, we've got nothing for this one. Try your personalized link again!",
+];
+
 function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-export function BreakScreen({ onRetry, message }: Props) {
-  const humorousTitle = useMemo(() => (message ? pickRandom(NO_LINK_TITLES) : null), [message]);
-  const humorousBody = useMemo(() => (!message ? pickRandom(FETCH_ERROR_MESSAGES) : null), [message]);
+export function BreakScreen({ onRetry, message, variant }: Props) {
+  const isNoLink = Boolean(message);
+  const isInvalidUser = variant === "invalidUser";
+  const humorousTitle = useMemo(() => (isNoLink ? pickRandom(NO_LINK_TITLES) : null), [isNoLink]);
+  const humorousBody = useMemo(
+    () =>
+      isInvalidUser
+        ? pickRandom(INVALID_USER_MESSAGES)
+        : !isNoLink
+          ? pickRandom(FETCH_ERROR_MESSAGES)
+          : null,
+    [isNoLink, isInvalidUser]
+  );
 
   return (
     <section className="min-h-[80dvh] flex flex-col items-center justify-center px-6 py-12 text-center">
       <h2 className="text-2xl font-bold text-slate-800 mb-3">
-        {message ? (humorousTitle ?? "Link required") : "We lost this page"}
+        {isNoLink ? (humorousTitle ?? "Link required") : isInvalidUser ? "Wrong call!" : "We lost this page"}
       </h2>
       <p className="text-slate-600 text-base leading-relaxed max-w-sm mb-8">
         {message ?? (humorousBody ?? "We searched high and low but couldn't find what you're looking for. Let's find a better place for you to go.")}

@@ -43,6 +43,7 @@ function HomeContent() {
   const roleFromUrl = searchParams.get("role");
   const [data, setData] = useState<ScorecardData>(EMPTY_SCORECARD);
   const [fetchError, setFetchError] = useState(false);
+  const [invalidUser, setInvalidUser] = useState(false);
   const [loading, setLoading] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
@@ -63,6 +64,7 @@ function HomeContent() {
 
   const retryLoad = useCallback(() => {
     setFetchError(false);
+    setInvalidUser(false);
     setLoading(true);
     setRetryKey((k) => k + 1);
   }, []);
@@ -143,14 +145,25 @@ function HomeContent() {
     fetchScorecard(mobileFromUrl, role)
       .then((scorecard) => {
         if (cancelled) return;
-        setData(scorecard);
-        setFetchError(false);
+        const isInvalidUser =
+          !scorecard.name?.trim() &&
+          !scorecard.entityName?.trim() &&
+          scorecard.finalScore === 0 &&
+          scorecard.mobile === String(mobileFromUrl);
+        if (isInvalidUser) {
+          setFetchError(true);
+          setInvalidUser(true);
+        } else {
+          setData(scorecard);
+          setInvalidUser(false);
+          runCommentary(scorecard);
+        }
         setLoading(false);
-        runCommentary(scorecard);
       })
       .catch(() => {
         if (cancelled) return;
         setFetchError(true);
+        setInvalidUser(false);
         setLoading(false);
       });
 
@@ -196,6 +209,7 @@ function HomeContent() {
         <BreakScreen
           onRetry={noLink ? undefined : retryLoad}
           message={noLink ? "Open this app via your personalized link (e.g. ?mobile=...&role=TM)." : undefined}
+          variant={noLink ? "noLink" : invalidUser ? "invalidUser" : "fetchError"}
         />
       </main>
     );
