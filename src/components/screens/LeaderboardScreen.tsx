@@ -254,7 +254,7 @@ export function LeaderboardScreen({
             <span className="text-right tabular-nums w-8">Mix</span>
             <span className="text-right tabular-nums w-10 font-bold" style={{ color: BRAND.primary }}>Total</span>
           </div>
-          <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
             {entries.map((entry, i) => {
               const cu = (currentUserName ?? "").toLowerCase().trim();
               const en = entry.name.toLowerCase().trim();
@@ -262,7 +262,7 @@ export function LeaderboardScreen({
               return (
                 <div
                   key={entry.rank}
-                  className={`flex items-center gap-2 px-3 py-1 border-b border-slate-100 ${
+                  className={`flex flex-1 min-h-0 items-center gap-2 px-3 py-1.5 border-b border-slate-100 ${
                     isCurrentUser ? "bg-amber-50/80" : i % 2 === 0 ? "bg-white" : "bg-slate-50/50"
                   }`}
                 >
