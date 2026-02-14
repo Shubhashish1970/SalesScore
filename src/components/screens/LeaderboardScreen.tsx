@@ -26,6 +26,12 @@ function formatScore(n: number): string {
   return Number(n).toFixed(1);
 }
 
+function getRoleLabel(role: Role): string {
+  if (role === "ZM") return "Zonal Manager";
+  if (role === "RM") return "Regional Manager";
+  return "Territory Manager";
+}
+
 function formatDate(): string {
   const d = new Date();
   const day = String(d.getDate()).padStart(2, "0");
@@ -34,19 +40,13 @@ function formatDate(): string {
   return `${day}-${month}-${year}`;
 }
 
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  return (name[0] ?? "?").toUpperCase();
-}
-
 function Medal({ rank }: { rank: number }) {
-  if (rank === 1) return <span className="text-lg" aria-hidden>🥇</span>;
-  if (rank === 2) return <span className="text-lg" aria-hidden>🥈</span>;
-  if (rank === 3) return <span className="text-lg" aria-hidden>🥉</span>;
+  if (rank === 1) return <span className="text-sm" aria-hidden>🥇</span>;
+  if (rank === 2) return <span className="text-sm" aria-hidden>🥈</span>;
+  if (rank === 3) return <span className="text-sm" aria-hidden>🥉</span>;
   return (
     <span
-      className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white tabular-nums shrink-0"
+      className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white tabular-nums shrink-0"
       style={{ backgroundColor: BRAND.secondary }}
     >
       {rank}
@@ -169,7 +169,7 @@ export function LeaderboardScreen({
       >
       <div className="relative overflow-hidden">
         <div
-          className="h-28 flex flex-col items-center justify-center px-4"
+          className="relative flex flex-col items-center justify-center px-4 py-3 pb-2"
           style={{ background: `linear-gradient(180deg, ${BRAND.primary} 0%, ${BRAND.secondary} 100%)` }}
         >
           <div className="absolute top-3 left-4">
@@ -200,16 +200,16 @@ export function LeaderboardScreen({
               </button>
             )}
           </div>
-          <h2 className="text-xl font-bold text-white mt-2 flex items-center gap-2">
+          <h2 className="text-lg font-bold text-white mt-1 flex items-center gap-1.5">
             <span className="animate-trophy-glow" style={{ color: BRAND.accent }}>
-              <TrophyIcon className="w-6 h-6" />
+              <TrophyIcon className="w-5 h-5" />
             </span>
             Hall of Fame
           </h2>
+          <p className="text-white/90 text-[10px] mt-0.5 text-center px-4">
+            Rank by total score. DSO, OS, and Product Mix contribute to the total.
+          </p>
         </div>
-        <p className="text-slate-500 text-xs px-4 py-2 text-center bg-slate-50">
-          Rank by total score. DSO, OS, and Product Mix contribute to the total.
-        </p>
       </div>
 
       {loading ? (
@@ -230,49 +230,43 @@ export function LeaderboardScreen({
           <p className="text-slate-500 text-[10px]">No leaderboard data yet.</p>
         </div>
       ) : (
-        <div className="flex-1 min-h-0 overflow-y-auto">
-          <div className="px-4 py-2 grid grid-cols-[auto_1fr_auto_auto_auto_auto] gap-2 text-[10px] font-semibold text-slate-500 border-b border-slate-200 bg-slate-50/80 sticky top-0 z-10">
-            <span className="w-8" />
-            <span>Player</span>
-            <span className="text-right tabular-nums w-10">DSO</span>
-            <span className="text-right tabular-nums w-10">OS</span>
-            <span className="text-right tabular-nums w-10">Mix</span>
-            <span className="text-right tabular-nums w-12 font-bold" style={{ color: BRAND.primary }}>Total</span>
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+          <div className="px-3 py-1 grid grid-cols-[auto_1fr_auto_auto_auto_auto] gap-1.5 text-[9px] font-semibold text-slate-500 border-b border-slate-200 bg-slate-50/80 shrink-0">
+            <span className="w-5" />
+            <span>{getRoleLabel(role)}</span>
+            <span className="text-right tabular-nums w-8">DSO</span>
+            <span className="text-right tabular-nums w-8">OS</span>
+            <span className="text-right tabular-nums w-8">Mix</span>
+            <span className="text-right tabular-nums w-10 font-bold" style={{ color: BRAND.primary }}>Total</span>
           </div>
-          {entries.map((entry, i) => {
-            const cu = (currentUserName ?? "").toLowerCase().trim();
-            const en = entry.name.toLowerCase().trim();
-            const isCurrentUser = cu && (en.includes(cu) || cu.includes(en));
-            return (
-              <div
-                key={entry.rank}
-                className={`flex items-center gap-3 px-4 py-3 border-b border-slate-100 ${
-                  isCurrentUser ? "bg-amber-50/80" : i % 2 === 0 ? "bg-white" : "bg-slate-50/50"
-                }`}
-              >
-                <Medal rank={entry.rank} />
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-                    style={{ backgroundColor: BRAND.secondary }}
-                  >
-                    {getInitials(entry.name)}
-                  </div>
-                  <div className="min-w-0">
-                    <p className={`font-medium truncate ${isCurrentUser ? "" : "text-slate-800"}`} style={isCurrentUser ? { color: BRAND.primary } : {}}>
+          <div className="flex-1 min-h-0 overflow-hidden">
+            {entries.map((entry, i) => {
+              const cu = (currentUserName ?? "").toLowerCase().trim();
+              const en = entry.name.toLowerCase().trim();
+              const isCurrentUser = cu && (en.includes(cu) || cu.includes(en));
+              return (
+                <div
+                  key={entry.rank}
+                  className={`flex items-center gap-2 px-3 py-1 border-b border-slate-100 ${
+                    isCurrentUser ? "bg-amber-50/80" : i % 2 === 0 ? "bg-white" : "bg-slate-50/50"
+                  }`}
+                >
+                  <Medal rank={entry.rank} />
+                  <div className="min-w-0 flex-1">
+                    <p className={`text-[9px] truncate leading-tight ${isCurrentUser ? "font-medium" : ""}`} style={isCurrentUser ? { color: BRAND.primary } : { color: "#334155" }}>
                       {entry.name}
-                      {isCurrentUser && <span className="ml-0.5 text-[9px]" style={{ color: BRAND.primary }}>(you)</span>}
+                      {isCurrentUser && <span className="ml-0.5 text-[8px]" style={{ color: BRAND.primary }}>(you)</span>}
                     </p>
-                    <p className="text-slate-500 text-[9px] truncate">{entry.territory || "—"}</p>
+                    <p className="text-slate-500 text-[8px] truncate leading-tight">{entry.territory || "—"}</p>
                   </div>
+                  <span className="text-slate-700 tabular-nums w-8 text-right text-[9px]">{formatScore(entry.dsoScore)}</span>
+                  <span className="text-slate-700 tabular-nums w-8 text-right text-[9px]">{formatScore(entry.osScore)}</span>
+                  <span className="text-slate-700 tabular-nums w-8 text-right text-[9px]">{formatScore(entry.productMixScore)}</span>
+                  <span className="font-bold tabular-nums w-10 text-right text-[9px]" style={{ color: BRAND.primary }}>{formatScore(entry.totalScore)}</span>
                 </div>
-                <span className="text-slate-700 tabular-nums w-10 text-right text-[10px]">{formatScore(entry.dsoScore)}</span>
-                <span className="text-slate-700 tabular-nums w-10 text-right text-[10px]">{formatScore(entry.osScore)}</span>
-                <span className="text-slate-700 tabular-nums w-10 text-right text-[10px]">{formatScore(entry.productMixScore)}</span>
-                <span className="font-bold tabular-nums w-12 text-right text-[10px]" style={{ color: BRAND.primary }}>{formatScore(entry.totalScore)}</span>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       )}
       </div>
