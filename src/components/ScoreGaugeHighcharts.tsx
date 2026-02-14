@@ -37,6 +37,7 @@ export function ScoreGaugeHighcharts({
       spacing: [2, 2, 2, 2],
     },
     title: { text: undefined },
+    tooltip: { enabled: false },
     pane: {
       startAngle: -90,
       endAngle: 89.9,
@@ -87,7 +88,6 @@ export function ScoreGaugeHighcharts({
           backgroundColor: "gray",
           radius: 6,
         },
-        tooltip: { valueSuffix: " / " + maxR },
       },
     ],
     credits: { enabled: false },
