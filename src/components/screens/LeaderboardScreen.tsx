@@ -124,17 +124,39 @@ export function LeaderboardScreen({
         useCORS: true,
         backgroundColor: "#ffffff",
         logging: false,
+        imageTimeout: 15000,
       });
-      const blob = await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
+      // Use toDataURL + fetch instead of toBlob for iOS Safari (toBlob can throw SecurityError)
+      const dataUrl = canvas.toDataURL("image/png");
+      const blob = await (await fetch(dataUrl)).blob();
       if (!blob) throw new Error("Failed to create image");
-      const file = new File([blob], `hall-of-fame-${dateStr}.png`, { type: "image/png" });
+      const file = new File([blob], `hall-of-fame-${dateStr}.png`, {
+        type: "image/png",
+        lastModified: Date.now(),
+      });
       if ("share" in navigator) {
-        setCapturedFile(file);
+        // On mobile: call share immediately to preserve user gesture (required for iOS)
+        if (isMobile) {
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+          if (isIOS) {
+            await navigator.share({ files: [file] });
+          } else {
+            await navigator.share({
+              title: `Hall of Fame - ${dateStr}`,
+              text: "Check out the Hall of Fame",
+              files: [file],
+            });
+          }
+        } else {
+          setCapturedFile(file);
+        }
       } else {
         alert("Sharing is not supported. Please use a modern mobile browser.");
       }
     } catch (err) {
-      alert("Could not prepare screenshot. Please try again.");
+      if ((err as Error)?.name !== "AbortError") {
+        alert("Could not prepare or share screenshot. Please try again.");
+      }
     } finally {
       setSharePreparing(false);
     }
@@ -175,10 +197,6 @@ export function LeaderboardScreen({
             backgroundPosition: "right top",
           }}
         >
-          {/* Subtitle at top of banner on white space - NACL blue, single line */}
-          <p className="absolute top-3 left-4 z-10 text-[10px] font-medium whitespace-nowrap" style={{ color: BRAND.primary }}>
-            Ranked by Total Score of DSO, OS &amp; Product Mix
-          </p>
           {/* Hall of Fame + Logo + Trophy pill at bottom-left corner */}
           <div className="absolute bottom-2 left-4 z-10 flex flex-col items-start">
             <div className="bg-white/95 rounded-full px-3 py-1.5 shadow-lg flex items-center gap-2 border border-slate-200/50">
@@ -201,7 +219,12 @@ export function LeaderboardScreen({
         </div>
       </div>
 
-      <div className="pt-6 flex-1 min-h-0 flex flex-col">
+      {/* Subtitle just below banner - NACL blue, single line */}
+      <p className="px-4 py-2 text-[10px] font-medium whitespace-nowrap shrink-0" style={{ color: BRAND.primary }}>
+        Ranked by Total Score of DSO, OS &amp; Product Mix
+      </p>
+
+      <div className="pt-2 flex-1 min-h-0 flex flex-col">
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12 gap-3">
           <div
@@ -289,7 +312,7 @@ export function LeaderboardScreen({
             className="w-full max-w-lg rounded-t-2xl bg-white px-6 py-5 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="text-slate-700 text-sm font-medium mb-4">Screenshot ready!</p>
+            <p className="text-slate-700 text-sm font-medium mb-4">NACL Hall of Fame Screen Share ready</p>
             <div className="flex gap-3">
               <button
                 type="button"
