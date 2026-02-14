@@ -213,8 +213,8 @@ export function LeaderboardScreen({
                 unoptimized
               />
               <h2 className="text-base font-bold flex items-center gap-1.5" style={{ color: BRAND.primary }}>
-                <span className="animate-trophy-glow" style={{ color: BRAND.accent }}>
-                  <TrophyIcon className="w-4 h-4" />
+                <span style={{ color: BRAND.accent }}>
+                  <TrophyIcon className="w-[1.2rem] h-[1.2rem]" />
                 </span>
                 Hall of Fame
               </h2>
@@ -246,7 +246,7 @@ export function LeaderboardScreen({
         </div>
       ) : (
         <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
-          <div className="px-3 py-1 grid grid-cols-[auto_1fr_auto_auto_auto_auto] gap-1.5 text-[9px] font-semibold text-slate-500 border-b border-slate-200 bg-slate-50/80 shrink-0">
+          <div className="px-3 py-1 grid grid-cols-[auto_minmax(0,130px)_auto_auto_auto_auto] gap-x-2 gap-y-0 text-[9px] font-semibold text-slate-500 border-b border-slate-200 bg-slate-50/80 shrink-0">
             <span className="w-5" />
             <span>{getRoleLabel(role)}</span>
             <span className="text-right tabular-nums w-8">DSO</span>
@@ -262,12 +262,12 @@ export function LeaderboardScreen({
               return (
                 <div
                   key={entry.rank}
-                  className={`flex flex-1 min-h-0 items-center gap-2 px-3 py-1.5 border-b border-slate-100 ${
+                  className={`grid grid-cols-[auto_minmax(0,130px)_auto_auto_auto_auto] gap-x-2 px-3 py-1.5 items-center border-b border-slate-100 ${
                     isCurrentUser ? "bg-amber-50/80" : i % 2 === 0 ? "bg-white" : "bg-slate-50/50"
-                  }`}
+                  } flex-1 min-h-0`}
                 >
                   <Medal rank={entry.rank} />
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 overflow-hidden">
                     <p className={`text-[9px] truncate leading-tight ${isCurrentUser ? "font-medium" : ""}`} style={isCurrentUser ? { color: BRAND.primary } : { color: "#334155" }}>
                       {entry.name}
                       {isCurrentUser && <span className="ml-0.5 text-[8px]" style={{ color: BRAND.primary }}>(you)</span>}
