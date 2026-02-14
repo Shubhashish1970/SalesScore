@@ -16,6 +16,7 @@ import { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { fetchScorecard, isKpiApiConfigured } from "@/lib/kpi-api";
 import { getAppConfig, loadConfigFromStorage } from "@/lib/app-config";
+import { decodeJwtPayload, extractMobileAndRole } from "@/lib/jwt-utils";
 import { AdminSettingsScreen } from "@/components/admin/AdminSettingsScreen";
 import { LeaderboardScreen } from "@/components/screens/LeaderboardScreen";
 import { fetchLeaderboard } from "@/lib/leaderboard-api";
@@ -34,13 +35,27 @@ const SCREENS = [
 const ADMIN_MOBILE = process.env.NEXT_PUBLIC_ADMIN_MOBILE ?? "1234567890";
 
 /**
- * Entry: App works only via KPI API. Use ?mobile=...&role=TM|RM|ZM|BU.
- * API: https://kw-sales-score-api-366769154420.asia-south1.run.app (via same-origin proxy).
+ * Entry: App works via KPI API.
+ * URL params: ?mobile=...&role=TM|RM|ZM|BU  OR  ?token=<JWT> (WhatsApp Bot).
+ * JWT payload: { mobile, role } or { phone/sub, role }.
  */
 function HomeContent() {
   const searchParams = useSearchParams();
-  const mobileFromUrl = searchParams.get("mobile");
-  const roleFromUrl = searchParams.get("role");
+  const tokenFromUrl = searchParams.get("token");
+  const mobileFromParams = searchParams.get("mobile");
+  const roleFromParams = searchParams.get("role");
+
+  const { mobileFromUrl, roleFromUrl } = (() => {
+    if (tokenFromUrl) {
+      const payload = decodeJwtPayload(tokenFromUrl);
+      const { mobile, role } = extractMobileAndRole(payload);
+      return { mobileFromUrl: mobile, roleFromUrl: role };
+    }
+    return {
+      mobileFromUrl: mobileFromParams,
+      roleFromUrl: roleFromParams ?? null,
+    };
+  })();
   const [data, setData] = useState<ScorecardData>(EMPTY_SCORECARD);
   const [fetchError, setFetchError] = useState(false);
   const [invalidUser, setInvalidUser] = useState(false);
@@ -210,7 +225,7 @@ function HomeContent() {
       <main className="h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
         <BreakScreen
           onRetry={noLink ? undefined : retryLoad}
-          message={noLink ? "Open this app via your personalized link (e.g. ?mobile=...&role=TM)." : undefined}
+          message={noLink ? "Open this app via your personalized link (e.g. ?mobile=...&role=TM or ?token=<JWT> from WhatsApp)." : undefined}
           variant={noLink ? "noLink" : invalidUser ? "invalidUser" : "fetchError"}
         />
       </main>
