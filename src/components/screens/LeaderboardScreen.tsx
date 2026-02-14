@@ -22,12 +22,6 @@ interface Props {
   currentUserName?: string;
 }
 
-function getSubtitle(role: Role): string {
-  if (role === "ZM") return "Top 5";
-  if (role === "RM") return "Top 10";
-  return "Top 10";
-}
-
 function formatScore(n: number): string {
   return Number(n).toFixed(1);
 }
@@ -40,13 +34,19 @@ function formatDate(): string {
   return `${day}-${month}-${year}`;
 }
 
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  return (name[0] ?? "?").toUpperCase();
+}
+
 function Medal({ rank }: { rank: number }) {
-  if (rank === 1) return <span className="text-base" aria-hidden>🥇</span>;
-  if (rank === 2) return <span className="text-base" aria-hidden>🥈</span>;
-  if (rank === 3) return <span className="text-base" aria-hidden>🥉</span>;
+  if (rank === 1) return <span className="text-lg" aria-hidden>🥇</span>;
+  if (rank === 2) return <span className="text-lg" aria-hidden>🥈</span>;
+  if (rank === 3) return <span className="text-lg" aria-hidden>🥉</span>;
   return (
     <span
-      className="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold text-white tabular-nums"
+      className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white tabular-nums shrink-0"
       style={{ backgroundColor: BRAND.secondary }}
     >
       {rank}
@@ -81,7 +81,6 @@ export function LeaderboardScreen({
   error,
   currentUserName,
 }: Props) {
-  const subtitle = getSubtitle(role);
   const dateStr = formatDate();
   const shareRef = useRef<HTMLDivElement>(null);
   const [sharePreparing, setSharePreparing] = useState(false);
@@ -129,11 +128,8 @@ export function LeaderboardScreen({
       const blob = await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
       if (!blob) throw new Error("Failed to create image");
       const file = new File([blob], `hall-of-fame-${dateStr}.png`, { type: "image/png" });
-      const canShareFiles = navigator.canShare?.({ files: [file] });
-      if ("share" in navigator && canShareFiles) {
+      if ("share" in navigator) {
         setCapturedFile(file);
-      } else if ("share" in navigator) {
-        alert("File sharing is not supported in this browser.");
       } else {
         alert("Sharing is not supported. Please use a modern mobile browser.");
       }
@@ -166,58 +162,54 @@ export function LeaderboardScreen({
   };
 
   return (
-    <section className="min-h-[80dvh] flex flex-col px-4 pt-4 pb-6 overflow-hidden">
+    <section className="min-h-[80dvh] flex flex-col bg-white overflow-hidden">
       <div
         ref={shareRef}
         className="flex flex-col flex-1 min-h-0"
       >
-      <div
-        className="rounded-xl px-4 py-3 mb-4 shadow-lg flex items-start gap-3"
-        style={{ background: `linear-gradient(135deg, ${BRAND.primary} 0%, ${BRAND.secondary} 100%)` }}
-      >
-        <div className="shrink-0 mt-0.5 rounded-lg bg-white/95 p-1.5">
-          <Image
-            src="/nagarjuna-nacl-logo.png"
-            alt="Nagarjuna NACL"
-            width={44}
-            height={44}
-            className="object-contain"
-            unoptimized
-          />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl animate-trophy-glow" style={{ color: BRAND.accent }} aria-hidden>
-                <TrophyIcon className="w-7 h-7" />
-              </span>
-              <h2 className="text-lg font-bold text-white">Hall of Fame ({subtitle})</h2>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-white/90 text-xs font-medium tabular-nums" aria-label={`Date: ${dateStr}`}>
-                {dateStr}
-              </span>
-              {!loading && !error && entries.length > 0 && (
-                <button
-                  type="button"
-                  onClick={handleShareClick}
-                  disabled={sharePreparing}
-                  className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors disabled:opacity-50"
-                  aria-label="Share leaderboard"
-                >
-                  {sharePreparing ? (
-                    <span className="w-4 h-4 block border-2 border-white/60 border-t-white rounded-full animate-spin" aria-hidden />
-                  ) : (
-                    <ShareIcon className="w-4 h-4" />
-                  )}
-                </button>
-              )}
-            </div>
+      <div className="relative overflow-hidden">
+        <div
+          className="h-28 flex flex-col items-center justify-center px-4"
+          style={{ background: `linear-gradient(180deg, ${BRAND.primary} 0%, ${BRAND.secondary} 100%)` }}
+        >
+          <div className="absolute top-3 left-4">
+            <Image
+              src="/nagarjuna-nacl-logo.png"
+              alt="Nagarjuna NACL"
+              width={36}
+              height={36}
+              className="object-contain opacity-90"
+              unoptimized
+            />
           </div>
-          <p className="text-white/85 text-[10px] mt-1">
-            Rank by total score. DSO, OS, and Product Mix contribute to the total.
-          </p>
+          <div className="absolute top-3 right-4 flex items-center gap-2">
+            <span className="text-white/90 text-xs font-medium tabular-nums">{dateStr}</span>
+            {!loading && !error && entries.length > 0 && (
+              <button
+                type="button"
+                onClick={handleShareClick}
+                disabled={sharePreparing}
+                className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors disabled:opacity-50"
+                aria-label="Share"
+              >
+                {sharePreparing ? (
+                  <span className="w-4 h-4 block border-2 border-white/60 border-t-white rounded-full animate-spin" aria-hidden />
+                ) : (
+                  <ShareIcon className="w-4 h-4" />
+                )}
+              </button>
+            )}
+          </div>
+          <h2 className="text-xl font-bold text-white mt-2 flex items-center gap-2">
+            <span className="animate-trophy-glow" style={{ color: BRAND.accent }}>
+              <TrophyIcon className="w-6 h-6" />
+            </span>
+            Hall of Fame
+          </h2>
         </div>
+        <p className="text-slate-500 text-xs px-4 py-2 text-center bg-slate-50">
+          Rank by total score. DSO, OS, and Product Mix contribute to the total.
+        </p>
       </div>
 
       {loading ? (
@@ -238,56 +230,49 @@ export function LeaderboardScreen({
           <p className="text-slate-500 text-[10px]">No leaderboard data yet.</p>
         </div>
       ) : (
-        <div
-          className="flex-1 min-h-0 overflow-y-auto rounded-xl border bg-white shadow-sm"
-          style={{ borderColor: `${BRAND.primary}30` }}
-        >
-          <table className="w-full table-fixed text-[9px] leading-tight">
-            <thead className="sticky top-0 z-10 text-left" style={{ backgroundColor: `${BRAND.primary}15` }}>
-              <tr style={{ color: BRAND.primary }}>
-                <th className="px-2 py-2 font-semibold w-10">#</th>
-                <th className="pl-2 pr-1 py-2 font-semibold">Name</th>
-                <th className="pl-1 pr-2 py-2 font-semibold w-16">Territory</th>
-                <th className="px-2 py-2 font-semibold text-right tabular-nums w-10">DSO</th>
-                <th className="px-2 py-2 font-semibold text-right tabular-nums w-10">OS</th>
-                <th className="px-2 py-2 font-semibold text-right tabular-nums w-10">Mix</th>
-                <th className="px-2 py-2 font-semibold text-right tabular-nums w-12">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entries.map((entry, i) => {
-                const cu = (currentUserName ?? "").toLowerCase().trim();
-                const en = entry.name.toLowerCase().trim();
-                const isCurrentUser = cu && (en.includes(cu) || cu.includes(en));
-                return (
-                  <tr
-                    key={entry.rank}
-                    className={`border-b ${i < 3 ? "font-medium" : ""}`}
-                    style={{
-                      borderBottomColor: `${BRAND.primary}20`,
-                      backgroundColor: isCurrentUser ? `${BRAND.accent}25` : i % 2 === 0 ? "#fff" : `${BRAND.primary}08`,
-                    }}
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          <div className="px-4 py-2 grid grid-cols-[auto_1fr_auto_auto_auto_auto] gap-2 text-[10px] font-semibold text-slate-500 border-b border-slate-200 bg-slate-50/80 sticky top-0 z-10">
+            <span className="w-8" />
+            <span>Player</span>
+            <span className="text-right tabular-nums w-10">DSO</span>
+            <span className="text-right tabular-nums w-10">OS</span>
+            <span className="text-right tabular-nums w-10">Mix</span>
+            <span className="text-right tabular-nums w-12 font-bold" style={{ color: BRAND.primary }}>Total</span>
+          </div>
+          {entries.map((entry, i) => {
+            const cu = (currentUserName ?? "").toLowerCase().trim();
+            const en = entry.name.toLowerCase().trim();
+            const isCurrentUser = cu && (en.includes(cu) || cu.includes(en));
+            return (
+              <div
+                key={entry.rank}
+                className={`flex items-center gap-3 px-4 py-3 border-b border-slate-100 ${
+                  isCurrentUser ? "bg-amber-50/80" : i % 2 === 0 ? "bg-white" : "bg-slate-50/50"
+                }`}
+              >
+                <Medal rank={entry.rank} />
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
+                    style={{ backgroundColor: BRAND.secondary }}
                   >
-                    <td className="px-2 py-1.5"><Medal rank={entry.rank} /></td>
-                    <td className="pl-2 pr-1 py-1.5">
-                      <span
-                        className={isCurrentUser ? "font-semibold" : "text-slate-800"}
-                        style={isCurrentUser ? { color: BRAND.primary } : {}}
-                      >
-                        {entry.name}
-                        {isCurrentUser && <span className="ml-0.5 text-[8px]" style={{ color: BRAND.primary }}>(you)</span>}
-                      </span>
-                    </td>
-                    <td className="pl-1 pr-2 py-1.5 text-slate-600 truncate max-w-16">{entry.territory || "—"}</td>
-                    <td className="px-2 py-1.5 text-right tabular-nums text-slate-700">{formatScore(entry.dsoScore)}</td>
-                    <td className="px-2 py-1.5 text-right tabular-nums text-slate-700">{formatScore(entry.osScore)}</td>
-                    <td className="px-2 py-1.5 text-right tabular-nums text-slate-700">{formatScore(entry.productMixScore)}</td>
-                    <td className="px-2 py-1.5 text-right tabular-nums font-bold" style={{ color: BRAND.primary }}>{formatScore(entry.totalScore)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                    {getInitials(entry.name)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className={`font-medium truncate ${isCurrentUser ? "" : "text-slate-800"}`} style={isCurrentUser ? { color: BRAND.primary } : {}}>
+                      {entry.name}
+                      {isCurrentUser && <span className="ml-0.5 text-[9px]" style={{ color: BRAND.primary }}>(you)</span>}
+                    </p>
+                    <p className="text-slate-500 text-[9px] truncate">{entry.territory || "—"}</p>
+                  </div>
+                </div>
+                <span className="text-slate-700 tabular-nums w-10 text-right text-[10px]">{formatScore(entry.dsoScore)}</span>
+                <span className="text-slate-700 tabular-nums w-10 text-right text-[10px]">{formatScore(entry.osScore)}</span>
+                <span className="text-slate-700 tabular-nums w-10 text-right text-[10px]">{formatScore(entry.productMixScore)}</span>
+                <span className="font-bold tabular-nums w-12 text-right text-[10px]" style={{ color: BRAND.primary }}>{formatScore(entry.totalScore)}</span>
+              </div>
+            );
+          })}
         </div>
       )}
       </div>

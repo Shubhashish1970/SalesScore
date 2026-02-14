@@ -233,7 +233,7 @@ function HomeContent() {
             className="p-2 -m-2 rounded-full hover:bg-amber-50 text-amber-600 transition-colors"
             aria-label="View leaderboard"
           >
-            <span className="text-xl" aria-hidden>🏆</span>
+            <span className="text-xl animate-trophy-glow inline-block" aria-hidden>🏆</span>
           </button>
         )}
       </header>
