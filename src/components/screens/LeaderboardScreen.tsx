@@ -169,20 +169,35 @@ export function LeaderboardScreen({
       >
       <div className="relative overflow-hidden">
         <div
-          className="relative flex flex-col items-center justify-center min-h-[140px] px-4 py-3 pb-2 bg-cover bg-center"
+          className="relative flex flex-col min-h-[140px] px-4 py-3 pb-2 bg-cover"
           style={{
-            backgroundImage: "url(/hall-of-fame-banner.png?v=2)",
+            backgroundImage: "url(/hall-of-fame-banner.png?v=8)",
+            backgroundPosition: "left center",
           }}
         >
-          {/* Gradient overlay for text legibility */}
+          {/* Gradient: lighter on left (whitespace), stronger on right (photo) */}
           <div
             className="absolute inset-0"
             style={{
-              background: `linear-gradient(180deg, rgba(3,78,162,0.35) 0%, rgba(0,113,185,0.5) 50%, rgba(0,0,0,0.4) 100%)`,
+              background: `linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 25%, rgba(3,78,162,0.25) 50%, rgba(0,113,185,0.45) 100%)`,
             }}
           />
-          <div className="absolute top-3 left-4 z-10">
-            <span className="text-white text-xs font-medium tabular-nums drop-shadow-md">{dateStr}</span>
+          {/* Logo + Welcome on whitespace (top-left) */}
+          <div className="absolute top-3 left-4 z-10 flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <Image
+                src="/nagarjuna-nacl-logo.png"
+                alt="Nagarjuna NACL"
+                width={32}
+                height={32}
+                className="object-contain"
+                unoptimized
+              />
+              <span className="text-sm font-semibold" style={{ color: BRAND.primary }}>
+                Welcome, {currentUserName || "User"}
+              </span>
+            </div>
+            <span className="text-slate-600 text-xs tabular-nums">{dateStr}</span>
           </div>
           <div className="absolute top-3 right-4 z-10 flex items-center gap-2">
             {!loading && !error && entries.length > 0 && (
@@ -201,25 +216,17 @@ export function LeaderboardScreen({
               </button>
             )}
           </div>
-          {/* Logo on white pill bridging into content */}
-          <div className="relative z-10 flex flex-col items-center -mb-6">
-            <div className="bg-white rounded-full px-4 py-2 shadow-lg flex items-center gap-2">
-              <Image
-                src="/nagarjuna-nacl-logo.png"
-                alt="Nagarjuna NACL"
-                width={40}
-                height={40}
-                className="object-contain"
-                unoptimized
-              />
-              <h2 className="text-base font-bold flex items-center gap-1.5" style={{ color: BRAND.primary }}>
-                <span style={{ color: BRAND.accent }}>
-                  <TrophyIcon className="w-[1.2rem] h-[1.2rem]" />
-                </span>
+          {/* Hall of Fame pill on whitespace (left), bridging into content */}
+          <div className="relative z-10 flex flex-col items-start -mb-6 mt-10 ml-1">
+            <div className="bg-white/95 rounded-full px-4 py-2 shadow-lg flex items-center gap-2 border border-slate-200/50">
+              <span style={{ color: BRAND.accent }}>
+                <TrophyIcon className="w-[1.2rem] h-[1.2rem]" />
+              </span>
+              <h2 className="text-base font-bold" style={{ color: BRAND.primary }}>
                 Hall of Fame
               </h2>
             </div>
-            <p className="text-white text-[10px] mt-2 text-center px-4 drop-shadow-md">
+            <p className="text-slate-700 text-[10px] mt-2 drop-shadow-sm">
               Rank by total score. DSO, OS, and Product Mix contribute to the total.
             </p>
           </div>
