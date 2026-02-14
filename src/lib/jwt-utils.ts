@@ -11,7 +11,17 @@ export interface JwtPayload {
   phone?: string;
   sub?: string;
   role?: string;
+  email?: string;
+  admin?: boolean;
   [key: string]: unknown;
+}
+
+const ADMIN_EMAIL = "shubhashish@nacl.murugappa.com";
+
+export function isAdminToken(payload: JwtPayload | null): boolean {
+  if (!payload) return false;
+  const email = typeof payload.email === "string" ? payload.email.trim().toLowerCase() : "";
+  return email === ADMIN_EMAIL.toLowerCase();
 }
 
 /**

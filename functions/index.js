@@ -2,12 +2,17 @@
  * Firebase Cloud Function (2nd gen): Proxies GET /api/scorecard and GET /api/leaderboard
  * to the upstream KPI API. Avoids CORS by serving same-origin.
  * Scorecard: mobile + role. Leaderboard: role only.
+ * requestAdminLink: POST /api/admin/request-link with { email } - if email matches admin,
+ *   sends admin link to that email.
  */
 
 require("dotenv").config({ path: require("path").join(__dirname, ".env") });
 const { onRequest } = require("firebase-functions/v2/https");
+const { Resend } = require("resend");
 
 const UPSTREAM = process.env.KPI_API_UPSTREAM_URL || process.env.KPI_DATA_API_URL || "";
+const ADMIN_EMAIL = "shubhashish@nacl.murugappa.com";
+const BASE_URL = "https://salesscore-c34f3.web.app";
 
 function getLeaderboardBaseUrl() {
   if (!UPSTREAM) return "";
@@ -76,6 +81,85 @@ exports.leaderboardProxy = onRequest(
     } catch (err) {
       console.error("[leaderboardProxy] fetch error:", err?.message);
       res.status(502).json({ error: "Leaderboard upstream failed" });
+    }
+  }
+);
+
+function b64(o) {
+  return Buffer.from(JSON.stringify(o))
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+function generateAdminToken(hours = 24) {
+  const header = b64({ alg: "HS256", typ: "JWT" });
+  const now = Math.floor(Date.now() / 1000);
+  const payload = {
+    email: ADMIN_EMAIL,
+    iat: now,
+    exp: now + hours * 3600,
+  };
+  const payloadB64 = b64(payload);
+  const sig = b64("admin-signature");
+  return `${header}.${payloadB64}.${sig}`;
+}
+
+exports.requestAdminLink = onRequest(
+  { cors: true },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      res.status(405).json({ error: "Method not allowed" });
+      return;
+    }
+    let email = "";
+    try {
+      const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
+      email = String(body.email || "").trim().toLowerCase();
+    } catch {
+      res.status(400).json({ error: "Invalid JSON body" });
+      return;
+    }
+    if (!email) {
+      res.status(400).json({ error: "email is required" });
+      return;
+    }
+    if (email !== ADMIN_EMAIL.toLowerCase()) {
+      res.status(200).json({ ok: true, message: "If your email is authorized, you will receive the admin link shortly." });
+      return;
+    }
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey || !apiKey.trim()) {
+      console.error("[requestAdminLink] RESEND_API_KEY not configured");
+      res.status(503).json({ error: "Email service not configured" });
+      return;
+    }
+    try {
+      const token = generateAdminToken(24);
+      const adminUrl = `${BASE_URL}/?token=${token}`;
+      const fromEmail = process.env.RESEND_FROM_EMAIL || "Sales Scorecard <onboarding@resend.dev>";
+      const resend = new Resend(apiKey);
+      const { data, error } = await resend.emails.send({
+        from: fromEmail,
+        to: [ADMIN_EMAIL],
+        subject: "Sales Scorecard – Admin Configuration Link",
+        html: `
+          <p>Your admin configuration link is ready. It expires in 24 hours.</p>
+          <p><a href="${adminUrl}">Open Admin Settings</a></p>
+          <p>Or copy this URL:</p>
+          <p style="word-break:break-all;color:#64748b;">${adminUrl}</p>
+        `,
+      });
+      if (error) {
+        console.error("[requestAdminLink] Resend error:", error);
+        res.status(500).json({ error: "Failed to send email" });
+        return;
+      }
+      res.status(200).json({ ok: true, message: "Admin link sent to your email." });
+    } catch (err) {
+      console.error("[requestAdminLink] error:", err?.message);
+      res.status(500).json({ error: "Failed to send email" });
     }
   }
 );

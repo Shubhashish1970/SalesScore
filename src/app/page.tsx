@@ -16,7 +16,7 @@ import { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { fetchScorecard, isKpiApiConfigured } from "@/lib/kpi-api";
 import { getAppConfig, loadConfigFromStorage } from "@/lib/app-config";
-import { decodeJwtPayload, extractMobileAndRole } from "@/lib/jwt-utils";
+import { decodeJwtPayload, extractMobileAndRole, isAdminToken } from "@/lib/jwt-utils";
 import { AdminSettingsScreen } from "@/components/admin/AdminSettingsScreen";
 import { LeaderboardScreen } from "@/components/screens/LeaderboardScreen";
 import { fetchLeaderboard } from "@/lib/leaderboard-api";
@@ -32,12 +32,10 @@ const SCREENS = [
   WhatToDoNext,
 ] as const;
 
-const ADMIN_MOBILE = process.env.NEXT_PUBLIC_ADMIN_MOBILE ?? "1234567890";
-
 /**
  * Entry: App works via KPI API.
  * URL params: ?mobile=...&role=TM|RM|ZM|BU  OR  ?token=<JWT> (WhatsApp Bot).
- * JWT payload: { mobile, role } or { phone/sub, role }.
+ * Admin: ?token=<JWT> with payload.email = shubhashish@nacl.murugappa.com (no direct URL access).
  */
 function HomeContent() {
   const searchParams = useSearchParams();
@@ -67,7 +65,8 @@ function HomeContent() {
   const [leaderboardError, setLeaderboardError] = useState<string | null>(null);
   const { currentIndex, setCurrentIndex, goNext, goPrev, onTouchStart, onTouchEnd } = useSwipe(0);
 
-  const isAdminMode = mobileFromUrl === ADMIN_MOBILE;
+  const isAdminMode =
+    Boolean(tokenFromUrl) && isAdminToken(decodeJwtPayload(tokenFromUrl ?? ""));
 
   if (isAdminMode) {
     return (
@@ -86,7 +85,7 @@ function HomeContent() {
 
   useEffect(() => {
     loadConfigFromStorage();
-    if (mobileFromUrl === ADMIN_MOBILE) return;
+    if (isAdminMode) return;
     let cancelled = false;
     setCurrentIndex(0);
 

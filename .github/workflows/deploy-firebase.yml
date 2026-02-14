@@ -5,6 +5,7 @@
 # Optional: FIREBASE_PROJECT_ID (default salesscore-c34f3).
 # KPI_DATA_API_URL: upstream KPI API (e.g. https://...run.app/api/scorecard). When set, client uses
 #   same-origin proxy /api/scorecard to avoid CORS; function proxies to upstream.
+# RESEND_API_KEY: Resend API key for admin link emails (get from resend.com). Required for /admin/request.
 
 name: Deploy to Firebase Hosting
 
@@ -80,6 +81,24 @@ jobs:
             --project="$PROJECT_ID" \
             --quiet
           echo "Leaderboard proxy: https://asia-south1-${PROJECT_ID}.cloudfunctions.net/leaderboardProxy"
+
+      - name: Deploy Admin link request (Cloud Function via gcloud)
+        env:
+          PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          gcloud functions deploy requestAdminLink \
+            --gen2 \
+            --runtime=nodejs20 \
+            --region=asia-south1 \
+            --source=./functions \
+            --entry-point=requestAdminLink \
+            --trigger-http \
+            --allow-unauthenticated \
+            --set-env-vars "RESEND_API_KEY=$RESEND_API_KEY" \
+            --project="$PROJECT_ID" \
+            --quiet
+          echo "Admin link: https://asia-south1-${PROJECT_ID}.cloudfunctions.net/requestAdminLink"
 
       - name: Deploy Firebase Hosting
         env:

@@ -11,6 +11,10 @@
       {
         "source": "/api/leaderboard",
         "function": { "functionId": "leaderboardProxy", "region": "asia-south1" }
+      },
+      {
+        "source": "/api/admin/request-link",
+        "function": { "functionId": "requestAdminLink", "region": "asia-south1" }
       }
     ]
   }
