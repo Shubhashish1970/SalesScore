@@ -109,7 +109,14 @@ function generateAdminToken(hours = 24) {
 exports.requestAdminLink = onRequest(
   { cors: true },
   async (req, res) => {
+    const log = (step, msg, extra) => {
+      const entry = { step, msg, ...(extra && { extra }) };
+      console.log("[requestAdminLink]", JSON.stringify(entry));
+    };
+    log("start", "Request received", { method: req.method, hasBody: !!req.body, hasRawBody: !!req.rawBody });
+
     if (req.method !== "POST") {
+      log("reject", "Method not allowed");
       res.status(405).json({ error: "Method not allowed" });
       return;
     }
@@ -117,29 +124,34 @@ exports.requestAdminLink = onRequest(
     try {
       let body = req.body;
       if (!body && req.rawBody) {
+        log("parse", "Using rawBody (req.body was empty)");
         body = JSON.parse(req.rawBody.toString());
       }
       body = typeof body === "string" ? JSON.parse(body) : body || {};
       email = String(body.email || "").trim().toLowerCase();
+      log("parse", "Body parsed", { email: email ? `${email.slice(0, 3)}***` : "(empty)" });
     } catch (e) {
-      console.error("[requestAdminLink] body parse error:", e?.message);
+      log("parse", "Body parse failed", { error: e?.message });
       res.status(400).json({ error: "Invalid JSON body" });
       return;
     }
     if (!email) {
+      log("reject", "Email empty");
       res.status(400).json({ error: "email is required" });
       return;
     }
     if (email !== ADMIN_EMAIL.toLowerCase()) {
+      log("reject", "Email not authorized", { expected: ADMIN_EMAIL });
       res.status(200).json({ ok: true, message: "If your email is authorized, you will receive the admin link shortly." });
       return;
     }
     const apiKey = process.env.RESEND_API_KEY;
     if (!apiKey || !apiKey.trim()) {
-      console.error("[requestAdminLink] RESEND_API_KEY not configured");
+      log("reject", "RESEND_API_KEY not set");
       res.status(503).json({ error: "Email service not configured" });
       return;
     }
+    log("send", "Attempting Resend send", { from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev", to: ADMIN_EMAIL });
     try {
       const token = generateAdminToken(24);
       const adminUrl = `${BASE_URL}/?token=${token}`;
@@ -157,13 +169,14 @@ exports.requestAdminLink = onRequest(
         `,
       });
       if (error) {
-        console.error("[requestAdminLink] Resend error:", JSON.stringify(error));
+        log("resend_error", "Resend API returned error", { error: JSON.stringify(error) });
         res.status(500).json({ error: "Failed to send email. Check RESEND_API_KEY and Resend dashboard." });
         return;
       }
+      log("success", "Email sent", { id: data?.id });
       res.status(200).json({ ok: true, message: "Admin link sent to your email." });
     } catch (err) {
-      console.error("[requestAdminLink] error:", err?.message, err?.stack);
+      log("exception", "Unexpected error", { message: err?.message, stack: err?.stack });
       res.status(500).json({ error: "Failed to send email. Check RESEND_API_KEY and Resend dashboard." });
     }
   }

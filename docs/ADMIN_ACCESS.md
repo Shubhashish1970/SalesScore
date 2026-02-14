@@ -42,4 +42,23 @@ This prints a URL like `https://salesscore-c34f3.web.app/?token=<jwt>`.
 1. **RESEND_API_KEY** – Add it in GitHub Secrets (Settings → Secrets → Actions). Redeploy after adding.
 2. **Email must match exactly** – Use `shubhashish@nacl.murugappa.com` (not `.cor` or other typos).
 3. **Resend account** – Create an account at [resend.com](https://resend.com), add an API key, and use it as `RESEND_API_KEY`.
-4. **Check logs** – In GCP Console → Cloud Functions → requestAdminLink → Logs, look for `[requestAdminLink]` errors.
+4. **Check logs** – See "Where to find logs" below.
+
+## Where to find logs
+
+Logs are in **Google Cloud Logging** (not a local file). Each request logs a step-by-step trace with `[requestAdminLink]`.
+
+**Option A – GCP Console (web):**
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Select project `salesscore-c34f3` (or your Firebase project)
+3. **Logging** → **Logs Explorer**
+4. Filter: `textPayload=~"requestAdminLink"`
+5. Or: **Cloud Functions** → **requestAdminLink** → **Logs** tab
+
+**Option B – Export logs to a file (gcloud CLI):**
+```bash
+gcloud logging read 'textPayload=~"requestAdminLink"' \
+  --project=salesscore-c34f3 --limit=50 --format=json > admin-request-logs.json
+```
+
+**Log steps:** `start` → `parse` → `send` → `success` or `resend_error` / `exception`. Share the JSON or screenshot of the failing step for analysis.
