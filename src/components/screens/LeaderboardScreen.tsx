@@ -175,8 +175,8 @@ export function LeaderboardScreen({
             backgroundPosition: "right top",
           }}
         >
-          {/* Subtitle at top of banner on white space - NACL blue */}
-          <p className="absolute top-3 left-4 z-10 text-[10px] font-medium max-w-[200px]" style={{ color: BRAND.primary }}>
+          {/* Subtitle at top of banner on white space - NACL blue, single line */}
+          <p className="absolute top-3 left-4 z-10 text-[10px] font-medium whitespace-nowrap" style={{ color: BRAND.primary }}>
             Ranked by Total Score of DSO, OS &amp; Product Mix
           </p>
           {/* Hall of Fame + Logo + Trophy pill at bottom-left corner */}
@@ -260,22 +260,22 @@ export function LeaderboardScreen({
         </div>
       )}
       </div>
-      {/* Date + Share pill below scorecard */}
-      <div className="flex items-center justify-start px-4 py-3 border-t border-slate-200 bg-slate-50/50 shrink-0">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ backgroundColor: BRAND.primary }}>
-          <span className="text-white text-xs font-medium tabular-nums">{dateStr}</span>
+      {/* Date + Share pill below scorecard - RHS, thinner */}
+      <div className="flex items-center justify-end px-4 py-2 border-t border-slate-200 bg-slate-50/50 shrink-0">
+        <div className="flex items-center gap-1.5 px-2 py-1 rounded-md" style={{ backgroundColor: BRAND.primary }}>
+          <span className="text-white text-[10px] font-medium tabular-nums">{dateStr}</span>
           {!loading && !error && entries.length > 0 && (
             <button
               type="button"
               onClick={handleShareClick}
               disabled={sharePreparing}
-              className="p-1 rounded text-white hover:bg-white/20 transition-colors disabled:opacity-50"
-              aria-label="Share"
-            >
-              {sharePreparing ? (
-                <span className="w-4 h-4 block border-2 border-white/60 border-t-white rounded-full animate-spin" aria-hidden />
-              ) : (
-                <ShareIcon className="w-4 h-4" />
+                className="p-0.5 rounded text-white hover:bg-white/20 transition-colors disabled:opacity-50"
+                aria-label="Share"
+              >
+                {sharePreparing ? (
+                  <span className="w-3 h-3 block border-2 border-white/60 border-t-white rounded-full animate-spin" aria-hidden />
+                ) : (
+                  <ShareIcon className="w-3 h-3" />
               )}
             </button>
           )}
