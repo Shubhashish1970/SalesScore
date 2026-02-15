@@ -14,6 +14,8 @@ export interface HoTarget {
 
 export interface HoMapping {
   hoMobile: string;
+  /** Display name for HO leader; shown as "Welcome <Name>" on target selector. */
+  hoLeaderName?: string;
   targets: HoTarget[];
 }
 
@@ -22,6 +24,7 @@ const STORAGE_KEY = "sales-scorecard-access";
 function normalizeMappings(raw: HoMapping[]): HoMapping[] {
   return (Array.isArray(raw) ? raw : []).map((m) => ({
     hoMobile: String(m.hoMobile ?? "").trim(),
+    hoLeaderName: typeof m.hoLeaderName === "string" ? m.hoLeaderName.trim() : undefined,
     targets: (Array.isArray(m.targets) ? m.targets : []).map((t) => ({
       mobile: String(t.mobile ?? "").trim(),
       role: (["TM", "RM", "ZM", "BU"].includes(String(t.role ?? "").toUpperCase())
@@ -113,4 +116,14 @@ export function getHoTargetsFromMappings(hoMobile: string, mappings: HoMapping[]
 export function isHoUserFromMappings(mobile: string, mappings: HoMapping[]): boolean {
   const t = getHoTargetsFromMappings(mobile, mappings);
   return t !== null && t.length > 0;
+}
+
+/**
+ * Get HO leader name from mappings for display (e.g. "Welcome <Name>").
+ */
+export function getHoLeaderNameFromMappings(hoMobile: string, mappings: HoMapping[]): string | undefined {
+  const n = String(hoMobile ?? "").trim();
+  if (!n) return undefined;
+  const found = mappings.find((m) => m.hoMobile === n);
+  return found?.hoLeaderName ? found.hoLeaderName.trim() : undefined;
 }

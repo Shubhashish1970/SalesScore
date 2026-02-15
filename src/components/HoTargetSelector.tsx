@@ -4,14 +4,18 @@ import type { HoTarget } from "@/lib/ho-mappings";
 
 interface HoTargetSelectorProps {
   targets: HoTarget[];
+  /** HO leader name; shown as "Welcome <Name>" when provided. */
+  leaderName?: string;
   onSelect: (target: HoTarget) => void;
 }
 
-export function HoTargetSelector({ targets, onSelect }: HoTargetSelectorProps) {
+export function HoTargetSelector({ targets, leaderName, onSelect }: HoTargetSelectorProps) {
   return (
     <main className="min-h-dvh flex flex-col items-center justify-center p-6 max-w-lg mx-auto bg-slate-50">
       <div className="w-full bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        <h1 className="text-lg font-semibold text-slate-800 mb-1">Select scorecard to view</h1>
+        <h1 className="text-lg font-semibold text-slate-800 mb-1">
+          {leaderName ? `Welcome, ${leaderName}` : "Welcome"}
+        </h1>
         <p className="text-sm text-slate-500 mb-6">
           Choose a territory, region, zone, or BU to view its scorecard.
         </p>

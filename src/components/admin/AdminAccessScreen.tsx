@@ -90,7 +90,7 @@ function MappingCard({
     <div className="rounded-lg border border-slate-200 p-4 space-y-3">
       <div className="flex items-center justify-between gap-2">
         <label className="flex flex-col gap-1 flex-1">
-          <span className="text-xs text-slate-500">HO mobile</span>
+          <span className="text-xs text-slate-500">Mobile Number</span>
           <input
             type="text"
             placeholder="e.g. 9876543210"
@@ -107,6 +107,16 @@ function MappingCard({
           Remove HO
         </button>
       </div>
+      <label className="flex flex-col gap-1">
+        <span className="text-xs text-slate-500">HO Leader&apos;s Name</span>
+        <input
+          type="text"
+          placeholder="e.g. John Doe"
+          value={mapping.hoLeaderName ?? ""}
+          onChange={(e) => onChange({ ...mapping, hoLeaderName: e.target.value || undefined })}
+          className="border border-slate-300 rounded px-2 py-1.5 text-sm"
+        />
+      </label>
       <div>
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs text-slate-500">Targets (users this HO can view)</span>
@@ -157,7 +167,7 @@ export function AdminAccessScreen() {
   };
 
   const addMapping = () => {
-    setMappings([...mappings, { hoMobile: "", targets: [] }]);
+    setMappings([...mappings, { hoMobile: "", hoLeaderName: undefined, targets: [] }]);
   };
 
   const updateMapping = (i: number, m: HoMapping) => {
@@ -176,8 +186,8 @@ export function AdminAccessScreen() {
         <section>
           <h2 className="text-sm font-semibold text-slate-700 mb-2">HO User Mappings</h2>
           <p className="text-xs text-slate-500 mb-4">
-            HO (Head Office) users can view scorecards of mapped target users. Add HO mobile and the
-            targets (mobile + role) they can view.
+            HO (Head Office) users can view scorecards of mapped target users. Add mobile number,
+            HO leader&apos;s name (optional), and the targets they can view.
           </p>
           <div className="space-y-4">
             {mappings.map((m, i) => (

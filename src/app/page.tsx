@@ -17,7 +17,7 @@ import { useSearchParams } from "next/navigation";
 import { fetchScorecard, isKpiApiConfigured } from "@/lib/kpi-api";
 import { getAppConfig, loadConfigFromStorage } from "@/lib/app-config";
 import { decodeJwtPayload, extractMobileAndRole, isAdminToken } from "@/lib/jwt-utils";
-import { fetchHoMappingsFromApi, isHoUserFromMappings, getHoTargetsFromMappings } from "@/lib/ho-mappings";
+import { fetchHoMappingsFromApi, isHoUserFromMappings, getHoTargetsFromMappings, getHoLeaderNameFromMappings } from "@/lib/ho-mappings";
 import { fetchAccessConfigFromApi, type AccessConfig } from "@/lib/access-config";
 import type { HoTarget, HoMapping } from "@/lib/ho-mappings";
 import { AdminSettingsScreen } from "@/components/admin/AdminSettingsScreen";
@@ -75,6 +75,7 @@ function HomeContent() {
   const mappings = hoMappings ?? [];
   const isHo = Boolean(mobileFromUrl && isHoUserFromMappings(mobileFromUrl, mappings));
   const hoTargets = mobileFromUrl ? getHoTargetsFromMappings(mobileFromUrl, mappings) : null;
+  const hoLeaderName = mobileFromUrl ? getHoLeaderNameFromMappings(mobileFromUrl, mappings) : undefined;
   const effectiveMobile = selectedTarget?.mobile ?? mobileFromUrl;
   const effectiveRole = (selectedTarget?.role ?? (roleFromUrl && ["TM", "RM", "ZM", "BU"].includes(roleFromUrl) ? roleFromUrl : "TM")) as ScorecardData["role"];
 
@@ -254,7 +255,7 @@ function HomeContent() {
   if (isHo && hoTargets && !selectedTarget) {
     return (
       <main className="min-h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
-        <HoTargetSelector targets={hoTargets} onSelect={(t) => setSelectedTarget(t)} />
+        <HoTargetSelector targets={hoTargets} leaderName={hoLeaderName} onSelect={(t) => setSelectedTarget(t)} />
       </main>
     );
   }
