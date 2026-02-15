@@ -10,7 +10,8 @@ interface Props {
   /** Optional custom message when no mobile in URL (e.g. "Open via link with ?mobile=...&role=TM". */
   message?: string;
   /** "invalidUser" = wrong mobile / no data; show humorous messages + Retry. */
-  variant?: "noLink" | "fetchError" | "invalidUser";
+  /** "accessDisabled" = URL or token access is disabled by admin config. */
+  variant?: "noLink" | "fetchError" | "invalidUser" | "accessDisabled";
 }
 
 const FETCH_ERROR_MESSAGES = [
@@ -27,6 +28,9 @@ const NO_LINK_TITLES = [
   "Link required — and we mean the digital kind!",
 ];
 
+const ACCESS_DISABLED_MESSAGE =
+  "This access method is currently disabled. Please use the enabled access method (URL or token) or contact your admin.";
+
 const INVALID_USER_MESSAGES = [
   "This number doesn't ring a bell! Double-check your link or try again.",
   "We couldn't find this mobile in our records. The scorecard elves are scratching their heads!",
@@ -42,6 +46,7 @@ function pickRandom<T>(arr: T[]): T {
 export function BreakScreen({ onRetry, message, variant }: Props) {
   const isNoLink = Boolean(message);
   const isInvalidUser = variant === "invalidUser";
+  const isAccessDisabled = variant === "accessDisabled";
   const humorousTitle = useMemo(() => (isNoLink ? pickRandom(NO_LINK_TITLES) : null), [isNoLink]);
   const humorousBody = useMemo(
     () =>
@@ -56,10 +61,18 @@ export function BreakScreen({ onRetry, message, variant }: Props) {
   return (
     <section className="min-h-[80dvh] flex flex-col items-center justify-center px-6 py-12 text-center">
       <h2 className="text-2xl font-bold text-slate-800 mb-3">
-        {isNoLink ? (humorousTitle ?? "Link required") : isInvalidUser ? "Wrong call!" : "We lost this page"}
+        {isAccessDisabled
+          ? "Access disabled"
+          : isNoLink
+            ? (humorousTitle ?? "Link required")
+            : isInvalidUser
+              ? "Wrong call!"
+              : "We lost this page"}
       </h2>
       <p className="text-slate-600 text-base leading-relaxed max-w-sm mb-8">
-        {message ?? (humorousBody ?? "We searched high and low but couldn't find what you're looking for. Let's find a better place for you to go.")}
+        {isAccessDisabled
+          ? ACCESS_DISABLED_MESSAGE
+          : message ?? (humorousBody ?? "We searched high and low but couldn't find what you're looking for. Let's find a better place for you to go.")}
       </p>
       {!message && (
         <button

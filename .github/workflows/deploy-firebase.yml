@@ -128,6 +128,34 @@ jobs:
             --project="$PROJECT_ID" \
             --quiet
 
+      - name: Deploy Access config (Cloud Functions via gcloud)
+        env:
+          PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}
+        run: |
+          SA="${PROJECT_ID}@appspot.gserviceaccount.com"
+          gcloud functions deploy getAccessConfig \
+            --gen2 \
+            --runtime=nodejs20 \
+            --region=asia-south1 \
+            --source=./functions \
+            --entry-point=getAccessConfig \
+            --trigger-http \
+            --allow-unauthenticated \
+            --service-account="$SA" \
+            --project="$PROJECT_ID" \
+            --quiet
+          gcloud functions deploy saveAccessConfig \
+            --gen2 \
+            --runtime=nodejs20 \
+            --region=asia-south1 \
+            --source=./functions \
+            --entry-point=saveAccessConfig \
+            --trigger-http \
+            --allow-unauthenticated \
+            --service-account="$SA" \
+            --project="$PROJECT_ID" \
+            --quiet
+
       - name: Deploy Firebase Hosting
         env:
           CI: true

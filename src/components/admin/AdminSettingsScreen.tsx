@@ -10,8 +10,9 @@ import {
   type AppConfig,
 } from "@/lib/app-config";
 import { AdminAccessScreen } from "./AdminAccessScreen";
+import { AdminConfigurationScreen } from "./AdminConfigurationScreen";
 
-type AdminTab = "settings" | "access";
+type AdminTab = "settings" | "access" | "configuration";
 
 export function AdminSettingsScreen() {
   const [tab, setTab] = useState<AdminTab>("settings");
@@ -61,10 +62,58 @@ export function AdminSettingsScreen() {
             >
               Access
             </button>
+            <button
+              type="button"
+              onClick={() => setTab("configuration")}
+              className="px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-amber-100"
+            >
+              Configuration
+            </button>
           </nav>
         </header>
         <div className="flex-1 min-h-0 flex flex-col">
           <AdminAccessScreen />
+        </div>
+      </div>
+    );
+  }
+
+  if (tab === "configuration") {
+    return (
+      <div className="flex flex-col min-h-dvh">
+        <header className="shrink-0 bg-amber-50 border-b border-amber-200 px-4 py-3">
+          <div className="flex items-center justify-between mb-3">
+            <h1 className="text-lg font-semibold text-slate-800">Admin</h1>
+            <a href="/" className="text-sm text-amber-700 hover:text-amber-800 font-medium">
+              Exit admin
+            </a>
+          </div>
+          <nav className="flex gap-1">
+            <button
+              type="button"
+              onClick={() => setTab("settings")}
+              className="px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-amber-100"
+            >
+              Settings
+            </button>
+            <button
+              type="button"
+              onClick={() => setTab("access")}
+              className="px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-amber-100"
+            >
+              Access
+            </button>
+            <button
+              type="button"
+              onClick={() => setTab("configuration")}
+              className="px-3 py-2 text-sm font-medium rounded-lg bg-amber-200 text-amber-900"
+            >
+              Configuration
+            </button>
+          </nav>
+        </header>
+        <div className="flex-1 min-h-0 flex flex-col">
+          <AdminConfigurationScreen />
         </div>
       </div>
     );
@@ -93,6 +142,13 @@ export function AdminSettingsScreen() {
             className="px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-amber-100"
           >
             Access
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab("configuration")}
+            className="px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-amber-100"
+          >
+            Configuration
           </button>
         </nav>
       </header>

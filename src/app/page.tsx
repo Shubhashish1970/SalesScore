@@ -18,6 +18,7 @@ import { fetchScorecard, isKpiApiConfigured } from "@/lib/kpi-api";
 import { getAppConfig, loadConfigFromStorage } from "@/lib/app-config";
 import { decodeJwtPayload, extractMobileAndRole, isAdminToken } from "@/lib/jwt-utils";
 import { fetchHoMappingsFromApi, isHoUserFromMappings, getHoTargetsFromMappings } from "@/lib/ho-mappings";
+import { fetchAccessConfigFromApi, type AccessConfig } from "@/lib/access-config";
 import type { HoTarget, HoMapping } from "@/lib/ho-mappings";
 import { AdminSettingsScreen } from "@/components/admin/AdminSettingsScreen";
 import { HoTargetSelector } from "@/components/HoTargetSelector";
@@ -68,6 +69,7 @@ function HomeContent() {
   const [leaderboardError, setLeaderboardError] = useState<string | null>(null);
   const [selectedTarget, setSelectedTarget] = useState<HoTarget | null>(null);
   const [hoMappings, setHoMappings] = useState<HoMapping[] | null>(null);
+  const [accessConfig, setAccessConfig] = useState<AccessConfig | null>(null);
   const { currentIndex, setCurrentIndex, goNext, goPrev, onTouchStart, onTouchEnd } = useSwipe(0);
 
   const mappings = hoMappings ?? [];
@@ -88,6 +90,10 @@ function HomeContent() {
 
   useEffect(() => {
     fetchHoMappingsFromApi().then((m) => setHoMappings(m));
+  }, []);
+
+  useEffect(() => {
+    fetchAccessConfigFromApi().then(setAccessConfig);
   }, []);
 
   useEffect(() => {
@@ -226,6 +232,21 @@ function HomeContent() {
     return (
       <main className="min-h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
         <AdminSettingsScreen />
+      </main>
+    );
+  }
+
+  const usingTokenAccess = Boolean(tokenFromUrl);
+  const usingUrlAccess = !tokenFromUrl && Boolean(mobileFromParams);
+  const accessBlocked =
+    accessConfig &&
+    ((usingUrlAccess && !accessConfig.allowUrlAccess) ||
+      (usingTokenAccess && !accessConfig.allowTokenAccess));
+
+  if (accessBlocked) {
+    return (
+      <main className="h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
+        <BreakScreen variant="accessDisabled" />
       </main>
     );
   }

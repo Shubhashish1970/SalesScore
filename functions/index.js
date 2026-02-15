@@ -16,6 +16,7 @@ if (!admin.apps.length) {
 }
 const db = admin.firestore();
 const HO_MAPPINGS_DOC = "config/ho-mappings";
+const ACCESS_CONFIG_DOC = "config/access-config";
 
 const UPSTREAM = process.env.KPI_API_UPSTREAM_URL || process.env.KPI_DATA_API_URL || "";
 const ADMIN_EMAIL = "shubhashish@nacl.murugappa.com";
@@ -233,6 +234,58 @@ exports.saveHoMappings = onRequest(
     } catch (err) {
       console.error("[saveHoMappings] error:", err?.message, err?.stack);
       res.status(500).json({ error: "Failed to save HO mappings", detail: err?.message });
+    }
+  }
+);
+
+exports.getAccessConfig = onRequest(
+  { cors: true },
+  async (req, res) => {
+    if (req.method !== "GET") {
+      res.status(405).json({ error: "Method not allowed" });
+      return;
+    }
+    try {
+      const snap = await db.doc(ACCESS_CONFIG_DOC).get();
+      const data = snap.exists ? snap.data() : null;
+      res.status(200).json({
+        allowUrlAccess: data?.allowUrlAccess !== false,
+        allowTokenAccess: data?.allowTokenAccess !== false,
+      });
+    } catch (err) {
+      console.error("[getAccessConfig] error:", err?.message);
+      res.status(500).json({ error: "Failed to load access config", allowUrlAccess: true, allowTokenAccess: true });
+    }
+  }
+);
+
+exports.saveAccessConfig = onRequest(
+  { cors: true },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      res.status(405).json({ error: "Method not allowed" });
+      return;
+    }
+    let allowUrlAccess = true;
+    let allowTokenAccess = true;
+    try {
+      let body = req.body;
+      if (!body && req.rawBody) {
+        body = JSON.parse(req.rawBody.toString());
+      }
+      body = typeof body === "string" ? JSON.parse(body) : body || {};
+      allowUrlAccess = body.allowUrlAccess !== false;
+      allowTokenAccess = body.allowTokenAccess !== false;
+    } catch {
+      res.status(400).json({ error: "Invalid JSON body" });
+      return;
+    }
+    try {
+      await db.doc(ACCESS_CONFIG_DOC).set({ allowUrlAccess, allowTokenAccess }, { merge: true });
+      res.status(200).json({ ok: true });
+    } catch (err) {
+      console.error("[saveAccessConfig] error:", err?.message);
+      res.status(500).json({ error: "Failed to save access config" });
     }
   }
 );
