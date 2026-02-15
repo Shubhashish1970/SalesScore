@@ -17,7 +17,10 @@ import { useSearchParams } from "next/navigation";
 import { fetchScorecard, isKpiApiConfigured } from "@/lib/kpi-api";
 import { getAppConfig, loadConfigFromStorage } from "@/lib/app-config";
 import { decodeJwtPayload, extractMobileAndRole, isAdminToken } from "@/lib/jwt-utils";
+import { isHoUser, getHoTargets } from "@/lib/ho-mappings";
+import type { HoTarget } from "@/lib/ho-mappings";
 import { AdminSettingsScreen } from "@/components/admin/AdminSettingsScreen";
+import { HoTargetSelector } from "@/components/HoTargetSelector";
 import { LeaderboardScreen } from "@/components/screens/LeaderboardScreen";
 import { fetchLeaderboard } from "@/lib/leaderboard-api";
 import type { LeaderboardEntry } from "@/types/leaderboard";
@@ -63,7 +66,13 @@ function HomeContent() {
   const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [leaderboardError, setLeaderboardError] = useState<string | null>(null);
+  const [selectedTarget, setSelectedTarget] = useState<HoTarget | null>(null);
   const { currentIndex, setCurrentIndex, goNext, goPrev, onTouchStart, onTouchEnd } = useSwipe(0);
+
+  const isHo = Boolean(mobileFromUrl && isHoUser(mobileFromUrl));
+  const hoTargets = mobileFromUrl ? getHoTargets(mobileFromUrl) : null;
+  const effectiveMobile = selectedTarget?.mobile ?? mobileFromUrl;
+  const effectiveRole = (selectedTarget?.role ?? (roleFromUrl && ["TM", "RM", "ZM", "BU"].includes(roleFromUrl) ? roleFromUrl : "TM")) as ScorecardData["role"];
 
   const isAdminMode =
     Boolean(tokenFromUrl) && isAdminToken(decodeJwtPayload(tokenFromUrl ?? ""));
@@ -72,6 +81,14 @@ function HomeContent() {
     return (
       <main className="min-h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
         <AdminSettingsScreen />
+      </main>
+    );
+  }
+
+  if (isHo && hoTargets && !selectedTarget) {
+    return (
+      <main className="min-h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
+        <HoTargetSelector targets={hoTargets} onSelect={(t) => setSelectedTarget(t)} />
       </main>
     );
   }
@@ -145,25 +162,28 @@ function HomeContent() {
       });
     };
 
-    if (!mobileFromUrl || !isKpiApiConfigured()) {
+    if (isHo && !selectedTarget) {
+      setLoading(false);
+      return () => { cancelled = true; };
+    }
+
+    if (!effectiveMobile || !isKpiApiConfigured()) {
       setFetchError(true);
       setLoading(false);
       return () => { cancelled = true; };
     }
 
-    const role = (roleFromUrl === "TM" || roleFromUrl === "RM" || roleFromUrl === "ZM" || roleFromUrl === "BU"
-      ? roleFromUrl
-      : "TM") as ScorecardData["role"];
+    const role = effectiveRole;
 
     setLoading(true);
-    fetchScorecard(mobileFromUrl, role)
+    fetchScorecard(effectiveMobile, role)
       .then((scorecard) => {
         if (cancelled) return;
         const isEmptyOrPlaceholder = (s: string | undefined) => {
           const t = (s ?? "").trim().toLowerCase();
           return !t || t === "n/a" || t === "na" || t === "-" || t === "null" || t === "undefined" || t === "unknown";
         };
-        const noName = isEmptyOrPlaceholder(scorecard.name) || scorecard.name?.trim() === String(mobileFromUrl);
+        const noName = isEmptyOrPlaceholder(scorecard.name) || scorecard.name?.trim() === String(effectiveMobile);
         const noEntity = isEmptyOrPlaceholder(scorecard.entityName);
         const isInvalidUser = noName && noEntity;
         if (isInvalidUser) {
@@ -205,7 +225,7 @@ function HomeContent() {
     }
 
     return () => { cancelled = true; };
-  }, [mobileFromUrl, roleFromUrl, setCurrentIndex, retryKey]);
+  }, [effectiveMobile, effectiveRole, isHo, selectedTarget, setCurrentIndex, retryKey]);
 
   const Screen = SCREENS[currentIndex];
   const showLeaderboardIcon = (data.role === "TM" || data.role === "RM" || data.role === "ZM") && currentIndex === 0;
@@ -256,7 +276,17 @@ function HomeContent() {
             Welcome, {data.name}
           </span>
         </div>
-        {showLeaderboardIcon && !leaderboardOpen && (
+        <div className="flex items-center gap-2">
+          {isHo && selectedTarget && (
+            <button
+              type="button"
+              onClick={() => setSelectedTarget(null)}
+              className="text-xs text-amber-600 hover:text-amber-700 font-medium"
+            >
+              Switch view
+            </button>
+          )}
+          {showLeaderboardIcon && !leaderboardOpen && (
           <button
             type="button"
             onClick={() => setLeaderboardOpen(true)}
@@ -265,7 +295,8 @@ function HomeContent() {
           >
             <span className="text-xl animate-trophy-glow inline-block" aria-hidden>🏆</span>
           </button>
-        )}
+          )}
+        </div>
       </header>
 
       <div

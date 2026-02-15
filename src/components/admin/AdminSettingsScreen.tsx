@@ -9,8 +9,12 @@ import {
   getDefaultConfig,
   type AppConfig,
 } from "@/lib/app-config";
+import { AdminAccessScreen } from "./AdminAccessScreen";
+
+type AdminTab = "settings" | "access";
 
 export function AdminSettingsScreen() {
+  const [tab, setTab] = useState<AdminTab>("settings");
   const [config, setConfig] = useState<AppConfig>(() => getAppConfig());
   const [saved, setSaved] = useState(false);
 
@@ -32,16 +36,65 @@ export function AdminSettingsScreen() {
     setConfig(defaults);
   };
 
+  if (tab === "access") {
+    return (
+      <div className="flex flex-col min-h-dvh">
+        <header className="shrink-0 bg-amber-50 border-b border-amber-200 px-4 py-3">
+          <div className="flex items-center justify-between mb-3">
+            <h1 className="text-lg font-semibold text-slate-800">Admin</h1>
+            <a href="/" className="text-sm text-amber-700 hover:text-amber-800 font-medium">
+              Exit admin
+            </a>
+          </div>
+          <nav className="flex gap-1">
+            <button
+              type="button"
+              onClick={() => setTab("settings")}
+              className="px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-amber-100"
+            >
+              Settings
+            </button>
+            <button
+              type="button"
+              onClick={() => setTab("access")}
+              className="px-3 py-2 text-sm font-medium rounded-lg bg-amber-200 text-amber-900"
+            >
+              Access
+            </button>
+          </nav>
+        </header>
+        <div className="flex-1 min-h-0 flex flex-col">
+          <AdminAccessScreen />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-dvh">
-      <header className="shrink-0 bg-amber-50 border-b border-amber-200 px-4 py-3 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-slate-800">Admin Settings</h1>
-        <a
-          href="/"
-          className="text-sm text-amber-700 hover:text-amber-800 font-medium"
-        >
-          Exit admin
-        </a>
+      <header className="shrink-0 bg-amber-50 border-b border-amber-200 px-4 py-3">
+        <div className="flex items-center justify-between mb-3">
+          <h1 className="text-lg font-semibold text-slate-800">Admin</h1>
+          <a href="/" className="text-sm text-amber-700 hover:text-amber-800 font-medium">
+            Exit admin
+          </a>
+        </div>
+        <nav className="flex gap-1">
+          <button
+            type="button"
+            onClick={() => setTab("settings")}
+            className="px-3 py-2 text-sm font-medium rounded-lg bg-amber-200 text-amber-900"
+          >
+            Settings
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab("access")}
+            className="px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-amber-100"
+          >
+            Access
+          </button>
+        </nav>
       </header>
       <div className="flex-1 overflow-auto px-4 py-4 space-y-6">
         {/* Score bands */}
