@@ -11,7 +11,8 @@ interface Props {
   message?: string;
   /** "invalidUser" = wrong mobile / no data; show humorous messages + Retry. */
   /** "accessDisabled" = URL or token access disabled; shows cryptic Error 606. */
-  variant?: "noLink" | "fetchError" | "invalidUser" | "accessDisabled";
+  /** "invalidParams" = URL or token format invalid (missing/invalid params); humorous error. */
+  variant?: "noLink" | "fetchError" | "invalidUser" | "accessDisabled" | "invalidParams";
 }
 
 const FETCH_ERROR_MESSAGES = [
@@ -26,6 +27,15 @@ const NO_LINK_TITLES = [
   "Psst! Your magic link is hiding",
   "We need your backstage pass",
   "Link required — and we mean the digital kind!",
+];
+
+const INVALID_PARAMS_MESSAGES = [
+  "Error 606: The hamster powering the server is on a coffee break. Fancy a retry?",
+  "Our gremlins have misplaced this page. They're looking under the couch. Try again?",
+  "The scorecard took a wrong turn at Albuquerque. It'll find its way back eventually!",
+  "Something went sideways — our servers are doing the cha-cha. Try again in a moment!",
+  "Error 606: The Bermuda Triangle of the internet claimed another request. Give it another shot?",
+  "The scorecard elves are reorganizing. They'll be back shortly — try again!",
 ];
 
 const ERROR_606_MESSAGES = [
@@ -53,8 +63,10 @@ export function BreakScreen({ onRetry, message, variant }: Props) {
   const isNoLink = Boolean(message);
   const isInvalidUser = variant === "invalidUser";
   const isAccessDisabled = variant === "accessDisabled";
+  const isInvalidParams = variant === "invalidParams";
   const humorousTitle = useMemo(() => (isNoLink ? pickRandom(NO_LINK_TITLES) : null), [isNoLink]);
   const error606Body = useMemo(() => pickRandom(ERROR_606_MESSAGES), []);
+  const invalidParamsBody = useMemo(() => pickRandom(INVALID_PARAMS_MESSAGES), []);
   const humorousBody = useMemo(
     () =>
       isInvalidUser
@@ -68,7 +80,7 @@ export function BreakScreen({ onRetry, message, variant }: Props) {
   return (
     <section className="min-h-[80dvh] flex flex-col items-center justify-center px-6 py-12 text-center">
       <h2 className="text-2xl font-bold text-slate-800 mb-3">
-        {isAccessDisabled
+        {isAccessDisabled || isInvalidParams
           ? "Error 606"
           : isNoLink
             ? (humorousTitle ?? "Link required")
@@ -79,7 +91,9 @@ export function BreakScreen({ onRetry, message, variant }: Props) {
       <p className="text-slate-600 text-base leading-relaxed max-w-sm mb-8">
         {isAccessDisabled
           ? error606Body
-          : message ?? (humorousBody ?? "We searched high and low but couldn't find what you're looking for. Let's find a better place for you to go.")}
+          : isInvalidParams
+            ? invalidParamsBody
+            : message ?? (humorousBody ?? "We searched high and low but couldn't find what you're looking for. Let's find a better place for you to go.")}
       </p>
       {!message && (
         <button

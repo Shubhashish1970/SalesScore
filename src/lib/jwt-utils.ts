@@ -62,3 +62,24 @@ export function extractMobileAndRole(payload: JwtPayload | null): {
     roleRaw === "TM" || roleRaw === "RM" || roleRaw === "ZM" || roleRaw === "BU" ? roleRaw : "TM";
   return { mobile, role };
 }
+
+const VALID_ROLES: Role[] = ["TM", "RM", "ZM", "BU"];
+
+/**
+ * Strict validation: token must decode and contain both mobile and valid role.
+ * Returns { mobile, role } when valid, null otherwise.
+ */
+export function validateTokenParams(token: string): { mobile: string; role: Role } | null {
+  const payload = decodeJwtPayload(token);
+  if (!payload) return null;
+  const mobile =
+    (typeof payload.mobile === "string" && payload.mobile.trim()) ||
+    (typeof payload.phone === "string" && payload.phone.trim()) ||
+    (typeof payload.sub === "string" && payload.sub.trim()) ||
+    (payload.sub != null && String(payload.sub).trim()) ||
+    null;
+  if (!mobile) return null;
+  const roleRaw = typeof payload.role === "string" ? payload.role.toUpperCase() : "";
+  if (!VALID_ROLES.includes(roleRaw as Role)) return null;
+  return { mobile, role: roleRaw as Role };
+}

@@ -16,7 +16,7 @@ import { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { fetchScorecard, isKpiApiConfigured } from "@/lib/kpi-api";
 import { getAppConfig, loadConfigFromStorage } from "@/lib/app-config";
-import { decodeJwtPayload, extractMobileAndRole, isAdminToken } from "@/lib/jwt-utils";
+import { decodeJwtPayload, extractMobileAndRole, isAdminToken, validateTokenParams } from "@/lib/jwt-utils";
 import { fetchHoMappingsFromApi, isHoUserFromMappings, getHoTargetsFromMappings, getHoLeaderNameFromMappings } from "@/lib/ho-mappings";
 import { fetchAccessConfigFromApi, type AccessConfig } from "@/lib/access-config";
 import type { HoTarget, HoMapping } from "@/lib/ho-mappings";
@@ -47,15 +47,48 @@ function HomeContent() {
   const mobileFromParams = searchParams.get("mobile");
   const roleFromParams = searchParams.get("role");
 
-  const { mobileFromUrl, roleFromUrl } = (() => {
+  const VALID_ROLES = ["TM", "RM", "ZM", "BU"] as const;
+  const { mobileFromUrl, roleFromUrl, paramValidationFailed, noLink } = (() => {
     if (tokenFromUrl) {
-      const payload = decodeJwtPayload(tokenFromUrl);
-      const { mobile, role } = extractMobileAndRole(payload);
-      return { mobileFromUrl: mobile, roleFromUrl: role };
+      const validated = validateTokenParams(tokenFromUrl);
+      if (validated) {
+        return {
+          mobileFromUrl: validated.mobile,
+          roleFromUrl: validated.role,
+          paramValidationFailed: false,
+          noLink: false,
+        };
+      }
+      return {
+        mobileFromUrl: null,
+        roleFromUrl: null,
+        paramValidationFailed: true,
+        noLink: false,
+      };
+    }
+    const mobile = (mobileFromParams ?? "").trim();
+    const roleRaw = (roleFromParams ?? "").trim().toUpperCase();
+    if (!mobile) {
+      return {
+        mobileFromUrl: null,
+        roleFromUrl: null,
+        paramValidationFailed: false,
+        noLink: true,
+      };
+    }
+    if (!roleRaw || !(VALID_ROLES as readonly string[]).includes(roleRaw)) {
+      return {
+        mobileFromUrl: null,
+        roleFromUrl: null,
+        paramValidationFailed: true,
+        noLink: false,
+      };
     }
     return {
-      mobileFromUrl: mobileFromParams,
-      roleFromUrl: roleFromParams ?? null,
+      mobileFromUrl: mobile,
+      roleFromUrl: roleRaw as "TM" | "RM" | "ZM" | "BU",
+      paramValidationFailed: false,
+      noLink: false,
     };
   })();
   const [data, setData] = useState<ScorecardData>(EMPTY_SCORECARD);
@@ -77,7 +110,7 @@ function HomeContent() {
   const hoTargets = mobileFromUrl ? getHoTargetsFromMappings(mobileFromUrl, mappings) : null;
   const hoLeaderName = mobileFromUrl ? getHoLeaderNameFromMappings(mobileFromUrl, mappings) : undefined;
   const effectiveMobile = selectedTarget?.mobile ?? mobileFromUrl;
-  const effectiveRole = (selectedTarget?.role ?? (roleFromUrl && ["TM", "RM", "ZM", "BU"].includes(roleFromUrl) ? roleFromUrl : "TM")) as ScorecardData["role"];
+  const effectiveRole = (selectedTarget?.role ?? roleFromUrl ?? "TM") as ScorecardData["role"];
 
   const isAdminMode =
     Boolean(tokenFromUrl) && isAdminToken(decodeJwtPayload(tokenFromUrl ?? ""));
@@ -248,6 +281,25 @@ function HomeContent() {
     return (
       <main className="h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
         <BreakScreen variant="accessDisabled" />
+      </main>
+    );
+  }
+
+  if (noLink) {
+    return (
+      <main className="h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
+        <BreakScreen
+          variant="noLink"
+          message="Open via your personalized link: ?mobile=...&role=TM|RM|ZM|BU or ?token=<JWT>"
+        />
+      </main>
+    );
+  }
+
+  if (paramValidationFailed) {
+    return (
+      <main className="h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
+        <BreakScreen variant="invalidParams" />
       </main>
     );
   }
