@@ -77,22 +77,6 @@ function HomeContent() {
   const isAdminMode =
     Boolean(tokenFromUrl) && isAdminToken(decodeJwtPayload(tokenFromUrl ?? ""));
 
-  if (isAdminMode) {
-    return (
-      <main className="min-h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
-        <AdminSettingsScreen />
-      </main>
-    );
-  }
-
-  if (isHo && hoTargets && !selectedTarget) {
-    return (
-      <main className="min-h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
-        <HoTargetSelector targets={hoTargets} onSelect={(t) => setSelectedTarget(t)} />
-      </main>
-    );
-  }
-
   const retryLoad = useCallback(() => {
     setFetchError(false);
     setInvalidUser(false);
@@ -226,6 +210,22 @@ function HomeContent() {
 
     return () => { cancelled = true; };
   }, [effectiveMobile, effectiveRole, isHo, selectedTarget, setCurrentIndex, retryKey]);
+
+  if (isAdminMode) {
+    return (
+      <main className="min-h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
+        <AdminSettingsScreen />
+      </main>
+    );
+  }
+
+  if (isHo && hoTargets && !selectedTarget) {
+    return (
+      <main className="min-h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
+        <HoTargetSelector targets={hoTargets} onSelect={(t) => setSelectedTarget(t)} />
+      </main>
+    );
+  }
 
   const Screen = SCREENS[currentIndex];
   const showLeaderboardIcon = (data.role === "TM" || data.role === "RM" || data.role === "ZM") && currentIndex === 0;
