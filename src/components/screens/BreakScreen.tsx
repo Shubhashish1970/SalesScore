@@ -10,7 +10,7 @@ interface Props {
   /** Optional custom message when no mobile in URL (e.g. "Open via link with ?mobile=...&role=TM". */
   message?: string;
   /** "invalidUser" = wrong mobile / no data; show humorous messages + Retry. */
-  /** "accessDisabled" = URL or token access is disabled by admin config. */
+  /** "accessDisabled" = URL or token access disabled; shows cryptic Error 606. */
   variant?: "noLink" | "fetchError" | "invalidUser" | "accessDisabled";
 }
 
@@ -28,8 +28,14 @@ const NO_LINK_TITLES = [
   "Link required — and we mean the digital kind!",
 ];
 
-const ACCESS_DISABLED_MESSAGE =
-  "This access method is currently disabled. Please use the enabled access method (URL or token) or contact your admin.";
+const ERROR_606_MESSAGES = [
+  "The scorecard elves are reorganizing. They'll be back shortly — try again!",
+  "Error 606: The hamster powering the server is on a coffee break. Fancy a retry?",
+  "Our gremlins have misplaced this page. They're looking under the couch. Try again?",
+  "The scorecard took a wrong turn at Albuquerque. It'll find its way back eventually!",
+  "Something went sideways — our servers are doing the cha-cha. Try again in a moment!",
+  "Error 606: The Bermuda Triangle of the internet claimed another request. Give it another shot?",
+];
 
 const INVALID_USER_MESSAGES = [
   "This number doesn't ring a bell! Double-check your link or try again.",
@@ -48,6 +54,7 @@ export function BreakScreen({ onRetry, message, variant }: Props) {
   const isInvalidUser = variant === "invalidUser";
   const isAccessDisabled = variant === "accessDisabled";
   const humorousTitle = useMemo(() => (isNoLink ? pickRandom(NO_LINK_TITLES) : null), [isNoLink]);
+  const error606Body = useMemo(() => pickRandom(ERROR_606_MESSAGES), []);
   const humorousBody = useMemo(
     () =>
       isInvalidUser
@@ -62,7 +69,7 @@ export function BreakScreen({ onRetry, message, variant }: Props) {
     <section className="min-h-[80dvh] flex flex-col items-center justify-center px-6 py-12 text-center">
       <h2 className="text-2xl font-bold text-slate-800 mb-3">
         {isAccessDisabled
-          ? "Access disabled"
+          ? "Error 606"
           : isNoLink
             ? (humorousTitle ?? "Link required")
             : isInvalidUser
@@ -71,7 +78,7 @@ export function BreakScreen({ onRetry, message, variant }: Props) {
       </h2>
       <p className="text-slate-600 text-base leading-relaxed max-w-sm mb-8">
         {isAccessDisabled
-          ? ACCESS_DISABLED_MESSAGE
+          ? error606Body
           : message ?? (humorousBody ?? "We searched high and low but couldn't find what you're looking for. Let's find a better place for you to go.")}
       </p>
       {!message && (
