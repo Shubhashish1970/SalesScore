@@ -7,13 +7,14 @@
  */
 
 require("dotenv").config({ path: require("path").join(__dirname, ".env") });
+const admin = require("firebase-admin");
 const { onRequest } = require("firebase-functions/v2/https");
-const { getFirestore } = require("firebase-admin/firestore");
-const { initializeApp } = require("firebase-admin/app");
 const { Resend } = require("resend");
 
-initializeApp();
-const db = getFirestore();
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
+const db = admin.firestore();
 const HO_MAPPINGS_DOC = "config/ho-mappings";
 
 const UPSTREAM = process.env.KPI_API_UPSTREAM_URL || process.env.KPI_DATA_API_URL || "";
@@ -201,8 +202,8 @@ exports.getHoMappings = onRequest(
       const mappings = Array.isArray(data?.mappings) ? data.mappings : [];
       res.status(200).json({ mappings });
     } catch (err) {
-      console.error("[getHoMappings] error:", err?.message);
-      res.status(500).json({ error: "Failed to load HO mappings" });
+      console.error("[getHoMappings] error:", err?.message, err?.stack);
+      res.status(500).json({ error: "Failed to load HO mappings", detail: err?.message });
     }
   }
 );
@@ -230,8 +231,8 @@ exports.saveHoMappings = onRequest(
       await db.doc(HO_MAPPINGS_DOC).set({ mappings }, { merge: true });
       res.status(200).json({ ok: true });
     } catch (err) {
-      console.error("[saveHoMappings] error:", err?.message);
-      res.status(500).json({ error: "Failed to save HO mappings" });
+      console.error("[saveHoMappings] error:", err?.message, err?.stack);
+      res.status(500).json({ error: "Failed to save HO mappings", detail: err?.message });
     }
   }
 );
