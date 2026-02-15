@@ -70,3 +70,19 @@ HO mappings are stored in **Firestore** (`config/ho-mappings`) so all users see 
 - **Admin → Access**: Add HO mobile and targets, then Save. Saves to Firestore and localStorage.
 - **HO user with JWT**: App fetches mappings from `/api/ho-mappings`, shows target selector if mobile is mapped.
 - **JWT**: Supports `mobile`, `phone`, or `sub` (string or number) for the user's mobile.
+
+### Fix "PERMISSION_DENIED" when saving
+
+If you see "Save failed" and logs show `PERMISSION_DENIED: Missing or insufficient permissions`, the Cloud Function's service account needs Firestore access. The deploy workflow uses the App Engine default service account (`PROJECT_ID@appspot.gserviceaccount.com`). If that fails, grant the role manually:
+
+```bash
+# Replace salesscore-c34f3 with your project ID
+PROJECT_ID=salesscore-c34f3
+
+# Grant Cloud Datastore User to the default compute service account
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:${PROJECT_ID}@appspot.gserviceaccount.com" \
+  --role="roles/datastore.user"
+```
+
+Then redeploy the `getHoMappings` and `saveHoMappings` functions.

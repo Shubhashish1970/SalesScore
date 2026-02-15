@@ -104,6 +104,7 @@ jobs:
         env:
           PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}
         run: |
+          SA="${PROJECT_ID}@appspot.gserviceaccount.com"
           gcloud functions deploy getHoMappings \
             --gen2 \
             --runtime=nodejs20 \
@@ -112,6 +113,7 @@ jobs:
             --entry-point=getHoMappings \
             --trigger-http \
             --allow-unauthenticated \
+            --service-account="$SA" \
             --project="$PROJECT_ID" \
             --quiet
           gcloud functions deploy saveHoMappings \
@@ -122,6 +124,7 @@ jobs:
             --entry-point=saveHoMappings \
             --trigger-http \
             --allow-unauthenticated \
+            --service-account="$SA" \
             --project="$PROJECT_ID" \
             --quiet
 
