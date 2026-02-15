@@ -151,11 +151,11 @@ exports.requestAdminLink = onRequest(
       res.status(503).json({ error: "Email service not configured" });
       return;
     }
-    log("send", "Attempting Resend send", { from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev", to: ADMIN_EMAIL });
+    log("send", "Attempting Resend send", { from: process.env.RESEND_FROM_EMAIL || "admin@kweka.ai", to: ADMIN_EMAIL });
     try {
       const token = generateAdminToken(24);
       const adminUrl = `${BASE_URL}/?token=${token}`;
-      const fromEmail = process.env.RESEND_FROM_EMAIL || "Sales Scorecard <onboarding@resend.dev>";
+      const fromEmail = process.env.RESEND_FROM_EMAIL || "Sales Scorecard <admin@kweka.ai>";
       const resend = new Resend(apiKey);
       const { data, error } = await resend.emails.send({
         from: fromEmail,

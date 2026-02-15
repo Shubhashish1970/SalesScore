@@ -20,7 +20,7 @@ The `requestAdminLink` Cloud Function uses [Resend](https://resend.com) to send 
 
 1. Create a [Resend](https://resend.com) account and get an API key.
 2. Add **`RESEND_API_KEY`** to Firebase Functions env (or GitHub Secrets for CI deploy).
-3. For production, verify your domain in Resend and set **`RESEND_FROM_EMAIL`** (e.g. `Sales Scorecard <admin@yourdomain.com>`). Default: `onboarding@resend.dev` (Resend test sender).
+3. Verify the **`kweka.ai`** domain in Resend. Default from address: `admin@kweka.ai`. Override with **`RESEND_FROM_EMAIL`** if needed.
 
 ## Manual Link Generation (fallback)
 
