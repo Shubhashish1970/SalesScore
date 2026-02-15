@@ -6,6 +6,25 @@
 
 export type Role = "TM" | "RM" | "ZM" | "BU";
 
+/** Role aliases: territory->TM, region->RM, zone->ZM, BU->BU. */
+const ROLE_ALIASES: Record<string, Role> = {
+  TM: "TM",
+  RM: "RM",
+  ZM: "ZM",
+  BU: "BU",
+  TERRITORY: "TM",
+  REGION: "RM",
+  ZONE: "ZM",
+};
+
+/**
+ * Normalize role string to canonical Role. Accepts TM|RM|ZM|BU or territory|region|zone.
+ */
+export function normalizeRole(raw: string): Role | null {
+  const key = (raw ?? "").trim().toUpperCase();
+  return ROLE_ALIASES[key] ?? null;
+}
+
 export interface JwtPayload {
   mobile?: string;
   phone?: string;
@@ -63,8 +82,6 @@ export function extractMobileAndRole(payload: JwtPayload | null): {
   return { mobile, role };
 }
 
-const VALID_ROLES: Role[] = ["TM", "RM", "ZM", "BU"];
-
 /**
  * Strict validation: token must decode and contain both mobile and valid role.
  * Returns { mobile, role } when valid, null otherwise.
@@ -79,7 +96,7 @@ export function validateTokenParams(token: string): { mobile: string; role: Role
     (payload.sub != null && String(payload.sub).trim()) ||
     null;
   if (!mobile) return null;
-  const roleRaw = typeof payload.role === "string" ? payload.role.toUpperCase() : "";
-  if (!VALID_ROLES.includes(roleRaw as Role)) return null;
-  return { mobile, role: roleRaw as Role };
+  const role = normalizeRole(typeof payload.role === "string" ? payload.role : "");
+  if (!role) return null;
+  return { mobile, role };
 }

@@ -16,7 +16,7 @@ import { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { fetchScorecard, isKpiApiConfigured } from "@/lib/kpi-api";
 import { getAppConfig, loadConfigFromStorage } from "@/lib/app-config";
-import { decodeJwtPayload, extractMobileAndRole, isAdminToken, validateTokenParams } from "@/lib/jwt-utils";
+import { decodeJwtPayload, extractMobileAndRole, isAdminToken, validateTokenParams, normalizeRole } from "@/lib/jwt-utils";
 import { fetchHoMappingsFromApi, isHoUserFromMappings, getHoTargetsFromMappings, getHoLeaderNameFromMappings } from "@/lib/ho-mappings";
 import { fetchAccessConfigFromApi, type AccessConfig } from "@/lib/access-config";
 import type { HoTarget, HoMapping } from "@/lib/ho-mappings";
@@ -47,7 +47,6 @@ function HomeContent() {
   const mobileFromParams = searchParams.get("mobile");
   const roleFromParams = searchParams.get("role");
 
-  const VALID_ROLES = ["TM", "RM", "ZM", "BU"] as const;
   const { mobileFromUrl, roleFromUrl, paramValidationFailed, noLink } = (() => {
     if (tokenFromUrl) {
       const validated = validateTokenParams(tokenFromUrl);
@@ -67,7 +66,7 @@ function HomeContent() {
       };
     }
     const mobile = (mobileFromParams ?? "").trim();
-    const roleRaw = (roleFromParams ?? "").trim().toUpperCase();
+    const role = normalizeRole(roleFromParams ?? "");
     if (!mobile) {
       return {
         mobileFromUrl: null,
@@ -76,7 +75,7 @@ function HomeContent() {
         noLink: true,
       };
     }
-    if (!roleRaw || !(VALID_ROLES as readonly string[]).includes(roleRaw)) {
+    if (!role) {
       return {
         mobileFromUrl: null,
         roleFromUrl: null,
@@ -86,7 +85,7 @@ function HomeContent() {
     }
     return {
       mobileFromUrl: mobile,
-      roleFromUrl: roleRaw as "TM" | "RM" | "ZM" | "BU",
+      roleFromUrl: role,
       paramValidationFailed: false,
       noLink: false,
     };
@@ -290,7 +289,7 @@ function HomeContent() {
       <main className="h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
         <BreakScreen
           variant="noLink"
-          message="Open via your personalized link: ?mobile=...&role=TM|RM|ZM|BU or ?token=<JWT>"
+          message="Open via your personalized link: ?mobile=...&role=TM|RM|ZM|BU (or territory|region|zone) or ?token=<JWT>"
         />
       </main>
     );
