@@ -1,7 +1,7 @@
 /**
  * HO (Head Office) user mappings.
- * Stored in localStorage under sales-scorecard-access.
- * HO users can view scorecards of mapped target users (TM/RM/ZM/BU).
+ * Fetched from API (Firestore) so all users see the same mappings.
+ * Fallback to localStorage when API unavailable.
  */
 
 import type { Role } from "@/lib/jwt-utils";
@@ -19,24 +19,8 @@ export interface HoMapping {
 
 const STORAGE_KEY = "sales-scorecard-access";
 
-function loadRaw(): HoMapping[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-/**
- * Load all HO mappings from localStorage.
- */
-export function loadHoMappings(): HoMapping[] {
-  const raw = loadRaw();
-  return raw.map((m) => ({
+function normalizeMappings(raw: HoMapping[]): HoMapping[] {
+  return (Array.isArray(raw) ? raw : []).map((m) => ({
     hoMobile: String(m.hoMobile ?? "").trim(),
     targets: (Array.isArray(m.targets) ? m.targets : []).map((t) => ({
       mobile: String(t.mobile ?? "").trim(),
@@ -48,33 +32,85 @@ export function loadHoMappings(): HoMapping[] {
   })).filter((m) => m.hoMobile.length > 0);
 }
 
-/**
- * Save HO mappings to localStorage.
- */
-export function saveHoMappings(mappings: HoMapping[]): void {
-  if (typeof window === "undefined") return;
+function loadFromStorage(): HoMapping[] {
+  if (typeof window === "undefined") return [];
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(mappings));
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return normalizeMappings(Array.isArray(parsed) ? parsed : []);
   } catch {
-    // ignore quota errors
+    return [];
   }
 }
 
 /**
- * Get targets for an HO user by mobile. Returns null if not an HO user.
+ * Fetch HO mappings from API. Falls back to localStorage on failure.
  */
-export function getHoTargets(hoMobile: string): HoTarget[] | null {
-  const normalized = String(hoMobile ?? "").trim();
-  if (!normalized) return null;
-  const mappings = loadHoMappings();
-  const found = mappings.find((m) => m.hoMobile === normalized);
+export async function fetchHoMappingsFromApi(): Promise<HoMapping[]> {
+  if (typeof window === "undefined") return [];
+  try {
+    const res = await fetch(`${window.location.origin}/api/ho-mappings`, { method: "GET" });
+    if (!res.ok) return loadFromStorage();
+    const data = (await res.json()) as { mappings?: HoMapping[] };
+    return normalizeMappings(Array.isArray(data?.mappings) ? data.mappings : []);
+  } catch {
+    return loadFromStorage();
+  }
+}
+
+/**
+ * Save HO mappings to API and localStorage.
+ */
+export async function saveHoMappingsToApi(mappings: HoMapping[]): Promise<boolean> {
+  const normalized = normalizeMappings(mappings);
+  if (typeof window === "undefined") return false;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+    const res = await fetch(`${window.location.origin}/api/admin/ho-mappings`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mappings: normalized }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Load HO mappings from localStorage (for admin UI).
+ */
+export function loadHoMappings(): HoMapping[] {
+  return loadFromStorage();
+}
+
+/**
+ * Save HO mappings to localStorage only.
+ */
+export function saveHoMappings(mappings: HoMapping[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizeMappings(mappings)));
+  } catch {
+    // ignore
+  }
+}
+
+/**
+ * Get targets for an HO user from mappings.
+ */
+export function getHoTargetsFromMappings(hoMobile: string, mappings: HoMapping[]): HoTarget[] | null {
+  const n = String(hoMobile ?? "").trim();
+  if (!n) return null;
+  const found = mappings.find((m) => m.hoMobile === n);
   return found && found.targets.length > 0 ? found.targets : null;
 }
 
 /**
- * Check if a mobile is an HO user with at least one target.
+ * Check if mobile is an HO user from mappings.
  */
-export function isHoUser(mobile: string): boolean {
-  const targets = getHoTargets(mobile);
-  return targets !== null && targets.length > 0;
+export function isHoUserFromMappings(mobile: string, mappings: HoMapping[]): boolean {
+  const t = getHoTargetsFromMappings(mobile, mappings);
+  return t !== null && t.length > 0;
 }

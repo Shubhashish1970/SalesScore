@@ -62,3 +62,11 @@ gcloud logging read 'textPayload=~"requestAdminLink"' \
 ```
 
 **Log steps:** `start` → `parse` → `send` → `success` or `resend_error` / `exception`. Share the JSON or screenshot of the failing step for analysis.
+
+## HO User Mappings (Access tab)
+
+HO mappings are stored in **Firestore** (`config/ho-mappings`) so all users see the same mappings. Enable Firestore in Firebase Console if not already enabled.
+
+- **Admin → Access**: Add HO mobile and targets, then Save. Saves to Firestore and localStorage.
+- **HO user with JWT**: App fetches mappings from `/api/ho-mappings`, shows target selector if mobile is mapped.
+- **JWT**: Supports `mobile`, `phone`, or `sub` (string or number) for the user's mobile.

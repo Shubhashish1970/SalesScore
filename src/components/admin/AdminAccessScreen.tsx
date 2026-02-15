@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import {
+  fetchHoMappingsFromApi,
+  saveHoMappingsToApi,
   loadHoMappings,
-  saveHoMappings,
   type HoMapping,
   type HoTarget,
 } from "@/lib/ho-mappings";
@@ -138,15 +139,21 @@ function MappingCard({
 export function AdminAccessScreen() {
   const [mappings, setMappings] = useState<HoMapping[]>(() => loadHoMappings());
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState(false);
 
   useEffect(() => {
-    setMappings(loadHoMappings());
+    fetchHoMappingsFromApi().then((m) => setMappings(m.length > 0 ? m : loadHoMappings()));
   }, []);
 
-  const handleSave = () => {
-    saveHoMappings(mappings);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const handleSave = async () => {
+    setSaveError(false);
+    const ok = await saveHoMappingsToApi(mappings);
+    if (ok) {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } else {
+      setSaveError(true);
+    }
   };
 
   const addMapping = () => {
@@ -193,6 +200,9 @@ export function AdminAccessScreen() {
       </div>
       <footer className="shrink-0 bg-white border-t border-slate-200 px-4 py-3">
         <div className="flex justify-end gap-2">
+          {saveError && (
+            <span className="text-sm text-red-600 self-center">Save failed. Check network.</span>
+          )}
           {saved && (
             <span className="text-sm text-emerald-600 font-medium self-center">Saved</span>
           )}

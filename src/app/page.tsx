@@ -17,8 +17,8 @@ import { useSearchParams } from "next/navigation";
 import { fetchScorecard, isKpiApiConfigured } from "@/lib/kpi-api";
 import { getAppConfig, loadConfigFromStorage } from "@/lib/app-config";
 import { decodeJwtPayload, extractMobileAndRole, isAdminToken } from "@/lib/jwt-utils";
-import { isHoUser, getHoTargets } from "@/lib/ho-mappings";
-import type { HoTarget } from "@/lib/ho-mappings";
+import { fetchHoMappingsFromApi, isHoUserFromMappings, getHoTargetsFromMappings } from "@/lib/ho-mappings";
+import type { HoTarget, HoMapping } from "@/lib/ho-mappings";
 import { AdminSettingsScreen } from "@/components/admin/AdminSettingsScreen";
 import { HoTargetSelector } from "@/components/HoTargetSelector";
 import { LeaderboardScreen } from "@/components/screens/LeaderboardScreen";
@@ -67,10 +67,12 @@ function HomeContent() {
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [leaderboardError, setLeaderboardError] = useState<string | null>(null);
   const [selectedTarget, setSelectedTarget] = useState<HoTarget | null>(null);
+  const [hoMappings, setHoMappings] = useState<HoMapping[] | null>(null);
   const { currentIndex, setCurrentIndex, goNext, goPrev, onTouchStart, onTouchEnd } = useSwipe(0);
 
-  const isHo = Boolean(mobileFromUrl && isHoUser(mobileFromUrl));
-  const hoTargets = mobileFromUrl ? getHoTargets(mobileFromUrl) : null;
+  const mappings = hoMappings ?? [];
+  const isHo = Boolean(mobileFromUrl && isHoUserFromMappings(mobileFromUrl, mappings));
+  const hoTargets = mobileFromUrl ? getHoTargetsFromMappings(mobileFromUrl, mappings) : null;
   const effectiveMobile = selectedTarget?.mobile ?? mobileFromUrl;
   const effectiveRole = (selectedTarget?.role ?? (roleFromUrl && ["TM", "RM", "ZM", "BU"].includes(roleFromUrl) ? roleFromUrl : "TM")) as ScorecardData["role"];
 
@@ -82,6 +84,10 @@ function HomeContent() {
     setInvalidUser(false);
     setLoading(true);
     setRetryKey((k) => k + 1);
+  }, []);
+
+  useEffect(() => {
+    fetchHoMappingsFromApi().then((m) => setHoMappings(m));
   }, []);
 
   useEffect(() => {
@@ -151,6 +157,11 @@ function HomeContent() {
       return () => { cancelled = true; };
     }
 
+    if (hoMappings === null && mobileFromUrl) {
+      setLoading(true);
+      return () => { cancelled = true; };
+    }
+
     if (!effectiveMobile || !isKpiApiConfigured()) {
       setFetchError(true);
       setLoading(false);
@@ -209,7 +220,7 @@ function HomeContent() {
     }
 
     return () => { cancelled = true; };
-  }, [effectiveMobile, effectiveRole, isHo, selectedTarget, setCurrentIndex, retryKey]);
+  }, [effectiveMobile, effectiveRole, isHo, selectedTarget, hoMappings, mobileFromUrl, setCurrentIndex, retryKey]);
 
   if (isAdminMode) {
     return (

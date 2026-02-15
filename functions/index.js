@@ -8,7 +8,13 @@
 
 require("dotenv").config({ path: require("path").join(__dirname, ".env") });
 const { onRequest } = require("firebase-functions/v2/https");
+const { getFirestore } = require("firebase-admin/firestore");
+const { initializeApp } = require("firebase-admin/app");
 const { Resend } = require("resend");
+
+initializeApp();
+const db = getFirestore();
+const HO_MAPPINGS_DOC = "config/ho-mappings";
 
 const UPSTREAM = process.env.KPI_API_UPSTREAM_URL || process.env.KPI_DATA_API_URL || "";
 const ADMIN_EMAIL = "shubhashish@nacl.murugappa.com";
@@ -178,6 +184,54 @@ exports.requestAdminLink = onRequest(
     } catch (err) {
       log("exception", "Unexpected error", { message: err?.message, stack: err?.stack });
       res.status(500).json({ error: "Failed to send email. Check RESEND_API_KEY and Resend dashboard." });
+    }
+  }
+);
+
+exports.getHoMappings = onRequest(
+  { cors: true },
+  async (req, res) => {
+    if (req.method !== "GET") {
+      res.status(405).json({ error: "Method not allowed" });
+      return;
+    }
+    try {
+      const snap = await db.doc(HO_MAPPINGS_DOC).get();
+      const data = snap.exists ? snap.data() : null;
+      const mappings = Array.isArray(data?.mappings) ? data.mappings : [];
+      res.status(200).json({ mappings });
+    } catch (err) {
+      console.error("[getHoMappings] error:", err?.message);
+      res.status(500).json({ error: "Failed to load HO mappings" });
+    }
+  }
+);
+
+exports.saveHoMappings = onRequest(
+  { cors: true },
+  async (req, res) => {
+    if (req.method !== "POST") {
+      res.status(405).json({ error: "Method not allowed" });
+      return;
+    }
+    let mappings = [];
+    try {
+      let body = req.body;
+      if (!body && req.rawBody) {
+        body = JSON.parse(req.rawBody.toString());
+      }
+      body = typeof body === "string" ? JSON.parse(body) : body || {};
+      mappings = Array.isArray(body.mappings) ? body.mappings : [];
+    } catch {
+      res.status(400).json({ error: "Invalid JSON body" });
+      return;
+    }
+    try {
+      await db.doc(HO_MAPPINGS_DOC).set({ mappings }, { merge: true });
+      res.status(200).json({ ok: true });
+    } catch (err) {
+      console.error("[saveHoMappings] error:", err?.message);
+      res.status(500).json({ error: "Failed to save HO mappings" });
     }
   }
 );

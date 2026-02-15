@@ -55,6 +55,7 @@ export function extractMobileAndRole(payload: JwtPayload | null): {
     (typeof payload.mobile === "string" && payload.mobile.trim()) ||
     (typeof payload.phone === "string" && payload.phone.trim()) ||
     (typeof payload.sub === "string" && payload.sub.trim()) ||
+    (payload.sub != null && String(payload.sub).trim()) ||
     null;
   const roleRaw = typeof payload.role === "string" ? payload.role.toUpperCase() : "";
   const role: Role =
