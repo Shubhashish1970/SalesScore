@@ -38,15 +38,16 @@ export interface JwtPayload {
 }
 
 const AREA_CODE_MAX_LEN = 30;
-const AREA_CODE_REGEX = /^[a-zA-Z0-9]+$/;
 
 /**
- * Validate areaCode: alphanumeric, length <= 30.
+ * Validate areaCode: allows letters, digits, spaces, comma, hyphen, period, slash, parens, etc.
+ * max 30 chars. Excludes control chars and < > " for safety.
  */
 export function validateAreaCode(raw: string): string | null {
   const s = (raw ?? "").trim();
   if (!s || s.length > AREA_CODE_MAX_LEN) return null;
-  return AREA_CODE_REGEX.test(s) ? s : null;
+  if (/[<>"\x00-\x1F]/.test(s)) return null;
+  return s;
 }
 
 const ADMIN_EMAIL = "shubhashish@nacl.murugappa.com";
