@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "npm"
 
       - name: Install dependencies
@@ -53,7 +53,7 @@ jobs:
         run: |
           gcloud functions deploy kpiProxy \
             --gen2 \
-            --runtime=nodejs20 \
+            --runtime=nodejs22 \
             --region=asia-south1 \
             --source=./functions \
             --entry-point=kpiProxy \
@@ -71,7 +71,7 @@ jobs:
         run: |
           gcloud functions deploy leaderboardProxy \
             --gen2 \
-            --runtime=nodejs20 \
+            --runtime=nodejs22 \
             --region=asia-south1 \
             --source=./functions \
             --entry-point=leaderboardProxy \
@@ -89,7 +89,7 @@ jobs:
         run: |
           gcloud functions deploy requestAdminLink \
             --gen2 \
-            --runtime=nodejs20 \
+            --runtime=nodejs22 \
             --region=asia-south1 \
             --source=./functions \
             --entry-point=requestAdminLink \
@@ -107,7 +107,7 @@ jobs:
           SA="${PROJECT_ID}@appspot.gserviceaccount.com"
           gcloud functions deploy getHoMappings \
             --gen2 \
-            --runtime=nodejs20 \
+            --runtime=nodejs22 \
             --region=asia-south1 \
             --source=./functions \
             --entry-point=getHoMappings \
@@ -118,7 +118,7 @@ jobs:
             --quiet
           gcloud functions deploy saveHoMappings \
             --gen2 \
-            --runtime=nodejs20 \
+            --runtime=nodejs22 \
             --region=asia-south1 \
             --source=./functions \
             --entry-point=saveHoMappings \
@@ -135,7 +135,7 @@ jobs:
           SA="${PROJECT_ID}@appspot.gserviceaccount.com"
           gcloud functions deploy getAccessConfig \
             --gen2 \
-            --runtime=nodejs20 \
+            --runtime=nodejs22 \
             --region=asia-south1 \
             --source=./functions \
             --entry-point=getAccessConfig \
@@ -146,7 +146,7 @@ jobs:
             --quiet
           gcloud functions deploy saveAccessConfig \
             --gen2 \
-            --runtime=nodejs20 \
+            --runtime=nodejs22 \
             --region=asia-south1 \
             --source=./functions \
             --entry-point=saveAccessConfig \

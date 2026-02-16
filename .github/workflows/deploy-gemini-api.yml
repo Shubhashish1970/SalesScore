@@ -44,7 +44,7 @@ jobs:
           fi
           gcloud functions deploy gemini-commentary \
             --gen2 \
-            --runtime=nodejs20 \
+            --runtime=nodejs22 \
             --region=us-central1 \
             --source=./gcp-gemini-api \
             --entry-point=geminiCommentary \
