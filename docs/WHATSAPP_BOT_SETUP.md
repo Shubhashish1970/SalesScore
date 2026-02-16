@@ -14,14 +14,17 @@ The WhatsApp Bot should send this link when the user requests their scorecard.
 
 The JWT payload must include:
 
-| Claim   | Type   | Required | Description                          |
-|---------|--------|----------|--------------------------------------|
-| `mobile`| string | Yes*     | User's mobile number (10 digits)      |
-| `phone` | string | Alt      | Alternative to `mobile`              |
-| `sub`   | string | Alt      | Alternative to `mobile` (subject)     |
-| `role`  | string | No       | `TM` \| `RM` \| `ZM` \| `BU` (default: `TM`) |
+| Claim      | Type   | Required | Description                                                    |
+|------------|--------|----------|----------------------------------------------------------------|
+| `mobile`   | string | Yes*     | User's mobile number (10 digits)                               |
+| `phone`    | string | Alt      | Alternative to `mobile`                                        |
+| `sub`      | string | Alt      | Alternative to `mobile` (subject)                              |
+| `role`     | string | Yes      | `TM` \| `RM` \| `ZM` \| `BU` (or territory \| region \| zone)   |
+| `areaCode` | string | Yes**    | Territory/area code (alphanumeric, max 30 chars). Use `area_code` as alt. |
 
 \* At least one of `mobile`, `phone`, or `sub` is required.
+
+\** Required for direct users (TM/RM/ZM/BU). Optional for HO (Head Office) users.
 
 ### Example JWT Payload
 
@@ -29,6 +32,7 @@ The JWT payload must include:
 {
   "mobile": "9876512345",
   "role": "TM",
+  "areaCode": "721",
   "iat": 1707897600,
   "exp": 1707984000
 }
@@ -60,12 +64,12 @@ env:
 
 - **Client-side only**: The app decodes the JWT payload in the browser (no verification).
 - **Token in URL**: When the user clicks the WhatsApp link, the token is passed as `?token=...`.
-- **Fallback**: `?mobile=...&role=TM` still works for direct links.
+- **URL access**: `?mobile=...&role=TM&areaCode=721` (areaCode required for direct users).
 
 ## WhatsApp Bot Flow
 
 1. User sends a message to the bot (e.g. "My scorecard").
-2. Bot fetches user's mobile and role from your backend.
-3. Bot creates a JWT: `{ mobile: "...", role: "TM", exp: ... }` signed with your secret.
+2. Bot fetches user's mobile, role, and areaCode from your backend.
+3. Bot creates a JWT: `{ mobile: "...", role: "TM", areaCode: "721", exp: ... }` signed with your secret.
 4. Bot sends: `https://salesscore-c34f3.web.app/?token=<signed_jwt>`
-5. User clicks → app decodes token → fetches scorecard for that mobile/role.
+5. User clicks → app decodes token → fetches scorecard for that mobile/role/areaCode.

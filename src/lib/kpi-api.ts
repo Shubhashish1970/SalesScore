@@ -114,11 +114,13 @@ function transformApiResponse(raw: unknown): ScorecardData {
 
 /**
  * Fetch scorecard from KPI Data API.
+ * @param areaCode Optional; required for TM/RM/ZM/BU in multi-territory setup. Omit for HO.
  * @throws On network error, non-2xx, or invalid response shape.
  */
 export async function fetchScorecard(
   mobile: string,
-  role: Role
+  role: Role,
+  areaCode?: string
 ): Promise<ScorecardData> {
   if (!KPI_API_URL) {
     throw new Error("KPI Data API URL not configured.");
@@ -129,6 +131,9 @@ export async function fetchScorecard(
   const url = base ? new URL(KPI_API_URL, base) : new URL(KPI_API_URL);
   url.searchParams.set("mobile", mobile);
   url.searchParams.set("role", role);
+  if (areaCode) {
+    url.searchParams.set("areaCode", areaCode);
+  }
 
   const res = await fetch(url.toString(), { method: "GET" });
   if (!res.ok) {

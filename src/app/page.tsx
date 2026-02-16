@@ -16,7 +16,7 @@ import { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { fetchScorecard, isKpiApiConfigured } from "@/lib/kpi-api";
 import { getAppConfig, loadConfigFromStorage } from "@/lib/app-config";
-import { decodeJwtPayload, extractMobileAndRole, isAdminToken, validateTokenParams, normalizeRole } from "@/lib/jwt-utils";
+import { decodeJwtPayload, extractMobileAndRole, isAdminToken, validateTokenParams, normalizeRole, validateAreaCode } from "@/lib/jwt-utils";
 import { fetchHoMappingsFromApi, isHoUserFromMappings, getHoTargetsFromMappings, getHoLeaderNameFromMappings } from "@/lib/ho-mappings";
 import { fetchAccessConfigFromApi, type AccessConfig } from "@/lib/access-config";
 import type { HoTarget, HoMapping } from "@/lib/ho-mappings";
@@ -46,14 +46,16 @@ function HomeContent() {
   const tokenFromUrl = searchParams.get("token");
   const mobileFromParams = searchParams.get("mobile");
   const roleFromParams = searchParams.get("role");
+  const areaCodeFromParams = searchParams.get("areaCode");
 
-  const { mobileFromUrl, roleFromUrl, paramValidationFailed, noLink } = (() => {
+  const { mobileFromUrl, roleFromUrl, areaCodeFromUrlOrToken, paramValidationFailed, noLink } = (() => {
     if (tokenFromUrl) {
       const validated = validateTokenParams(tokenFromUrl);
       if (validated) {
         return {
           mobileFromUrl: validated.mobile,
           roleFromUrl: validated.role,
+          areaCodeFromUrlOrToken: validated.areaCode,
           paramValidationFailed: false,
           noLink: false,
         };
@@ -61,6 +63,7 @@ function HomeContent() {
       return {
         mobileFromUrl: null,
         roleFromUrl: null,
+        areaCodeFromUrlOrToken: undefined as string | undefined,
         paramValidationFailed: true,
         noLink: false,
       };
@@ -71,6 +74,7 @@ function HomeContent() {
       return {
         mobileFromUrl: null,
         roleFromUrl: null,
+        areaCodeFromUrlOrToken: undefined as string | undefined,
         paramValidationFailed: false,
         noLink: true,
       };
@@ -79,6 +83,17 @@ function HomeContent() {
       return {
         mobileFromUrl: null,
         roleFromUrl: null,
+        areaCodeFromUrlOrToken: undefined as string | undefined,
+        paramValidationFailed: true,
+        noLink: false,
+      };
+    }
+    const areaCode = areaCodeFromParams ? validateAreaCode(areaCodeFromParams) : undefined;
+    if (areaCodeFromParams && !areaCode) {
+      return {
+        mobileFromUrl: null,
+        roleFromUrl: null,
+        areaCodeFromUrlOrToken: undefined as string | undefined,
         paramValidationFailed: true,
         noLink: false,
       };
@@ -86,6 +101,7 @@ function HomeContent() {
     return {
       mobileFromUrl: mobile,
       roleFromUrl: role,
+      areaCodeFromUrlOrToken: areaCode,
       paramValidationFailed: false,
       noLink: false,
     };
@@ -110,6 +126,11 @@ function HomeContent() {
   const hoLeaderName = mobileFromUrl ? getHoLeaderNameFromMappings(mobileFromUrl, mappings) : undefined;
   const effectiveMobile = selectedTarget?.mobile ?? mobileFromUrl;
   const effectiveRole = (selectedTarget?.role ?? roleFromUrl ?? "TM") as ScorecardData["role"];
+  const effectiveAreaCode = areaCodeFromUrlOrToken;
+
+  const areaCodeRequiredButMissing =
+    !effectiveAreaCode && !isHo && hoMappings !== null;
+  const finalParamValidationFailed = paramValidationFailed || areaCodeRequiredButMissing;
 
   const isAdminMode =
     Boolean(tokenFromUrl) && isAdminToken(decodeJwtPayload(tokenFromUrl ?? ""));
@@ -132,6 +153,7 @@ function HomeContent() {
   useEffect(() => {
     loadConfigFromStorage();
     if (isAdminMode) return;
+    if (finalParamValidationFailed) return;
     let cancelled = false;
     setCurrentIndex(0);
 
@@ -210,7 +232,7 @@ function HomeContent() {
     const role = effectiveRole;
 
     setLoading(true);
-    fetchScorecard(effectiveMobile, role)
+    fetchScorecard(effectiveMobile, role, effectiveAreaCode ?? undefined)
       .then((scorecard) => {
         if (cancelled) return;
         const isEmptyOrPlaceholder = (s: string | undefined) => {
@@ -259,7 +281,7 @@ function HomeContent() {
     }
 
     return () => { cancelled = true; };
-  }, [effectiveMobile, effectiveRole, isHo, selectedTarget, hoMappings, mobileFromUrl, setCurrentIndex, retryKey]);
+  }, [effectiveMobile, effectiveRole, effectiveAreaCode, isHo, selectedTarget, hoMappings, mobileFromUrl, setCurrentIndex, retryKey, finalParamValidationFailed]);
 
   if (isAdminMode) {
     return (
@@ -289,13 +311,13 @@ function HomeContent() {
       <main className="h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
         <BreakScreen
           variant="noLink"
-          message="Open via your personalized link: ?mobile=...&role=TM|RM|ZM|BU (or territory|region|zone) or ?token=<JWT>"
+          message="Open via your personalized link: ?mobile=...&role=TM|RM|ZM|BU&areaCode=... (or ?token=<JWT> with areaCode in payload)"
         />
       </main>
     );
   }
 
-  if (paramValidationFailed) {
+  if (finalParamValidationFailed) {
     return (
       <main className="h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
         <BreakScreen variant="invalidParams" />

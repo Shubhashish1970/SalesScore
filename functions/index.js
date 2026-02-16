@@ -41,6 +41,7 @@ exports.kpiProxy = onRequest(
     }
     const mobile = req.query.mobile || "";
     const role = req.query.role || "TM";
+    const areaCode = req.query.areaCode || "";
     if (!mobile || !role) {
       res.status(400).json({ error: "mobile and role query params required" });
       return;
@@ -53,6 +54,9 @@ exports.kpiProxy = onRequest(
       const url = new URL(UPSTREAM);
       url.searchParams.set("mobile", mobile);
       url.searchParams.set("role", role);
+      if (areaCode) {
+        url.searchParams.set("areaCode", areaCode);
+      }
       const proxyRes = await fetch(url.toString(), { method: "GET" });
       const data = await proxyRes.json();
       res.status(proxyRes.status).json(data);

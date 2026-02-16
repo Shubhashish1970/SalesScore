@@ -30,9 +30,23 @@ export interface JwtPayload {
   phone?: string;
   sub?: string;
   role?: string;
+  areaCode?: string;
+  area_code?: string;
   email?: string;
   admin?: boolean;
   [key: string]: unknown;
+}
+
+const AREA_CODE_MAX_LEN = 30;
+const AREA_CODE_REGEX = /^[a-zA-Z0-9]+$/;
+
+/**
+ * Validate areaCode: alphanumeric, length <= 30.
+ */
+export function validateAreaCode(raw: string): string | null {
+  const s = (raw ?? "").trim();
+  if (!s || s.length > AREA_CODE_MAX_LEN) return null;
+  return AREA_CODE_REGEX.test(s) ? s : null;
 }
 
 const ADMIN_EMAIL = "shubhashish@nacl.murugappa.com";
@@ -83,10 +97,16 @@ export function extractMobileAndRole(payload: JwtPayload | null): {
 }
 
 /**
- * Strict validation: token must decode and contain both mobile and valid role.
- * Returns { mobile, role } when valid, null otherwise.
+ * Strict validation: token must decode and contain mobile and valid role.
+ * areaCode: optional; when present, validated (alphanumeric, length <= 30).
+ * Returns { mobile, role, areaCode? } when valid, null otherwise.
+ * For direct users (non-HO), areaCode is required by page.tsx.
  */
-export function validateTokenParams(token: string): { mobile: string; role: Role } | null {
+export function validateTokenParams(token: string): {
+  mobile: string;
+  role: Role;
+  areaCode?: string;
+} | null {
   const payload = decodeJwtPayload(token);
   if (!payload) return null;
   const mobile =
@@ -98,5 +118,11 @@ export function validateTokenParams(token: string): { mobile: string; role: Role
   if (!mobile) return null;
   const role = normalizeRole(typeof payload.role === "string" ? payload.role : "");
   if (!role) return null;
-  return { mobile, role };
+  const areaCodeRaw =
+    (typeof payload.areaCode === "string" && payload.areaCode.trim()) ||
+    (typeof payload.area_code === "string" && payload.area_code.trim()) ||
+    "";
+  const areaCode = areaCodeRaw ? validateAreaCode(areaCodeRaw) : undefined;
+  if (areaCodeRaw && !areaCode) return null;
+  return { mobile, role, areaCode: areaCode ?? undefined };
 }
