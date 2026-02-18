@@ -117,6 +117,7 @@ function HomeContent() {
   const [leaderboardError, setLeaderboardError] = useState<string | null>(null);
   const [selectedTarget, setSelectedTarget] = useState<HoTarget | null>(null);
   const [forceShowSelector, setForceShowSelector] = useState(false);
+  const [targetConfigMissing, setTargetConfigMissing] = useState(false);
   const [hoMappings, setHoMappings] = useState<HoMapping[] | null>(null);
   const [accessConfig, setAccessConfig] = useState<AccessConfig | null>(null);
   const { currentIndex, setCurrentIndex, goNext, goPrev, onTouchStart, onTouchEnd } = useSwipe(0);
@@ -146,8 +147,15 @@ function HomeContent() {
   const retryLoad = useCallback(() => {
     setFetchError(false);
     setInvalidUser(false);
+    setTargetConfigMissing(false);
     setLoading(true);
     setRetryKey((k) => k + 1);
+  }, []);
+
+  const goBackToSelector = useCallback(() => {
+    setSelectedTarget(null);
+    setForceShowSelector(true);
+    setTargetConfigMissing(false);
   }, []);
 
   useEffect(() => {
@@ -223,6 +231,18 @@ function HomeContent() {
 
     if (isHo && !resolvedTarget) {
       setLoading(false);
+      setTargetConfigMissing(false);
+      return () => { cancelled = true; };
+    }
+
+    const needsAreaCode =
+      isHo &&
+      selectedTarget &&
+      (resolvedTarget.role === "TM" || resolvedTarget.role === "RM" || resolvedTarget.role === "ZM") &&
+      !resolvedTarget.areaCode?.trim();
+    if (needsAreaCode) {
+      setLoading(false);
+      setTargetConfigMissing(true);
       return () => { cancelled = true; };
     }
 
@@ -234,8 +254,11 @@ function HomeContent() {
     if (!effectiveMobile || !isKpiApiConfigured()) {
       setFetchError(true);
       setLoading(false);
+      setTargetConfigMissing(false);
       return () => { cancelled = true; };
     }
+
+    setTargetConfigMissing(false);
 
     const role = effectiveRole;
 
@@ -337,6 +360,19 @@ function HomeContent() {
     return (
       <main className="min-h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
         <HoTargetSelector targets={hoTargets} leaderName={hoLeaderName} onSelect={(t) => setSelectedTarget(t)} />
+      </main>
+    );
+  }
+
+  if (targetConfigMissing) {
+    const label = resolvedTarget?.label || resolvedTarget?.role || "This target";
+    return (
+      <main className="h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
+        <BreakScreen
+          variant="targetConfigMissing"
+          message={`${label} needs an area code. Please add it in Admin (Access tab → HO mappings → edit target).`}
+          onRetry={goBackToSelector}
+        />
       </main>
     );
   }

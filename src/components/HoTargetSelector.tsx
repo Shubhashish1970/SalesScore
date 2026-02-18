@@ -20,21 +20,35 @@ export function HoTargetSelector({ targets, leaderName, onSelect }: HoTargetSele
           Choose a territory, region, zone, or BU to view its scorecard.
         </p>
         <div className="space-y-2">
-          {targets.map((t, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => onSelect(t)}
-              className="w-full px-4 py-3 rounded-lg border border-slate-200 text-left text-slate-800 hover:bg-amber-50 hover:border-amber-200 transition-colors flex items-center justify-between"
-            >
-              <span className="font-medium">
-                {t.label || `${t.role} – ${t.mobile}`}
-              </span>
-              <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                {t.role}
-              </span>
-            </button>
-          ))}
+          {targets.map((t, i) => {
+            const needsAreaCode =
+              (t.role === "TM" || t.role === "RM" || t.role === "ZM") && !t.areaCode?.trim();
+            return (
+              <button
+                key={i}
+                type="button"
+                onClick={() => onSelect(t)}
+                className="w-full px-4 py-3 rounded-lg border border-slate-200 text-left text-slate-800 hover:bg-amber-50 hover:border-amber-200 transition-colors flex items-center justify-between gap-2"
+              >
+                <span className="font-medium">
+                  {t.label || `${t.role} – ${t.mobile}`}
+                </span>
+                <span className="flex items-center gap-1.5 shrink-0">
+                  {needsAreaCode && (
+                    <span
+                      className="text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded"
+                      title="Add area code in Admin for this target"
+                    >
+                      Needs area code
+                    </span>
+                  )}
+                  <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                    {t.role}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </main>

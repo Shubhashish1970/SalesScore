@@ -12,7 +12,8 @@ interface Props {
   /** "invalidUser" = wrong mobile / no data; show humorous messages + Retry. */
   /** "accessDisabled" = URL or token access disabled; shows cryptic Error 606. */
   /** "invalidParams" = URL or token format invalid (missing/invalid params); humorous error. */
-  variant?: "noLink" | "fetchError" | "invalidUser" | "accessDisabled" | "invalidParams";
+  /** "targetConfigMissing" = HO target (TM/RM/ZM) has no areaCode; show config hint + Retry. */
+  variant?: "noLink" | "fetchError" | "invalidUser" | "accessDisabled" | "invalidParams" | "targetConfigMissing";
 }
 
 const FETCH_ERROR_MESSAGES = [
@@ -64,6 +65,7 @@ export function BreakScreen({ onRetry, message, variant }: Props) {
   const isInvalidUser = variant === "invalidUser";
   const isAccessDisabled = variant === "accessDisabled";
   const isInvalidParams = variant === "invalidParams";
+  const isTargetConfigMissing = variant === "targetConfigMissing";
   const humorousTitle = useMemo(() => (isNoLink ? pickRandom(NO_LINK_TITLES) : null), [isNoLink]);
   const error606Body = useMemo(() => pickRandom(ERROR_606_MESSAGES), []);
   const invalidParamsBody = useMemo(() => pickRandom(INVALID_PARAMS_MESSAGES), []);
@@ -80,20 +82,24 @@ export function BreakScreen({ onRetry, message, variant }: Props) {
   return (
     <section className="min-h-[80dvh] flex flex-col items-center justify-center px-6 py-12 text-center">
       <h2 className="text-2xl font-bold text-slate-800 mb-3">
-        {isAccessDisabled || isInvalidParams
-          ? "Error 606"
-          : isNoLink
-            ? (humorousTitle ?? "Link required")
-            : isInvalidUser
-              ? "Wrong call!"
-              : "We lost this page"}
+        {isTargetConfigMissing
+          ? "Configuration needed"
+          : isAccessDisabled || isInvalidParams
+            ? "Error 606"
+            : isNoLink
+              ? (humorousTitle ?? "Link required")
+              : isInvalidUser
+                ? "Wrong call!"
+                : "We lost this page"}
       </h2>
       <p className="text-slate-600 text-base leading-relaxed max-w-sm mb-8">
-        {isAccessDisabled
-          ? error606Body
-          : isInvalidParams
-            ? invalidParamsBody
-            : message ?? (humorousBody ?? "We searched high and low but couldn't find what you're looking for. Let's find a better place for you to go.")}
+        {isTargetConfigMissing
+          ? (message ?? "This target needs an area code. Please configure it in Admin.")
+          : isAccessDisabled
+            ? error606Body
+            : isInvalidParams
+              ? invalidParamsBody
+              : message ?? (humorousBody ?? "We searched high and low but couldn't find what you're looking for. Let's find a better place for you to go.")}
       </p>
       {!message && (
         <button
