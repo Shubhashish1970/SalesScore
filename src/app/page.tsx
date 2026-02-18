@@ -17,7 +17,7 @@ import { useSearchParams } from "next/navigation";
 import { fetchScorecard, isKpiApiConfigured } from "@/lib/kpi-api";
 import { getAppConfig, loadConfigFromStorage } from "@/lib/app-config";
 import { decodeJwtPayload, extractMobileAndRole, isAdminToken, validateTokenParams, normalizeRole, validateAreaCode } from "@/lib/jwt-utils";
-import { fetchHoMappingsFromApi, isHoUserFromMappings, getHoTargetsFromMappings, getHoLeaderNameFromMappings } from "@/lib/ho-mappings";
+import { fetchHoMappingsFromApi, isHoUserFromMappings, getHoTargetsFromMappings, getHoLeaderNameFromMappings, getTargetByRoleAndAreaCode } from "@/lib/ho-mappings";
 import { fetchAccessConfigFromApi, type AccessConfig } from "@/lib/access-config";
 import type { HoTarget, HoMapping } from "@/lib/ho-mappings";
 import { AdminSettingsScreen } from "@/components/admin/AdminSettingsScreen";
@@ -116,6 +116,7 @@ function HomeContent() {
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [leaderboardError, setLeaderboardError] = useState<string | null>(null);
   const [selectedTarget, setSelectedTarget] = useState<HoTarget | null>(null);
+  const [forceShowSelector, setForceShowSelector] = useState(false);
   const [hoMappings, setHoMappings] = useState<HoMapping[] | null>(null);
   const [accessConfig, setAccessConfig] = useState<AccessConfig | null>(null);
   const { currentIndex, setCurrentIndex, goNext, goPrev, onTouchStart, onTouchEnd } = useSwipe(0);
@@ -124,9 +125,16 @@ function HomeContent() {
   const isHo = Boolean(mobileFromUrl && isHoUserFromMappings(mobileFromUrl, mappings));
   const hoTargets = mobileFromUrl ? getHoTargetsFromMappings(mobileFromUrl, mappings) : null;
   const hoLeaderName = mobileFromUrl ? getHoLeaderNameFromMappings(mobileFromUrl, mappings) : undefined;
-  const effectiveMobile = selectedTarget?.mobile ?? mobileFromUrl;
-  const effectiveRole = (selectedTarget?.role ?? roleFromUrl ?? "TM") as ScorecardData["role"];
-  const effectiveAreaCode = areaCodeFromUrlOrToken;
+
+  const resolvedTarget =
+    selectedTarget ??
+    (!forceShowSelector && isHo && areaCodeFromUrlOrToken && roleFromUrl
+      ? getTargetByRoleAndAreaCode(mobileFromUrl!, roleFromUrl, areaCodeFromUrlOrToken, mappings)
+      : null);
+
+  const effectiveMobile = resolvedTarget?.mobile ?? mobileFromUrl;
+  const effectiveRole = (resolvedTarget?.role ?? roleFromUrl ?? "TM") as ScorecardData["role"];
+  const effectiveAreaCode = resolvedTarget?.areaCode ?? areaCodeFromUrlOrToken;
 
   const areaCodeRequiredButMissing =
     !effectiveAreaCode && !isHo && hoMappings !== null;
@@ -213,7 +221,7 @@ function HomeContent() {
       });
     };
 
-    if (isHo && !selectedTarget) {
+    if (isHo && !resolvedTarget) {
       setLoading(false);
       return () => { cancelled = true; };
     }
@@ -281,7 +289,7 @@ function HomeContent() {
     }
 
     return () => { cancelled = true; };
-  }, [effectiveMobile, effectiveRole, effectiveAreaCode, isHo, selectedTarget, hoMappings, mobileFromUrl, setCurrentIndex, retryKey, finalParamValidationFailed]);
+  }, [effectiveMobile, effectiveRole, effectiveAreaCode, isHo, selectedTarget, forceShowSelector, areaCodeFromUrlOrToken, roleFromUrl, hoMappings, mobileFromUrl, setCurrentIndex, retryKey, finalParamValidationFailed]);
 
   if (isAdminMode) {
     return (
@@ -325,7 +333,7 @@ function HomeContent() {
     );
   }
 
-  if (isHo && hoTargets && !selectedTarget) {
+  if (isHo && hoTargets && !resolvedTarget) {
     return (
       <main className="min-h-dvh max-h-dvh flex flex-col max-w-lg mx-auto bg-white">
         <HoTargetSelector targets={hoTargets} leaderName={hoLeaderName} onSelect={(t) => setSelectedTarget(t)} />
@@ -383,10 +391,13 @@ function HomeContent() {
           </span>
         </div>
         <div className="flex items-center gap-2">
-          {isHo && selectedTarget && (
+          {isHo && resolvedTarget && (
             <button
               type="button"
-              onClick={() => setSelectedTarget(null)}
+              onClick={() => {
+                setSelectedTarget(null);
+                setForceShowSelector(true);
+              }}
               className="text-xs text-amber-600 hover:text-amber-700 font-medium"
             >
               Switch view

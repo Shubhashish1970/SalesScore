@@ -24,7 +24,7 @@ The JWT payload must include:
 
 \* At least one of `mobile`, `phone`, or `sub` is required.
 
-\** Required for direct users (TM/RM/ZM/BU). Optional for HO (Head Office) users.
+\** Required for direct users (TM/RM/ZM/BU). Optional for HO (Head Office) users. When HO has `mobile`+`role`+`areaCode`, the app resolves the target from mappings and shows the scorecard directly (no target selector). When HO has no `areaCode`, the target selector is shown.
 
 ### Example JWT Payload
 
@@ -65,6 +65,7 @@ env:
 - **Client-side only**: The app decodes the JWT payload in the browser (no verification).
 - **Token in URL**: When the user clicks the WhatsApp link, the token is passed as `?token=...`.
 - **URL access**: `?mobile=...&role=TM&areaCode=721` (areaCode required for direct users).
+- **HO direct landing**: When an HO user arrives with `mobile`+`role`+`areaCode` (URL or token), the app matches the target in Admin HO mappings and shows that scorecard directly. If no `areaCode` or no matching target, the target selector is shown. Each HO target in Admin must have an `areaCode` for direct landing to work.
 
 ## WhatsApp Bot Flow
 

@@ -10,6 +10,8 @@ export interface HoTarget {
   mobile: string;
   role: Role;
   label?: string;
+  /** Area code for API; required for HO direct landing from WhatsApp (mobile+role+areaCode). */
+  areaCode?: string;
 }
 
 export interface HoMapping {
@@ -31,6 +33,7 @@ function normalizeMappings(raw: HoMapping[]): HoMapping[] {
         ? String(t.role).toUpperCase() as Role
         : "TM"),
       label: typeof t.label === "string" ? t.label.trim() : undefined,
+      areaCode: typeof t.areaCode === "string" ? t.areaCode.trim() : undefined,
     })),
   })).filter((m) => m.hoMobile.length > 0);
 }
@@ -126,4 +129,26 @@ export function getHoLeaderNameFromMappings(hoMobile: string, mappings: HoMappin
   if (!n) return undefined;
   const found = mappings.find((m) => m.hoMobile === n);
   return found?.hoLeaderName ? found.hoLeaderName.trim() : undefined;
+}
+
+/**
+ * Find target by role and areaCode for HO direct landing (WhatsApp URL: mobile+role+areaCode).
+ */
+export function getTargetByRoleAndAreaCode(
+  hoMobile: string,
+  role: Role,
+  areaCode: string,
+  mappings: HoMapping[]
+): HoTarget | null {
+  const n = String(hoMobile ?? "").trim();
+  const ac = String(areaCode ?? "").trim().toLowerCase();
+  if (!n || !ac) return null;
+  const mapping = mappings.find((m) => m.hoMobile === n);
+  if (!mapping?.targets?.length) return null;
+  const target = mapping.targets.find(
+    (t) =>
+      t.role === role &&
+      (t.areaCode ?? "").trim().toLowerCase() === ac
+  );
+  return target ?? null;
 }

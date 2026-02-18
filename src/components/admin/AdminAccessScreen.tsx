@@ -46,6 +46,14 @@ function TargetRow({
         onChange={(e) => onChange({ ...target, label: e.target.value || undefined })}
         className="border border-slate-300 rounded px-2 py-1.5 text-sm flex-1 min-w-24"
       />
+      <input
+        type="text"
+        placeholder="Area code"
+        value={target.areaCode ?? ""}
+        onChange={(e) => onChange({ ...target, areaCode: e.target.value || undefined })}
+        className="border border-slate-300 rounded px-2 py-1.5 text-sm w-32"
+        title="Required for WhatsApp direct link (e.g. 721 or MADHYA PRADESH)"
+      />
       <button
         type="button"
         onClick={onRemove}
@@ -69,7 +77,7 @@ function MappingCard({
   const addTarget = () => {
     onChange({
       ...mapping,
-      targets: [...mapping.targets, { mobile: "", role: "TM" }],
+      targets: [...mapping.targets, { mobile: "", role: "TM", areaCode: undefined }],
     });
   };
 
@@ -186,8 +194,8 @@ export function AdminAccessScreen() {
         <section>
           <h2 className="text-sm font-semibold text-slate-700 mb-2">HO User Mappings</h2>
           <p className="text-xs text-slate-500 mb-4">
-            HO (Head Office) users can view scorecards of mapped target users. Add mobile number,
-            HO leader&apos;s name (optional), and the targets they can view.
+            HO users can view scorecards of mapped targets. Add mobile, HO leader&apos;s name,
+            and targets (mobile, role, label, area code). Area code is required for WhatsApp direct links.
           </p>
           <div className="space-y-4">
             {mappings.map((m, i) => (
