@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "salesscore-c34f3"
+    "default": "salesscore-c34f3",
+    "staging": "salesscore-c34f3",
+    "prod": "salesscore-prod"
   }
 }

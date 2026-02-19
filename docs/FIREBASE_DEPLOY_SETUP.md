@@ -4,9 +4,28 @@ Use this guide to enable GitHub Actions → Firebase Hosting deploy. You only ne
 
 ---
 
+## Environments (DEPLOY_TARGET)
+
+The workflow uses a **repository variable** `DEPLOY_TARGET` to choose where to deploy:
+
+| Variable value | Firebase project | Hosting URL |
+|----------------|------------------|-------------|
+| `staging` (default) | salesscore-c34f3 | https://salesscore-c34f3.web.app |
+| `prod` | salesscore-prod | https://salesscore-prod.web.app |
+
+**Setup:** GitHub → **Settings** → **Secrets and variables** → **Actions** → **Variables** → Add `DEPLOY_TARGET` with value `staging` (or `prod` when deploying to production).
+
+**Flow:** Deploys normally go to staging. When ready for production, change `DEPLOY_TARGET` to `prod`, push or run workflow, then change back to `staging`.
+
+**Service account:** One `FIREBASE_SERVICE_ACCOUNT_JSON` secret. The service account must have access to **both** Firebase projects (salesscore-c34f3 and salesscore-prod). Add it in GCP IAM for each project.
+
+**First-time setup for salesscore-prod:** Before deploying to prod, ensure Hosting and Firestore are enabled in the project. Add the same service account (from `salesscore-c34f3`) to GCP IAM for `salesscore-prod` with roles: Firebase Admin, Cloud Functions Developer, Service Account User.
+
+---
+
 ## What you need
 
-- A **Firebase project** (you already have `salesscore-c34f3` in `.firebaserc`).
+- **Firebase projects**: `salesscore-c34f3` (staging) and `salesscore-prod` (production).
 - **GitHub repo** with the Sales Scorecard code and the workflow at `.github/workflows/deploy-firebase.yml`.
 - **One GitHub secret**: the contents of a Firebase/GCP service account key JSON (Option A).
 
@@ -49,7 +68,7 @@ Use this guide to enable GitHub Actions → Firebase Hosting deploy. You only ne
 4. **Value:** Paste the **entire** contents of the JSON key file (from Step 2). One line or pretty-printed both work.
 5. Click **Add secret**.
 
-The workflow uses **`FIREBASE_SERVICE_ACCOUNT_JSON`** for authentication. You do not need `FIREBASE_TOKEN` (deprecated; tokens expire). Optional: **`FIREBASE_PROJECT_ID`** (default `salesscore-c34f3`).
+The workflow uses **`FIREBASE_SERVICE_ACCOUNT_JSON`** for authentication. The service account must be added to **both** projects (salesscore-c34f3 and salesscore-prod) in GCP IAM. You do not need `FIREBASE_TOKEN` (deprecated; tokens expire).
 
 **KPI Data API (optional):** Add secret **`KPI_DATA_API_URL`** with value `https://kw-sales-score-api-366769154420.asia-south1.run.app/api/scorecard`. The app uses a same-origin proxy (`/api/scorecard`) to avoid CORS; a Cloud Function forwards requests to the upstream API. If unset, `?mobile=` links fall back to sample data. **Note:** Cloud Functions require the Blaze (pay-as-you-go) plan.
 
@@ -68,14 +87,18 @@ The workflow no longer uses `FIREBASE_TOKEN` (from `firebase login:ci`) because 
 
 ## Checklist
 
-- [ ] Firebase project exists (e.g. salesscore-c34f3).
-- [ ] Service account key JSON created (Firebase Console or GCP Console).
-- [ ] GitHub secret `FIREBASE_SERVICE_ACCOUNT_JSON` set to full JSON contents (Option A).
+- [ ] Firebase projects exist: salesscore-c34f3 (staging), salesscore-prod (production).
+- [ ] Hosting and Firestore enabled in **both** projects.
+- [ ] Service account key JSON created; added to **both** projects in GCP IAM.
+- [ ] GitHub secret `FIREBASE_SERVICE_ACCOUNT_JSON` set to full JSON contents.
+- [ ] GitHub variable `DEPLOY_TARGET` set to `staging` (or `prod` for production deploy).
 - [ ] GitHub secret `KPI_DATA_API_URL` set (optional; for live scorecard API).
+- [ ] GitHub secret `RESEND_API_KEY` set (required for admin link emails).
 - [ ] Push to `main` or manually run **Deploy to Firebase Hosting** workflow.
 
 ---
 
 ## After deploy
 
-- Hosting URL will be like: `https://salesscore-c34f3.web.app` or your custom domain if configured in Firebase Hosting.
+- **Staging:** https://salesscore-c34f3.web.app
+- **Production:** https://salesscore-prod.web.app

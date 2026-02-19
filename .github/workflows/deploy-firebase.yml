@@ -1,11 +1,12 @@
 # Deploy Sales Scorecard to Firebase Hosting and Functions on push to main.
 #
+# Variable: DEPLOY_TARGET = "staging" (default) or "prod"
+#   - staging → salesscore-c34f3
+#   - prod → salesscore-prod
 # Required: FIREBASE_SERVICE_ACCOUNT_JSON = full contents of your Firebase/GCP service account
-#   key JSON (Firebase Console → Project Settings → Service accounts → Generate new private key).
-# Optional: FIREBASE_PROJECT_ID (default salesscore-c34f3).
-# KPI_DATA_API_URL: upstream KPI API (e.g. https://...run.app/api/scorecard). When set, client uses
-#   same-origin proxy /api/scorecard to avoid CORS; function proxies to upstream.
-# RESEND_API_KEY: Resend API key for admin link emails (get from resend.com). Required for /admin/request.
+#   key JSON. Service account must have access to BOTH projects.
+# KPI_DATA_API_URL: upstream KPI API. Same for both environments.
+# RESEND_API_KEY: Resend API key for admin link emails. Required for /admin/request.
 
 name: Deploy to Firebase Hosting
 
@@ -21,6 +22,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Resolve project from DEPLOY_TARGET
+        id: project
+        run: |
+          TARGET="${{ vars.DEPLOY_TARGET || 'staging' }}"
+          if [ "$TARGET" = "prod" ]; then
+            echo "project_id=salesscore-prod" >> $GITHUB_OUTPUT
+            echo "Deploying to PRODUCTION (salesscore-prod)"
+          else
+            echo "project_id=salesscore-c34f3" >> $GITHUB_OUTPUT
+            echo "Deploying to STAGING (salesscore-c34f3)"
+          fi
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -32,9 +45,11 @@ jobs:
 
       - name: Build
         env:
-          NEXT_PUBLIC_GEMINI_COMMENTARY_URL: https://us-central1-${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}.cloudfunctions.net/gemini-commentary
-          NEXT_PUBLIC_KPI_DATA_API_URL: ${{ secrets.KPI_DATA_API_URL && 'https://salesscore-c34f3.web.app/api/scorecard' || '' }}
-        run: npm run build
+          PROJECT_ID: ${{ steps.project.outputs.project_id }}
+        run: |
+          export NEXT_PUBLIC_GEMINI_COMMENTARY_URL="https://us-central1-${PROJECT_ID}.cloudfunctions.net/gemini-commentary"
+          export NEXT_PUBLIC_KPI_DATA_API_URL="https://${PROJECT_ID}.web.app/api/scorecard"
+          npm run build
 
       - name: Authenticate to GCP (Firebase)
         uses: google-github-actions/auth@v2
@@ -44,11 +59,11 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
-          project_id: ${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}
+          project_id: ${{ steps.project.outputs.project_id }}
 
       - name: Deploy KPI proxy (Cloud Function via gcloud)
         env:
-          PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}
+          PROJECT_ID: ${{ steps.project.outputs.project_id }}
           KPI_UPSTREAM: ${{ secrets.KPI_DATA_API_URL }}
         run: |
           gcloud functions deploy kpiProxy \
@@ -66,7 +81,7 @@ jobs:
 
       - name: Deploy Leaderboard proxy (Cloud Function via gcloud)
         env:
-          PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}
+          PROJECT_ID: ${{ steps.project.outputs.project_id }}
           KPI_UPSTREAM: ${{ secrets.KPI_DATA_API_URL }}
         run: |
           gcloud functions deploy leaderboardProxy \
@@ -84,9 +99,10 @@ jobs:
 
       - name: Deploy Admin link request (Cloud Function via gcloud)
         env:
-          PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}
+          PROJECT_ID: ${{ steps.project.outputs.project_id }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: |
+          APP_BASE_URL="https://${PROJECT_ID}.web.app"
           gcloud functions deploy requestAdminLink \
             --gen2 \
             --runtime=nodejs22 \
@@ -95,14 +111,14 @@ jobs:
             --entry-point=requestAdminLink \
             --trigger-http \
             --allow-unauthenticated \
-            --set-env-vars "RESEND_API_KEY=$RESEND_API_KEY" \
+            --set-env-vars "RESEND_API_KEY=$RESEND_API_KEY,APP_BASE_URL=$APP_BASE_URL" \
             --project="$PROJECT_ID" \
             --quiet
           echo "Admin link: https://asia-south1-${PROJECT_ID}.cloudfunctions.net/requestAdminLink"
 
       - name: Deploy HO mappings (Cloud Functions via gcloud)
         env:
-          PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}
+          PROJECT_ID: ${{ steps.project.outputs.project_id }}
         run: |
           SA="${PROJECT_ID}@appspot.gserviceaccount.com"
           gcloud functions deploy getHoMappings \
@@ -130,7 +146,7 @@ jobs:
 
       - name: Deploy Access config (Cloud Functions via gcloud)
         env:
-          PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}
+          PROJECT_ID: ${{ steps.project.outputs.project_id }}
         run: |
           SA="${PROJECT_ID}@appspot.gserviceaccount.com"
           gcloud functions deploy getAccessConfig \
@@ -159,7 +175,8 @@ jobs:
       - name: Deploy Firebase Hosting
         env:
           CI: true
-          PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}
+          PROJECT_ID: ${{ steps.project.outputs.project_id }}
         run: |
           npm install -g firebase-tools
+          sed -i "s/\"site\":\"[^\"]*\"/\"site\":\"$PROJECT_ID\"/" firebase.json
           firebase deploy --only hosting --project "$PROJECT_ID"

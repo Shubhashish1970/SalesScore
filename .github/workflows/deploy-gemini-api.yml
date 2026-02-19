@@ -1,9 +1,7 @@
 # Deploy Gemini commentary API to GCP Cloud Functions (Gen2) on push to main.
 #
-# Secrets: FIREBASE_SERVICE_ACCOUNT_JSON, GEMINI_API_KEY. Optional: FIREBASE_PROJECT_ID.
-# The service account needs Cloud Functions Developer + Service Account User.
-# Ensure Cloud Functions, Cloud Build, and Run APIs are enabled in the project
-# (GCP Console → APIs & Services → Enable APIs) if this is the first deploy.
+# Uses same DEPLOY_TARGET variable as main deploy: staging → salesscore-c34f3, prod → salesscore-prod.
+# Secrets: FIREBASE_SERVICE_ACCOUNT_JSON, GEMINI_API_KEY.
 
 name: Deploy Gemini API (GCP)
 # Trigger: push to main (gcp-gemini-api/** or this file) or Run workflow
@@ -23,6 +21,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Resolve project from DEPLOY_TARGET
+        id: project
+        run: |
+          TARGET="${{ vars.DEPLOY_TARGET || 'staging' }}"
+          if [ "$TARGET" = "prod" ]; then
+            echo "project_id=salesscore-prod" >> $GITHUB_OUTPUT
+          else
+            echo "project_id=salesscore-c34f3" >> $GITHUB_OUTPUT
+          fi
+
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v2
         with:
@@ -31,14 +39,13 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
-          project_id: ${{ secrets.FIREBASE_PROJECT_ID || 'salesscore-c34f3' }}
+          project_id: ${{ steps.project.outputs.project_id }}
 
       - name: Deploy Cloud Function (Gemini commentary)
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          PROJECT_ID: ${{ steps.project.outputs.project_id }}
         run: |
-          PROJECT_ID="${PROJECT_ID:-salesscore-c34f3}"
           if [ -z "$GEMINI_API_KEY" ]; then
             echo "::warning::GEMINI_API_KEY not set; function will return 503 until key is set in GCP Console."
           fi
