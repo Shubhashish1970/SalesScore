@@ -2,39 +2,36 @@
 
 ## Root cause
 
-**Cloud Functions are not deployed to salesscore-prod.** The prod API endpoints (`/api/scorecard`, `/api/ho-mappings`, etc.) return 404 because the functions don't exist in the prod project.
+**Cloud Functions were not deployed to salesscore-prod.** The prod API endpoints (`/api/scorecard`, `/api/ho-mappings`, `/api/admin/request-link`, etc.) returned 404 because the functions didn't exist in the prod project.
 
-Staging works because the workflow deploys to staging by default (`DEPLOY_TARGET=staging`).
+## Why the workflow was failing
 
-## Fix: Deploy via GitHub Actions with DEPLOY_TARGET=prod
+When deploying to prod, the **Cloud Functions Gen2** build failed with:
+> "Could not build the function due to a missing permission on the build service account"
 
-1. **Set DEPLOY_TARGET to prod**
-   - GitHub → **Settings** → **Secrets and variables** → **Actions** → **Variables**
-   - Add or edit `DEPLOY_TARGET` → set value to **`prod`**
+**Actual cause:** Prod uses the **default Compute Service Account** for Cloud Build (2024 change), not the legacy Cloud Build SA. The default compute SA lacked build/deploy roles. The fix script grants the correct roles to the default compute SA.
 
-2. **Trigger the deploy**
-   - **Actions** → **Deploy to Firebase Hosting** → **Run workflow**
-   - Or push a commit to `main`
+## Fix: Run Cloud Build permissions script (one-time)
 
-3. **Wait for the workflow to complete** (~10 min)
+From project root, run:
 
-4. **Set DEPLOY_TARGET back to staging** when done
+```bash
+./scripts/fix-prod-cloudbuild-iam.sh
+```
+
+This grants the Cloud Build SA the roles needed for Gen2 function builds. Then re-run the GitHub workflow.
+
+## Fix: Deploy via GitHub Actions
+
+1. **IAM fix done** – `./scripts/fix-prod-cloudbuild-iam.sh` has been run; Cloud Build SA has required roles.
+2. **Trigger prod deploy**:
+   - Go to **GitHub → Actions → Deploy to Firebase Hosting**
+   - Click **Run workflow**
+   - Set **Override DEPLOY_TARGET** to `prod`
+   - Run
+3. **Verify** – After success, check `https://salesscore-prod.web.app/api/admin/request-link` (should not 404).
+4. **Default stays staging** – `vars.DEPLOY_TARGET` can remain `staging`; use workflow input to deploy prod when needed.
 
 ## Optional: Copy Firestore data to prod
 
-Prod has a fresh Firestore. To copy HO mappings and access config from staging:
-
-1. Export from staging: Firebase Console → salesscore-c34f3 → Firestore → Export
-2. Import to prod: Firebase Console → salesscore-prod → Firestore → Import
-
-Or use the Admin panel in prod to reconfigure HO mappings and access settings.
-
-## APIs enabled in prod
-
-- Firebase Hosting
-- Firestore
-- Cloud Functions
-- Cloud Build
-- Cloud Run
-
-Cloud Build service account permissions may need adjustment for local deploys; GitHub Actions deploy uses the Firebase service account and should work.
+Prod has a fresh Firestore. Use the Admin panel in prod to reconfigure HO mappings and access settings, or export/import from staging.
