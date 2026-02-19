@@ -238,6 +238,7 @@ function HomeContent() {
     const needsAreaCode =
       isHo &&
       selectedTarget &&
+      resolvedTarget &&
       (resolvedTarget.role === "TM" || resolvedTarget.role === "RM" || resolvedTarget.role === "ZM") &&
       !resolvedTarget.areaCode?.trim();
     if (needsAreaCode) {
