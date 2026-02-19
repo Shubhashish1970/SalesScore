@@ -1,6 +1,7 @@
 # Deploy Gemini commentary API to GCP Cloud Functions (Gen2) on push to main.
 #
 # Uses same DEPLOY_TARGET variable as main deploy: staging → salesscore-c34f3, prod → salesscore-prod.
+# Triggered when this file or gcp-gemini-api/** changes.
 # Secrets: FIREBASE_SERVICE_ACCOUNT_JSON, GEMINI_API_KEY.
 
 name: Deploy Gemini API (GCP)
