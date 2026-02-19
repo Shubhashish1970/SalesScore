@@ -20,7 +20,9 @@ const ACCESS_CONFIG_DOC = "config/access-config";
 
 const UPSTREAM = process.env.KPI_API_UPSTREAM_URL || process.env.KPI_DATA_API_URL || "";
 const ADMIN_EMAIL = "shubhashish@nacl.murugappa.com";
-const BASE_URL = process.env.APP_BASE_URL || "https://salesscore-c34f3.web.app";
+const BASE_URL =
+  process.env.APP_BASE_URL ||
+  (process.env.GCLOUD_PROJECT ? `https://${process.env.GCLOUD_PROJECT}.web.app` : "");
 
 function getLeaderboardBaseUrl() {
   if (!UPSTREAM) return "";

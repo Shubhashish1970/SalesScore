@@ -14,6 +14,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      deploy_target:
+        description: "Override DEPLOY_TARGET (prod or staging)"
+        required: false
+        default: ""
 
 jobs:
   build-and-deploy:
@@ -25,7 +30,7 @@ jobs:
       - name: Resolve project from DEPLOY_TARGET
         id: project
         run: |
-          TARGET="${{ vars.DEPLOY_TARGET || 'staging' }}"
+          TARGET="${{ github.event.inputs.deploy_target || vars.DEPLOY_TARGET || 'staging' }}"
           if [ "$TARGET" = "prod" ]; then
             echo "project_id=salesscore-prod" >> $GITHUB_OUTPUT
             echo "Deploying to PRODUCTION (salesscore-prod)"
@@ -178,5 +183,7 @@ jobs:
           PROJECT_ID: ${{ steps.project.outputs.project_id }}
         run: |
           npm install -g firebase-tools
-          sed -i "s/\"site\":\"[^\"]*\"/\"site\":\"$PROJECT_ID\"/" firebase.json
+          echo "Deploying Hosting to project: $PROJECT_ID (from DEPLOY_TARGET)"
+          firebase use "$PROJECT_ID"
           firebase deploy --only hosting --project "$PROJECT_ID"
+          echo "Hosting URL: https://$PROJECT_ID.web.app"
