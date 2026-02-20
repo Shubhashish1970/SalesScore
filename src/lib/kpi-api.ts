@@ -10,13 +10,7 @@
 import type { ScorecardData, Role, OverdueBucketKey } from "@/types/scorecard";
 import { getAppConfig } from "@/lib/app-config";
 
-/** Build-time URL; fallback to same-origin /api/scorecard when empty (e.g. stale prod build). */
-function getKpiApiUrl(): string {
-  const fromEnv = process.env.NEXT_PUBLIC_KPI_DATA_API_URL?.trim();
-  if (fromEnv) return fromEnv;
-  if (typeof window !== "undefined") return `${window.location.origin}/api/scorecard`;
-  return "";
-}
+const KPI_API_URL = process.env.NEXT_PUBLIC_KPI_DATA_API_URL?.trim() || "";
 
 const ROLE_MAP: Record<string, Role> = {
   "Territory Manager": "TM",
@@ -128,14 +122,13 @@ export async function fetchScorecard(
   role: Role,
   areaCode?: string
 ): Promise<ScorecardData> {
-  const apiUrl = getKpiApiUrl();
-  if (!apiUrl) {
+  if (!KPI_API_URL) {
     throw new Error("KPI Data API URL not configured.");
   }
-  const base = apiUrl.startsWith("/") && typeof window !== "undefined"
+  const base = KPI_API_URL.startsWith("/") && typeof window !== "undefined"
     ? window.location.origin
     : undefined;
-  const url = base ? new URL(apiUrl, base) : new URL(apiUrl);
+  const url = base ? new URL(KPI_API_URL, base) : new URL(KPI_API_URL);
   url.searchParams.set("mobile", mobile);
   url.searchParams.set("role", role);
   if (areaCode) {
@@ -152,5 +145,5 @@ export async function fetchScorecard(
 }
 
 export function isKpiApiConfigured(): boolean {
-  return getKpiApiUrl().length > 0;
+  return KPI_API_URL.length > 0;
 }
