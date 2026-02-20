@@ -2,7 +2,22 @@
 
 ## Root cause of "We lost this page" on prod
 
-Prod Hosting may have been built with wrong or empty `NEXT_PUBLIC_KPI_DATA_API_URL` (e.g. if deploy used staging build or manual deploy without env). **Fix:** Use relative URL `/api/scorecard` so the app always fetches from the current origin, regardless of build env. See deploy-firebase.yml Build step.
+1. **Prod Hosting not redeployed** – Staging: last-modified Fri Feb 20. Prod: Thu Feb 19. Prod is serving an old build (before the relative URL fix).
+2. **Fix applied:** `NEXT_PUBLIC_KPI_DATA_API_URL=/api/scorecard` in workflow. Prod must be redeployed to get it.
+
+## GCloud/Firebase/Firestore audit (prod)
+
+| Check | Status |
+|-------|--------|
+| APIs enabled | firebase, firestore, cloudfunctions, run, cloudbuild, artifactregistry ✓ |
+| firebaseextensions | Enabled (to match staging) ✓ |
+| Firestore (default DB) | asia-south1, NATIVE ✓ |
+| appspot SA | roles/datastore.user ✓ |
+| /api/ho-mappings | 200 ✓ |
+| /api/access-config | 200 ✓ |
+| /api/scorecard | 200 ✓ |
+
+**Action required:** Run GitHub workflow with Override DEPLOY_TARGET = `prod` to deploy the new build to prod Hosting. Firebase CLI auth expired locally; workflow uses service account.
 
 ## Comparison (as of last check)
 
