@@ -1,8 +1,7 @@
 # Deploy Sales Scorecard to Firebase Hosting and Functions on push to main.
 #
-# Variable: DEPLOY_TARGET = "staging" (default) or "prod"
-#   - staging → salesscore-c34f3
-#   - prod → salesscore-prod
+# deploy_target: input (manual run) or vars.DEPLOY_TARGET (push), default staging.
+#   staging → salesscore-c34f3, prod → salesscore-prod
 # Required: FIREBASE_SERVICE_ACCOUNT_JSON = full contents of your Firebase/GCP service account
 #   key JSON. Service account must have access to BOTH projects.
 # KPI_DATA_API_URL: upstream KPI API. Same for both environments.
@@ -16,9 +15,13 @@ on:
   workflow_dispatch:
     inputs:
       deploy_target:
-        description: "Override DEPLOY_TARGET (prod or staging)"
-        required: false
-        default: ""
+        description: "Deploy target"
+        required: true
+        type: choice
+        default: staging
+        options:
+          - staging
+          - prod
 
 jobs:
   build-and-deploy:
@@ -27,7 +30,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Resolve project from DEPLOY_TARGET
+      - name: Resolve project from deploy_target
         id: project
         run: |
           TARGET="${{ github.event.inputs.deploy_target || vars.DEPLOY_TARGET || 'staging' }}"

@@ -17,7 +17,7 @@
 | /api/access-config | 200 ✓ |
 | /api/scorecard | 200 ✓ |
 
-**Action required:** Run GitHub workflow with Override DEPLOY_TARGET = `prod` to deploy the new build to prod Hosting. Firebase CLI auth expired locally; workflow uses service account.
+**Action required:** Run GitHub workflow manually → select **deploy_target = prod** from the dropdown (required; default is staging). For push-triggered runs, set repo variable `DEPLOY_TARGET=prod` in Settings → Variables.
 
 ## Comparison (as of last check)
 
