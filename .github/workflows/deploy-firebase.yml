@@ -53,7 +53,8 @@ jobs:
           PROJECT_ID: ${{ steps.project.outputs.project_id }}
         run: |
           export NEXT_PUBLIC_GEMINI_COMMENTARY_URL="https://us-central1-${PROJECT_ID}.cloudfunctions.net/gemini-commentary"
-          export NEXT_PUBLIC_KPI_DATA_API_URL="https://${PROJECT_ID}.web.app/api/scorecard"
+          # Use relative URL so app always fetches from current origin (avoids build-env mismatch)
+          export NEXT_PUBLIC_KPI_DATA_API_URL="/api/scorecard"
           npm run build
 
       - name: Authenticate to GCP (Firebase)

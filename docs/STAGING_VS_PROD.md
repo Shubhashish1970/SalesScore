@@ -1,5 +1,9 @@
 # Staging vs Prod – Settings Comparison
 
+## Root cause of "We lost this page" on prod
+
+Prod Hosting may have been built with wrong or empty `NEXT_PUBLIC_KPI_DATA_API_URL` (e.g. if deploy used staging build or manual deploy without env). **Fix:** Use relative URL `/api/scorecard` so the app always fetches from the current origin, regardless of build env. See deploy-firebase.yml Build step.
+
 ## Comparison (as of last check)
 
 | Item | Staging (salesscore-c34f3) | Prod (salesscore-prod) | Status |
