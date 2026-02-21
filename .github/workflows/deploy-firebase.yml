@@ -78,7 +78,12 @@ jobs:
           KPI_BASE: ${{ secrets.KPI_DATA_API_URL }}
           API_ENV: ${{ steps.project.outputs.api_env }}
         run: |
+          if echo "$KPI_BASE" | grep -qE '/(scorecard|stage|prod|api)(/|$)'; then
+            echo "::error::KPI_DATA_API_URL must be base URL only (no path). Current value appears to include a path. Use e.g. https://kw-sales-score-api-366769154420.asia-south1.run.app"
+            exit 1
+          fi
           KPI_UPSTREAM="${KPI_BASE}/${API_ENV}/scorecard"
+          echo "KPI upstream path: /${API_ENV}/scorecard"
           gcloud functions deploy kpiProxy \
             --gen2 \
             --runtime=nodejs22 \
@@ -98,6 +103,10 @@ jobs:
           KPI_BASE: ${{ secrets.KPI_DATA_API_URL }}
           API_ENV: ${{ steps.project.outputs.api_env }}
         run: |
+          if echo "$KPI_BASE" | grep -qE '/(scorecard|stage|prod|api)(/|$)'; then
+            echo "::error::KPI_DATA_API_URL must be base URL only (no path). Use e.g. https://kw-sales-score-api-366769154420.asia-south1.run.app"
+            exit 1
+          fi
           KPI_UPSTREAM="${KPI_BASE}/${API_ENV}/scorecard"
           gcloud functions deploy leaderboardProxy \
             --gen2 \

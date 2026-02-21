@@ -167,7 +167,7 @@ export function AdminSettingsScreen() {
                     ...config,
                     scoreBandThresholds: {
                       ...config.scoreBandThresholds,
-                      redEnd: Number(e.target.value) || 80,
+                      redEnd: Number(e.target.value) || getDefaultConfig().scoreBandThresholds.redEnd,
                     },
                   })
                 }
@@ -184,7 +184,7 @@ export function AdminSettingsScreen() {
                     ...config,
                     scoreBandThresholds: {
                       ...config.scoreBandThresholds,
-                      amberEnd: Number(e.target.value) || 90,
+                      amberEnd: Number(e.target.value) || getDefaultConfig().scoreBandThresholds.amberEnd,
                     },
                   })
                 }
@@ -197,7 +197,7 @@ export function AdminSettingsScreen() {
                 type="number"
                 value={config.maxScore}
                 onChange={(e) =>
-                  setConfig({ ...config, maxScore: Number(e.target.value) || 120 })
+                  setConfig({ ...config, maxScore: Number(e.target.value) || getDefaultConfig().maxScore })
                 }
                 className="border border-slate-300 rounded px-2 py-1.5 text-sm"
               />
@@ -219,7 +219,7 @@ export function AdminSettingsScreen() {
                     ...config,
                     growthBandThresholds: {
                       ...config.growthBandThresholds,
-                      greenAbove: Number(e.target.value) ?? 5,
+                      greenAbove: Number(e.target.value) ?? getDefaultConfig().growthBandThresholds.greenAbove,
                     },
                   })
                 }
@@ -236,7 +236,7 @@ export function AdminSettingsScreen() {
                     ...config,
                     growthBandThresholds: {
                       ...config.growthBandThresholds,
-                      amberAbove: Number(e.target.value) ?? 0,
+                      amberAbove: Number(e.target.value) ?? getDefaultConfig().growthBandThresholds.amberAbove,
                     },
                   })
                 }
@@ -260,7 +260,7 @@ export function AdminSettingsScreen() {
                     ...config,
                     kpiWeights: {
                       ...config.kpiWeights,
-                      productMix: Number(e.target.value) || 34,
+                      productMix: Number(e.target.value) || getDefaultConfig().kpiWeights.productMix,
                     },
                   })
                 }
@@ -277,7 +277,7 @@ export function AdminSettingsScreen() {
                     ...config,
                     kpiWeights: {
                       ...config.kpiWeights,
-                      overdue: Number(e.target.value) || 33,
+                      overdue: Number(e.target.value) || getDefaultConfig().kpiWeights.overdue,
                     },
                   })
                 }
@@ -294,7 +294,7 @@ export function AdminSettingsScreen() {
                     ...config,
                     kpiWeights: {
                       ...config.kpiWeights,
-                      dso: Number(e.target.value) || 33,
+                      dso: Number(e.target.value) || getDefaultConfig().kpiWeights.dso,
                     },
                   })
                 }
@@ -317,7 +317,7 @@ export function AdminSettingsScreen() {
                 onChange={(e) =>
                   setConfig({
                     ...config,
-                    productMixHelpThreshold: Number(e.target.value) ?? 0.65,
+                    productMixHelpThreshold: Number(e.target.value) ?? getDefaultConfig().productMixHelpThreshold,
                   })
                 }
                 className="border border-slate-300 rounded px-2 py-1.5 text-sm"
@@ -332,7 +332,7 @@ export function AdminSettingsScreen() {
                 onChange={(e) =>
                   setConfig({
                     ...config,
-                    productMixBadgeGreenRatio: Number(e.target.value) ?? 1,
+                    productMixBadgeGreenRatio: Number(e.target.value) ?? getDefaultConfig().productMixBadgeGreenRatio,
                   })
                 }
                 className="border border-slate-300 rounded px-2 py-1.5 text-sm"
@@ -347,7 +347,7 @@ export function AdminSettingsScreen() {
                 onChange={(e) =>
                   setConfig({
                     ...config,
-                    productMixBadgeAmberRatio: Number(e.target.value) ?? 0.8,
+                    productMixBadgeAmberRatio: Number(e.target.value) ?? getDefaultConfig().productMixBadgeAmberRatio,
                   })
                 }
                 className="border border-slate-300 rounded px-2 py-1.5 text-sm"
@@ -368,7 +368,7 @@ export function AdminSettingsScreen() {
                 onChange={(e) =>
                   setConfig({
                     ...config,
-                    overdueBadgeGreenAbove: Number(e.target.value) ?? 33,
+                    overdueBadgeGreenAbove: Number(e.target.value) ?? getDefaultConfig().overdueBadgeGreenAbove,
                   })
                 }
                 className="border border-slate-300 rounded px-2 py-1.5 text-sm"
@@ -382,7 +382,7 @@ export function AdminSettingsScreen() {
                 onChange={(e) =>
                   setConfig({
                     ...config,
-                    overdueBadgeAmberAbove: Number(e.target.value) ?? 27,
+                    overdueBadgeAmberAbove: Number(e.target.value) ?? getDefaultConfig().overdueBadgeAmberAbove,
                   })
                 }
                 className="border border-slate-300 rounded px-2 py-1.5 text-sm"
@@ -403,7 +403,7 @@ export function AdminSettingsScreen() {
                 onChange={(e) =>
                   setConfig({
                     ...config,
-                    recommendedActionsMin: Number(e.target.value) ?? 3,
+                    recommendedActionsMin: Number(e.target.value) ?? getDefaultConfig().recommendedActionsMin,
                   })
                 }
                 className="border border-slate-300 rounded px-2 py-1.5 text-sm"
@@ -417,7 +417,7 @@ export function AdminSettingsScreen() {
                 onChange={(e) =>
                   setConfig({
                     ...config,
-                    recommendedActionsMax: Number(e.target.value) ?? 5,
+                    recommendedActionsMax: Number(e.target.value) ?? getDefaultConfig().recommendedActionsMax,
                   })
                 }
                 className="border border-slate-300 rounded px-2 py-1.5 text-sm"
@@ -443,7 +443,7 @@ export function AdminSettingsScreen() {
                       ...config,
                       overdueBucketPenalties: {
                         ...config.overdueBucketPenalties,
-                        [key]: Number(e.target.value) ?? 0,
+                        [key]: Number(e.target.value) ?? (getDefaultConfig().overdueBucketPenalties[key] ?? 0),
                       },
                     })
                   }

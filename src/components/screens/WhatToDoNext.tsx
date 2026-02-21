@@ -27,9 +27,15 @@ function impactBadge(impact: string) {
   );
 }
 
+const IMPACT_ORDER: Record<string, number> = { High: 0, Medium: 1, Low: 2 };
+
 export function WhatToDoNext({ data }: Props) {
-  const actions = Array.isArray(data.recommendedActions) ? data.recommendedActions.slice(0, 5) : [];
-  const { scoreBandThresholds } = getAppConfig();
+  const config = getAppConfig();
+  const raw = Array.isArray(data.recommendedActions) ? data.recommendedActions : [];
+  const actions = [...raw]
+    .sort((a, b) => (IMPACT_ORDER[a.expectedImpact] ?? 2) - (IMPACT_ORDER[b.expectedImpact] ?? 2))
+    .slice(0, config.recommendedActionsMax);
+  const { scoreBandThresholds } = config;
   const commentaryStyle = getCommentaryBoxStyle(
     scoreBandToVariant(data.finalScore, scoreBandThresholds.redEnd, scoreBandThresholds.amberEnd)
   );
