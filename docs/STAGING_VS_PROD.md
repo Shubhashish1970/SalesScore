@@ -49,3 +49,17 @@
 **Daily work:** Push to `stage` branch → auto-deploys to staging.
 
 **Deploy prod:** When ready, run workflow from `main` branch → select **deploy_target = prod**.
+
+## Troubleshooting: staging deploy fails with "unable to queue the operation"
+
+If the workflow fails at "Deploy HO mappings" (or similar) with:
+- `WARNING: Your account does not have permission to check or bind IAM policies to project [salesscore-c34f3]`
+- `ERROR: ResponseError: status=[409], message=[unable to queue the operation]`
+
+**Fix:** Grant Cloud Build roles to the default Compute service account in staging:
+
+```bash
+./scripts/fix-staging-cloudbuild-iam.sh
+```
+
+Requires `gcloud` auth with Owner or Project IAM Admin. Then re-run the workflow.
