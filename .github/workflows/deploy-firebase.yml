@@ -1,6 +1,7 @@
-# Deploy Sales Scorecard to Firebase Hosting and Functions on push to main.
+# Deploy Sales Scorecard to Firebase Hosting and Functions on push to stage branch.
+# stage branch → staging only. main → manual deploy only (workflow_dispatch).
 #
-# deploy_target: input (manual run) or vars.DEPLOY_TARGET (push), default stage.
+# deploy_target: input (manual run), or stage when push to stage branch, or vars.DEPLOY_TARGET.
 #   stage → salesscore-c34f3, prod → salesscore-prod
 # Required: FIREBASE_SERVICE_ACCOUNT_JSON = full contents of your Firebase/GCP service account
 #   key JSON. Service account must have access to BOTH projects.
@@ -12,7 +13,7 @@ name: Deploy to Firebase Hosting
 
 on:
   push:
-    branches: [main]
+    branches: [stage]
   workflow_dispatch:
     inputs:
       deploy_target:
@@ -34,7 +35,11 @@ jobs:
       - name: Resolve project from deploy_target
         id: project
         run: |
-          TARGET="${{ github.event.inputs.deploy_target || vars.DEPLOY_TARGET || 'stage' }}"
+          if [ "${{ github.ref }}" = "refs/heads/stage" ]; then
+            TARGET="stage"
+          else
+            TARGET="${{ github.event.inputs.deploy_target || vars.DEPLOY_TARGET || 'stage' }}"
+          fi
           echo "api_env=$TARGET" >> $GITHUB_OUTPUT
           if [ "$TARGET" = "prod" ]; then
             echo "project_id=salesscore-prod" >> $GITHUB_OUTPUT
