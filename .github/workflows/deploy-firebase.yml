@@ -1,6 +1,7 @@
-# Deploy Sales Scorecard to Firebase Hosting and Functions on push to main.
+# Deploy Sales Scorecard to Firebase Hosting and Functions.
+# main branch: manual deploy only (workflow_dispatch). stage branch: auto-deploy to staging on push.
 #
-# deploy_target: input (manual run) or vars.DEPLOY_TARGET (push), default stage.
+# deploy_target: input (manual run) or vars.DEPLOY_TARGET.
 #   stage → salesscore-c34f3, prod → salesscore-prod
 # Required: FIREBASE_SERVICE_ACCOUNT_JSON = full contents of your Firebase/GCP service account
 #   key JSON. Service account must have access to BOTH projects.
@@ -11,8 +12,6 @@
 name: Deploy to Firebase Hosting
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
       deploy_target:

@@ -1,18 +1,11 @@
-# Deploy Gemini commentary API to GCP Cloud Functions (Gen2) on push to main.
-#
-# Uses same DEPLOY_TARGET variable as main deploy: stage → salesscore-c34f3, prod → salesscore-prod.
-# Triggered when this file or gcp-gemini-api/** changes. Uses DEPLOY_TARGET for prod/stage.
+# Deploy Gemini commentary API to GCP Cloud Functions (Gen2).
+# main branch: manual deploy only (workflow_dispatch). stage branch: auto-deploy on push.
 # Secrets: FIREBASE_SERVICE_ACCOUNT_JSON, GEMINI_API_KEY.
 
 name: Deploy Gemini API (GCP)
 # Trigger: push to main (gcp-gemini-api/** or this file) or Run workflow
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "gcp-gemini-api/**"
-      - ".github/workflows/deploy-gemini-api.yml"
   workflow_dispatch:
 
 jobs:
