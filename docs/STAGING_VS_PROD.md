@@ -17,7 +17,7 @@
 | /api/access-config | 200 ✓ |
 | /api/scorecard | 200 ✓ |
 
-**Action required:** Run GitHub workflow manually → select **deploy_target = prod** from the dropdown (required; default is stage). For push-triggered runs, set repo variable `DEPLOY_TARGET=prod` in Settings → Variables.
+**Branch strategy:** `stage` branch auto-deploys to staging on push. `main` branch deploys only via manual workflow run. To deploy prod: run workflow from main, select **deploy_target = prod**.
 
 ## Comparison (as of last check)
 
@@ -39,12 +39,13 @@
 | Firestore (datastore.user) | appspot SA | appspot SA | ✓ Aligned |
 | Cloud Build (default compute SA) | build roles | build roles | ✓ Aligned |
 
-## Deploy prod (Hosting + build)
+## Branch strategy
 
-To ensure prod Hosting has the correct build env (`NEXT_PUBLIC_KPI_DATA_API_URL`, `NEXT_PUBLIC_GEMINI_COMMENTARY_URL`):
+| Branch | Deploy trigger | Target |
+|--------|----------------|--------|
+| `stage` | Push to stage | Staging (salesscore-c34f3) |
+| `main` | Manual only (workflow_dispatch) | Choose stage or prod |
 
-1. GitHub → Actions → Deploy to Firebase Hosting
-2. Run workflow
-3. Override DEPLOY_TARGET = `prod`
+**Daily work:** Push to `stage` branch → auto-deploys to staging.
 
-This builds with `PROJECT_ID=salesscore-prod` and deploys Hosting to prod.
+**Deploy prod:** When ready, run workflow from `main` branch → select **deploy_target = prod**.

@@ -5,7 +5,7 @@
 # Secrets: FIREBASE_SERVICE_ACCOUNT_JSON, GEMINI_API_KEY.
 
 name: Deploy Gemini API (GCP)
-# Trigger: push to main (gcp-gemini-api/** or this file) or Run workflow
+# Trigger: push to stage (gcp-gemini-api/** or this file) or Run workflow
 
 on:
   push:
