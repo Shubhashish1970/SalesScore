@@ -1,7 +1,7 @@
 # Deploy Gemini commentary API to GCP Cloud Functions (Gen2) on push to main.
 #
-# Uses same DEPLOY_TARGET variable as main deploy: staging → salesscore-c34f3, prod → salesscore-prod.
-# Triggered when this file or gcp-gemini-api/** changes. Uses DEPLOY_TARGET for prod/staging.
+# Uses same DEPLOY_TARGET variable as main deploy: stage → salesscore-c34f3, prod → salesscore-prod.
+# Triggered when this file or gcp-gemini-api/** changes. Uses DEPLOY_TARGET for prod/stage.
 # Secrets: FIREBASE_SERVICE_ACCOUNT_JSON, GEMINI_API_KEY.
 
 name: Deploy Gemini API (GCP)
@@ -25,7 +25,7 @@ jobs:
       - name: Resolve project from DEPLOY_TARGET
         id: project
         run: |
-          TARGET="${{ vars.DEPLOY_TARGET || 'staging' }}"
+          TARGET="${{ vars.DEPLOY_TARGET || 'stage' }}"
           if [ "$TARGET" = "prod" ]; then
             echo "project_id=salesscore-prod" >> $GITHUB_OUTPUT
           else

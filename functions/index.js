@@ -28,7 +28,10 @@ function getLeaderboardBaseUrl() {
   if (!UPSTREAM) return "";
   try {
     const u = new URL(UPSTREAM);
-    return `${u.origin}/leaderboard`;
+    // UPSTREAM is e.g. https://.../stage/scorecard or .../prod/scorecard
+    // Derive leaderboard: .../stage/leaderboard or .../prod/leaderboard
+    const path = u.pathname.replace(/\/scorecard\/?$/, "/leaderboard");
+    return `${u.origin}${path}`;
   } catch {
     return "";
   }

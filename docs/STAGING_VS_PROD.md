@@ -3,7 +3,7 @@
 ## Root cause of "We lost this page" on prod
 
 1. **Prod Hosting not redeployed** – Staging: last-modified Fri Feb 20. Prod: Thu Feb 19. Prod is serving an old build (before the relative URL fix).
-2. **Fix applied:** `NEXT_PUBLIC_KPI_DATA_API_URL=/api/scorecard` in workflow. Prod must be redeployed to get it.
+2. **Fix applied:** `NEXT_PUBLIC_KPI_DATA_API_URL=/api/scorecard` in workflow. KPI upstream URL is built from `KPI_DATA_API_URL` (base) + `/${api_env}/scorecard` (api_env = stage|prod from DEPLOY_TARGET). Prod must be redeployed to get it.
 
 ## GCloud/Firebase/Firestore audit (prod)
 
@@ -17,7 +17,7 @@
 | /api/access-config | 200 ✓ |
 | /api/scorecard | 200 ✓ |
 
-**Action required:** Run GitHub workflow manually → select **deploy_target = prod** from the dropdown (required; default is staging). For push-triggered runs, set repo variable `DEPLOY_TARGET=prod` in Settings → Variables.
+**Action required:** Run GitHub workflow manually → select **deploy_target = prod** from the dropdown (required; default is stage). For push-triggered runs, set repo variable `DEPLOY_TARGET=prod` in Settings → Variables.
 
 ## Comparison (as of last check)
 

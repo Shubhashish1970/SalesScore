@@ -10,12 +10,12 @@ The workflow uses a **repository variable** `DEPLOY_TARGET` to choose where to d
 
 | Variable value | Firebase project | Hosting URL |
 |----------------|------------------|-------------|
-| `staging` (default) | salesscore-c34f3 | https://salesscore-c34f3.web.app |
+| `stage` (default) | salesscore-c34f3 | https://salesscore-c34f3.web.app |
 | `prod` | salesscore-prod | https://salesscore-prod.web.app |
 
-**Setup:** GitHub → **Settings** → **Secrets and variables** → **Actions** → **Variables** → Add `DEPLOY_TARGET` with value `staging` (or `prod` when deploying to production).
+**Setup:** GitHub → **Settings** → **Secrets and variables** → **Actions** → **Variables** → Add `DEPLOY_TARGET` with value `stage` (or `prod` when deploying to production).
 
-**Flow:** Deploys normally go to staging. When ready for production, change `DEPLOY_TARGET` to `prod`, push or run workflow, then change back to `staging`.
+**Flow:** Deploys normally go to stage. When ready for production, change `DEPLOY_TARGET` to `prod`, push or run workflow, then change back to `stage`.
 
 **Service account:** One `FIREBASE_SERVICE_ACCOUNT_JSON` secret. The service account must have access to **both** Firebase projects (salesscore-c34f3 and salesscore-prod). Add it in GCP IAM for each project.
 
@@ -70,7 +70,7 @@ The workflow uses a **repository variable** `DEPLOY_TARGET` to choose where to d
 
 The workflow uses **`FIREBASE_SERVICE_ACCOUNT_JSON`** for authentication. The service account must be added to **both** projects (salesscore-c34f3 and salesscore-prod) in GCP IAM. You do not need `FIREBASE_TOKEN` (deprecated; tokens expire).
 
-**KPI Data API (optional):** Add secret **`KPI_DATA_API_URL`** with value `https://kw-sales-score-api-366769154420.asia-south1.run.app/api/scorecard`. The app uses a same-origin proxy (`/api/scorecard`) to avoid CORS; a Cloud Function forwards requests to the upstream API. If unset, `?mobile=` links fall back to sample data. **Note:** Cloud Functions require the Blaze (pay-as-you-go) plan.
+**KPI Data API (optional):** Add secret **`KPI_DATA_API_URL`** with the **base URL only** (no path), e.g. `https://kw-sales-score-api-366769154420.asia-south1.run.app`. The workflow appends `/${api_env}/scorecard` where `api_env` = `stage` or `prod` from `DEPLOY_TARGET`. The app uses a same-origin proxy (`/api/scorecard`) to avoid CORS; a Cloud Function forwards requests to the upstream API. If unset, `?mobile=` links fall back to sample data. **Note:** Cloud Functions require the Blaze (pay-as-you-go) plan.
 
 ### Step 5: Deploy
 
@@ -91,7 +91,7 @@ The workflow no longer uses `FIREBASE_TOKEN` (from `firebase login:ci`) because 
 - [ ] Hosting and Firestore enabled in **both** projects.
 - [ ] Service account key JSON created; added to **both** projects in GCP IAM.
 - [ ] GitHub secret `FIREBASE_SERVICE_ACCOUNT_JSON` set to full JSON contents.
-- [ ] GitHub variable `DEPLOY_TARGET` set to `staging` (or `prod` for production deploy).
+- [ ] GitHub variable `DEPLOY_TARGET` set to `stage` (or `prod` for production deploy).
 - [ ] GitHub secret `KPI_DATA_API_URL` set (optional; for live scorecard API).
 - [ ] GitHub secret `RESEND_API_KEY` set (required for admin link emails).
 - [ ] Push to `main` or manually run **Deploy to Firebase Hosting** workflow.

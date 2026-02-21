@@ -42,7 +42,7 @@ This grants the Cloud Build SA the roles needed for Gen2 function builds. Then r
    - Set **Override DEPLOY_TARGET** to `prod`
    - Run
 3. **Verify** – After success, check `https://salesscore-prod.web.app/api/admin/request-link` (should not 404).
-4. **Default stays staging** – `vars.DEPLOY_TARGET` can remain `staging`; use workflow input to deploy prod when needed.
+4. **Default stays stage** – `vars.DEPLOY_TARGET` can remain `stage`; use workflow input to deploy prod when needed.
 
 ## Fix: Firestore 500 errors (HO mappings, access config)
 

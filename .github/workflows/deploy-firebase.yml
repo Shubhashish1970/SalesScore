@@ -1,10 +1,11 @@
 # Deploy Sales Scorecard to Firebase Hosting and Functions on push to main.
 #
-# deploy_target: input (manual run) or vars.DEPLOY_TARGET (push), default staging.
-#   staging → salesscore-c34f3, prod → salesscore-prod
+# deploy_target: input (manual run) or vars.DEPLOY_TARGET (push), default stage.
+#   stage → salesscore-c34f3, prod → salesscore-prod
 # Required: FIREBASE_SERVICE_ACCOUNT_JSON = full contents of your Firebase/GCP service account
 #   key JSON. Service account must have access to BOTH projects.
-# KPI_DATA_API_URL: upstream KPI API. Same for both environments.
+# KPI_DATA_API_URL: base URL only (no path), e.g. https://kw-sales-score-api-366769154420.asia-south1.run.app
+#   Workflow appends /${api_env}/scorecard (api_env = stage|prod from DEPLOY_TARGET).
 # RESEND_API_KEY: Resend API key for admin link emails. Required for /admin/request.
 
 name: Deploy to Firebase Hosting
@@ -18,9 +19,9 @@ on:
         description: "Deploy target"
         required: true
         type: choice
-        default: staging
+        default: stage
         options:
-          - staging
+          - stage
           - prod
 
 jobs:
@@ -33,7 +34,8 @@ jobs:
       - name: Resolve project from deploy_target
         id: project
         run: |
-          TARGET="${{ github.event.inputs.deploy_target || vars.DEPLOY_TARGET || 'staging' }}"
+          TARGET="${{ github.event.inputs.deploy_target || vars.DEPLOY_TARGET || 'stage' }}"
+          echo "api_env=$TARGET" >> $GITHUB_OUTPUT
           if [ "$TARGET" = "prod" ]; then
             echo "project_id=salesscore-prod" >> $GITHUB_OUTPUT
             echo "Deploying to PRODUCTION (salesscore-prod)"
@@ -73,8 +75,10 @@ jobs:
       - name: Deploy KPI proxy (Cloud Function via gcloud)
         env:
           PROJECT_ID: ${{ steps.project.outputs.project_id }}
-          KPI_UPSTREAM: ${{ secrets.KPI_DATA_API_URL }}
+          KPI_BASE: ${{ secrets.KPI_DATA_API_URL }}
+          API_ENV: ${{ steps.project.outputs.api_env }}
         run: |
+          KPI_UPSTREAM="${KPI_BASE}/${API_ENV}/scorecard"
           gcloud functions deploy kpiProxy \
             --gen2 \
             --runtime=nodejs22 \
@@ -91,8 +95,10 @@ jobs:
       - name: Deploy Leaderboard proxy (Cloud Function via gcloud)
         env:
           PROJECT_ID: ${{ steps.project.outputs.project_id }}
-          KPI_UPSTREAM: ${{ secrets.KPI_DATA_API_URL }}
+          KPI_BASE: ${{ secrets.KPI_DATA_API_URL }}
+          API_ENV: ${{ steps.project.outputs.api_env }}
         run: |
+          KPI_UPSTREAM="${KPI_BASE}/${API_ENV}/scorecard"
           gcloud functions deploy leaderboardProxy \
             --gen2 \
             --runtime=nodejs22 \
