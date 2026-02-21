@@ -77,7 +77,7 @@ You MUST return ONLY valid JSON in this exact structure. No extra keys. No comme
 Rules:
 - All strings must be concise and UI-safe.
 - Do not invent numbers; refer only to concepts and bands provided in the input.
-- Tone: clear, practical, encouraging. For achievementMessage especially: warm and motivating; vary wording — never repeat the same phrase for every scorecard.
+- Tone: clear, practical, encouraging. For achievementMessage especially: warm and motivating; vary wording on every request — never repeat the same phrase.
 - recommendedActions: minimum ${min}, maximum ${max} items.
 `.trim();
 }
@@ -94,8 +94,8 @@ Your job is ONLY to generate short, human-readable commentary and 3–5 recommen
 - finalScore out of maxScore (e.g. ${maxScore}).
 - Bands: Red (score < ${scoreBandThresholds.redEnd}), Amber (${scoreBandThresholds.redEnd} to ${scoreBandThresholds.amberEnd}), Green (above ${scoreBandThresholds.amberEnd}).
 - CRITICAL: When finalScore is 0, it is ALWAYS because growth is negative (growthFactor=0). Growth is the qualifying criterion — without it, the score is blocked. Do NOT mention overdue, DSO, or product mix in the achievement message when score is 0. The message MUST point to growth as the #1 priority — achieving positive growth is the only way to unlock the score.
-- achievementMessage: One short sentence under the gauge. MUST use the user's name to personalize (e.g. "Pushpanathan, strong run — your numbers are in the top band."). Vary wording; do NOT repeat the same phrase.
-  - Score 0 (growth blocked): MUST focus on growth. E.g. "[Name], achieving positive growth is the key to unlocking your score — focus on that first.", "Your score is blocked until growth turns positive, [Name]. That's the priority."
+- achievementMessage: One short sentence under the gauge. MUST use the user's name to personalize. CRITICAL: Vary wording on every request — never return the same phrase twice. Use different structures and synonyms.
+  - Score 0 (growth blocked): MUST focus on growth. Vary the phrasing — e.g. "[Name], positive growth will unlock your score — focus there first."; "Your score is blocked until growth turns positive, [Name]."; "[Name], turning growth positive is the first step — everything else follows."; "Growth is the gatekeeper, [Name]. Get that positive first."
   - Green: Celebrate and encourage. E.g. "[Name], strong run — your numbers are in the top band.", "Well done, [Name] — Green zone. Keep building on this momentum."
   - Amber: Encourage with direction: e.g. "You're close to Green — one or two levers can get you there.", "Amber zone. Small improvements in the areas below will push you into Green."
   - Red (score > 0): Encourage without demotivating; point to specific levers: e.g. "Focus on DSO and overdue to unlock more score.", "Red zone — the next screens show exactly where to improve."
@@ -154,10 +154,10 @@ const ROLE_INSTRUCTIONS = {
 const ACHIEVEMENT_SCHEMA = `
 Return ONLY valid JSON: { "achievementMessage": "string" }
 - One short sentence under the gauge.
-- MUST use the user's name to personalize (e.g. "Pushpanathan, strong run — your numbers are in the top band." or "Well done, Pushpanathan — you're in the Green zone.").
-- Vary wording; do NOT repeat the same phrase every time.
-- CRITICAL: When score is 0, it is ALWAYS because growth is negative (growthFactor=0). The achievement message MUST focus on growth as the #1 priority — achieving positive growth is the only way to unlock the score. Do NOT mention overdue, DSO, or other levers.
-- By band: Score 0 — growth is the priority; Green — celebrate; Amber — encourage to reach Green; Red (score > 0) — encourage, point to DSO/overdue.
+- MUST use the user's name to personalize.
+- CRITICAL: Vary wording on every request — never return the same phrase twice. Use different sentence structures, synonyms, and word order. Rotate through varied phrasings.
+- CRITICAL: When score is 0, it is ALWAYS because growth is negative (growthFactor=0). The achievement message MUST focus on growth as the #1 priority. Do NOT mention overdue, DSO, or other levers. Vary the growth message — e.g. "positive growth will unlock your score", "growth turns positive first", "turning growth positive is the first step", "growth is the gatekeeper — get that positive", "focus on growth to unlock the rest".
+- By band: Score 0 — growth is the priority (vary wording); Green — celebrate; Amber — encourage to reach Green; Red (score > 0) — encourage, point to DSO/overdue.
 `.trim();
 
 function getAchievementSystemPrompt() {
@@ -170,11 +170,13 @@ function getAchievementUserPrompt(payload, config) {
   const amberEnd = config?.scoreBandThresholds?.amberEnd ?? 90;
   const max = config?.maxScore ?? maxScore ?? 120;
   const growthBlocked = finalScore === 0 && (growthFactor === 0 || growthFactor === undefined);
+  const variationHint = `Variation: ${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
   return [
     `User: ${name || "there"}. Role: ${role || "TM"}. Score: ${finalScore}/${max}. Bands: Red <${redEnd}, Amber ${redEnd}–${amberEnd}, Green >${amberEnd}.`,
     growthBlocked ? `Growth: growthFactor=${growthFactor}, growthPercent=${growthPercent}%. Score is 0 because growth is not achieved — growth is the #1 priority.` : "",
+    variationHint,
     "",
-    "Generate achievementMessage. Return ONLY JSON: { \"achievementMessage\": \"...\" }",
+    "Generate achievementMessage with fresh wording. Return ONLY JSON: { \"achievementMessage\": \"...\" }",
   ].filter(Boolean).join("\n");
 }
 

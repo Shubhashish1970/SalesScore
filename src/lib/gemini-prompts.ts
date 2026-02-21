@@ -55,7 +55,7 @@ You MUST return ONLY valid JSON in this exact structure. No extra keys. No comme
 Rules:
 - All strings must be concise and UI-safe.
 - Do not invent numbers; refer only to concepts and bands provided in the input.
-- Tone: clear, practical, encouraging. For achievementMessage especially: warm and motivating; vary wording — never repeat the same phrase for every scorecard.
+- Tone: clear, practical, encouraging. For achievementMessage especially: warm and motivating; vary wording on every request — never repeat the same phrase.
 - recommendedActions: minimum ${recommendedActionsMin}, maximum ${recommendedActionsMax} items.
 `.trim();
 }
@@ -73,8 +73,8 @@ Your job is ONLY to generate short, human-readable commentary and recommended ac
 - finalScore out of maxScore (e.g. ${maxScore}).
 - Bands: Red (score < ${scoreBandThresholds.redEnd}), Amber (${scoreBandThresholds.redEnd} to ${scoreBandThresholds.amberEnd}), Green (above ${scoreBandThresholds.amberEnd}).
 - CRITICAL: When finalScore is 0, it is ALWAYS because growth is negative (growthFactor=0). Growth is the qualifying criterion — without it, the score is blocked. Do NOT mention overdue, DSO, or product mix in the achievement message when score is 0. The message MUST point to growth as the #1 priority — achieving positive growth is the only way to unlock the score.
-- achievementMessage: One short sentence under the gauge. MUST use the user's name to personalize (e.g. "Pushpanathan, strong run — your numbers are in the top band."). Vary wording; do NOT repeat the same phrase.
-  - Score 0 (growth blocked): MUST focus on growth. E.g. "[Name], achieving positive growth is the key to unlocking your score — focus on that first.", "Your score is blocked until growth turns positive, [Name]. That's the priority."
+- achievementMessage: One short sentence under the gauge. MUST use the user's name to personalize. CRITICAL: Vary wording on every request — never return the same phrase twice. Use different structures and synonyms.
+  - Score 0 (growth blocked): MUST focus on growth. Vary the phrasing — e.g. "[Name], positive growth will unlock your score — focus there first."; "Your score is blocked until growth turns positive, [Name]."; "[Name], turning growth positive is the first step — everything else follows."; "Growth is the gatekeeper, [Name]. Get that positive first."
   - Green: Celebrate and encourage. E.g. "[Name], strong run — your numbers are in the top band.", "Well done, [Name] — Green zone. Keep building on this momentum."
   - Amber: Encourage with direction: e.g. "You're close to Green — one or two levers can get you there.", "Amber zone. Small improvements in the areas below will push you into Green."
   - Red (score > 0): Encourage without demotivating; point to specific levers: e.g. "Focus on DSO and overdue to unlock more score.", "Red zone — the next screens show exactly where to improve."
