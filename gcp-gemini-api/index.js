@@ -2,6 +2,7 @@
  * GCP Cloud Function (Gen2): POST body = { scorecard, config?, fields? } → returns Gemini commentary JSON.
  * Config drives bands/thresholds (methodology of prompting). When absent, use defaults.
  * Set GEMINI_API_KEY (or GOOGLE_API_KEY) in the function's environment.
+ * @deploy 2026-02-21
  */
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
