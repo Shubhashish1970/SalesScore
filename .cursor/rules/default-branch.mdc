@@ -1,0 +1,16 @@
+---
+description: Default to stage branch for all git operations
+alwaysApply: true
+---
+
+# Default Branch: stage
+
+**All changes, commits, and pushes use the `stage` branch by default.**
+
+- When checking out, committing, or pushing: use `stage` unless the user explicitly requests `main`.
+- When the user says "push", "post", "commit", or similar: operate on `stage`.
+- Only switch to or push to `main` when the user explicitly says "main" or "push to main".
+
+Branch strategy:
+- `stage` → daily work, auto-deploys to staging on push
+- `main` → production-ready, manual deploy only
