@@ -93,10 +93,12 @@ Your job is ONLY to generate short, human-readable commentary and 3–5 recommen
 ## Overall score
 - finalScore out of maxScore (e.g. ${maxScore}).
 - Bands: Red (score < ${scoreBandThresholds.redEnd}), Amber (${scoreBandThresholds.redEnd} to ${scoreBandThresholds.amberEnd}), Green (above ${scoreBandThresholds.amberEnd}).
+- CRITICAL: When finalScore is 0, it is ALWAYS because growth is negative (growthFactor=0). Growth is the qualifying criterion — without it, the score is blocked. Do NOT mention overdue, DSO, or product mix in the achievement message when score is 0. The message MUST point to growth as the #1 priority — achieving positive growth is the only way to unlock the score.
 - achievementMessage: One short sentence under the gauge. MUST use the user's name to personalize (e.g. "Pushpanathan, strong run — your numbers are in the top band."). Vary wording; do NOT repeat the same phrase.
+  - Score 0 (growth blocked): MUST focus on growth. E.g. "[Name], achieving positive growth is the key to unlocking your score — focus on that first.", "Your score is blocked until growth turns positive, [Name]. That's the priority."
   - Green: Celebrate and encourage. E.g. "[Name], strong run — your numbers are in the top band.", "Well done, [Name] — Green zone. Keep building on this momentum."
   - Amber: Encourage with direction: e.g. "You're close to Green — one or two levers can get you there.", "Amber zone. Small improvements in the areas below will push you into Green."
-  - Red: Encourage without demotivating; point to specific levers: e.g. "Focus on DSO and overdue to unlock more score.", "Red zone — the next screens show exactly where to improve."
+  - Red (score > 0): Encourage without demotivating; point to specific levers: e.g. "Focus on DSO and overdue to unlock more score.", "Red zone — the next screens show exactly where to improve."
 - Tone: warm, motivating, and specific to the band. Make the person feel recognised and clear on what to do next.
 
 ## Growth (Screen 2)
@@ -154,7 +156,8 @@ Return ONLY valid JSON: { "achievementMessage": "string" }
 - One short sentence under the gauge.
 - MUST use the user's name to personalize (e.g. "Pushpanathan, strong run — your numbers are in the top band." or "Well done, Pushpanathan — you're in the Green zone.").
 - Vary wording; do NOT repeat the same phrase every time.
-- By band: Green — celebrate; Amber — encourage to reach Green; Red — encourage, point to DSO/overdue.
+- CRITICAL: When score is 0, it is ALWAYS because growth is negative (growthFactor=0). The achievement message MUST focus on growth as the #1 priority — achieving positive growth is the only way to unlock the score. Do NOT mention overdue, DSO, or other levers.
+- By band: Score 0 — growth is the priority; Green — celebrate; Amber — encourage to reach Green; Red (score > 0) — encourage, point to DSO/overdue.
 `.trim();
 
 function getAchievementSystemPrompt() {
@@ -162,15 +165,17 @@ function getAchievementSystemPrompt() {
 }
 
 function getAchievementUserPrompt(payload, config) {
-  const { name, finalScore, maxScore, role } = payload;
+  const { name, finalScore, maxScore, role, growthFactor, growthPercent } = payload;
   const redEnd = config?.scoreBandThresholds?.redEnd ?? 80;
   const amberEnd = config?.scoreBandThresholds?.amberEnd ?? 90;
   const max = config?.maxScore ?? maxScore ?? 120;
+  const growthBlocked = finalScore === 0 && (growthFactor === 0 || growthFactor === undefined);
   return [
     `User: ${name || "there"}. Role: ${role || "TM"}. Score: ${finalScore}/${max}. Bands: Red <${redEnd}, Amber ${redEnd}–${amberEnd}, Green >${amberEnd}.`,
+    growthBlocked ? `Growth: growthFactor=${growthFactor}, growthPercent=${growthPercent}%. Score is 0 because growth is not achieved — growth is the #1 priority.` : "",
     "",
     "Generate achievementMessage. Return ONLY JSON: { \"achievementMessage\": \"...\" }",
-  ].join("\n");
+  ].filter(Boolean).join("\n");
 }
 
 function getSystemPrompt(config) {
@@ -212,11 +217,14 @@ async function generateAchievementOnly(scorecard, apiKey, config) {
   if (!apiKey || !apiKey.trim()) {
     throw new Error("Gemini API key is missing. Set GEMINI_API_KEY or GOOGLE_API_KEY.");
   }
+  const growth = scorecard.growth || {};
   const payload = {
     name: scorecard.name || "there",
     finalScore: scorecard.finalScore ?? 0,
     maxScore: scorecard.maxScore ?? 120,
     role: scorecard.role || "TM",
+    growthFactor: growth.growthFactor ?? 1,
+    growthPercent: growth.growthPercent ?? 0,
   };
   const systemPrompt = getAchievementSystemPrompt();
   const userPrompt = getAchievementUserPrompt(payload, config);
